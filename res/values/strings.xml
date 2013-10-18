@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">メリーズメモリーズ</string>
+    <string name="action_settings">Choose Save Path</string>
+    <string name="hello_world">Hello world!</string>
+    
+    <string name="afctitle">Auto Focus and Capture</string>
+    <string name="afc1">Manual AF and Capture (Default)</string>
+    <string name="afc2">Single Tap AF and Capture</string>
+    <string name="afc3">Double Tap AF and Capture</string>
+    
+    <string name="flashtitle">FlashMode</string>
+    <string name="flash1">Flash Mode Auto (Default)</string>
+    <string name="flash2">Flash Mode On</string>
+    <string name="flash3">Flash Mode Off</string>
+    
+	<string name="melodytitle">Melody After Capture</string>
+    <string name="melody1">Melody On</string>
+    <string name="melody2">Melody Off</string>
+    
+</resources>
