@@ -6,20 +6,30 @@ import com.cam.dualcam.widget.GifMovieView;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.view.View;
 import android.widget.Button;
 
 public class GifActivity extends Activity {
-	
+	private int orientationOfPhone;
 	private boolean showSpalshScreen = true;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//setContentView(R.layout.gif_activity_layout);
 		setContentView(R.layout.dummygif);
-		
 		final GifMovieView gif1 = (GifMovieView) findViewById(R.id.gif1);
-		gif1.setMovieResource(R.drawable.landscape_train);
+		
+		orientationOfPhone = this.getResources().getConfiguration().orientation;
+		
+		if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
+			gif1.setMovieResource(R.drawable.portrait_baby);
+		} else if (orientationOfPhone == Configuration.ORIENTATION_LANDSCAPE) {
+			gif1.setMovieResource(R.drawable.landscape_train);
+		} 
+
+		
+		
 		
 		//get extras 
 		Bundle extras = getIntent().getExtras();

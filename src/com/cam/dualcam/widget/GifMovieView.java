@@ -1,6 +1,7 @@
 package com.cam.dualcam.widget;
 
 import com.cam.dualcam.R;
+import com.cam.dualcam.utility.PhoneChecker;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -54,21 +55,29 @@ public class GifMovieView extends View {
 	private volatile boolean mPaused = false;
 	private boolean mVisible = true;
 	
-	private int maxWidth;
-	private int maxHeight;
+	private Integer maxWidth;
+	private Integer maxHeight;
 
 	public GifMovieView(Context context) {
 		this(context, null);
+		//setMaxSize(context);
 	}
 
 	public GifMovieView(Context context, AttributeSet attrs) {
 		this(context, attrs, R.styleable.CustomTheme_gifMoviewViewStyle);
+		//setMaxSize(context);
 	}
 
 	public GifMovieView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
 		setViewAttributes(context, attrs, defStyle);
+		//setMaxSize(context);
+	}
+	
+	public void setMaxSize(Context context){
+		maxWidth = new PhoneChecker(context).screenWidth;
+		maxHeight = new PhoneChecker(context).screenHeight;
 	}
 
 	@SuppressLint("NewApi")
