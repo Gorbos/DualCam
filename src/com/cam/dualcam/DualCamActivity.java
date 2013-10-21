@@ -92,18 +92,18 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 	// Defined variables
 	// Jap Messages
-	private String errorMessage = "申し訳ありませんが、何かがカメラで間違っていた。";
-	private String retakeMessage = "写真を撮りなおしますか？";
-	private String restartMessage = "再起動?";
-	private String addALabelText = "ラベルを追加?";
-	private String typeTextHereText = "ここにテキストを入力..";
-	private String fontSizeText = "フォントサイズ";
-	private String fontColorText = "フォントの色";
+	private String errorMessage = "ç”³ã�—è¨³ã�‚ã‚Šã�¾ã�›ã‚“ã�Œã€�ä½•ã�‹ã�Œã‚«ãƒ¡ãƒ©ã�§é–“é�•ã�£ã�¦ã�„ã�Ÿã€‚";
+	private String retakeMessage = "å†™çœŸã‚’æ’®ã‚Šã�ªã�Šã�—ã�¾ã�™ã�‹ï¼Ÿ";
+	private String restartMessage = "å†�èµ·å‹•?";
+	private String addALabelText = "ãƒ©ãƒ™ãƒ«ã‚’è¿½åŠ ?";
+	private String typeTextHereText = "ã�“ã�“ã�«ãƒ†ã‚­ã‚¹ãƒˆã‚’å…¥åŠ›..";
+	private String fontSizeText = "ãƒ•ã‚©ãƒ³ãƒˆã‚µã‚¤ã‚º";
+	private String fontColorText = "ãƒ•ã‚©ãƒ³ãƒˆã�®è‰²";
 
-	private String ok = "オーケー";
-	private String cancel = "キャンセル";
-	private String yes = "はい ";
-	private String no = "いいえ";
+	private String ok = "ã‚ªãƒ¼ã‚±ãƒ¼";
+	private String cancel = "ã‚­ãƒ£ãƒ³ã‚»ãƒ«";
+	private String yes = "ã�¯ã�„ ";
+	private String no = "ã�„ã�„ã�ˆ";
 
 	public static String TAG = "DualCamActivity";
 	private String fileName = null;
@@ -373,7 +373,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					Log.i(TAG, "ERROR = " + e.getCause());
 				}
 				// else
-				// Toast.makeText(getApplicationContext(),"ç”»åƒ�ã‚’ä¿�å­˜ã�—ã�¦ã��ã� ã�•ã�„",Field.SHOWTIME).show();
+				// Toast.makeText(getApplicationContext(),"Ã§â€�Â»Ã¥Æ’ï¿½Ã£â€šâ€™Ã¤Â¿ï¿½Ã¥Â­ËœÃ£ï¿½â€”Ã£ï¿½Â¦Ã£ï¿½ï¿½Ã£ï¿½Â Ã£ï¿½â€¢Ã£ï¿½â€ž",Field.SHOWTIME).show();
 
 			}
 
@@ -480,7 +480,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			//
 			// }
 			// //else
-			// //Toast.makeText(getApplicationContext(),"ç”»åƒ�ã‚’ä¿�å­˜ã�—ã�¦ã��ã� ã�•ã�„",Field.SHOWTIME).show();
+			// //Toast.makeText(getApplicationContext(),"Ã§â€�Â»Ã¥Æ’ï¿½Ã£â€šâ€™Ã¤Â¿ï¿½Ã¥Â­ËœÃ£ï¿½â€”Ã£ï¿½Â¦Ã£ï¿½ï¿½Ã£ï¿½Â Ã£ï¿½â€¢Ã£ï¿½â€ž",Field.SHOWTIME).show();
 			//
 			// }
 		} catch (Exception e) {
@@ -2092,18 +2092,26 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				
 				@Override
 				public void onFinish() {
-					finish();
+					/*finish();
 					Intent i = getBaseContext().getPackageManager()
 							.getLaunchIntentForPackage(getBaseContext().getPackageName());
 					i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					i.putExtra("showSplashScreen", false);
+					startActivity(i);*/
+					
+					finish();
+					Intent i = new Intent(DualCamActivity.this, GifActivity.class); 
+					i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					i.putExtra("showSplashScreen", false);
 					startActivity(i);
+					
 				}
 			};
 			
 			splashTime.start();
 			
 		}
+		
 		else{
 		
 			setContentView(R.layout.dualcam);
@@ -2348,7 +2356,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			out.flush();
 			out.close();
 			// Log.d(TAG,"Saved to "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
-			Toast.makeText(getApplicationContext(), "写真の保存が完了しました。",
+			Toast.makeText(getApplicationContext(), "å†™çœŸã�®ä¿�å­˜ã�Œå®Œäº†ã�—ã�¾ã�—ã�Ÿã€‚",
 					Field.SHOWTIME).show();
 			isSharable = true;
 			// shareButton.setImageResource(R.drawable.share1);
