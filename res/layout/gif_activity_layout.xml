@@ -12,6 +12,8 @@
         android:gravity="center_horizontal"
         android:orientation="vertical"
         tools:context=".GifActivity" >
+        
+        
 
         <com.cam.dualcam.widget.GifMovieView
             android:id="@+id/gif1"

@@ -1,0 +1,24 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res/com.cam.dualcam.widget"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFFFF"
+    tools:context=".GifActivity" >
+
+   		
+        
+
+        <com.cam.dualcam.widget.GifMovieView
+            android:id="@+id/gif1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             />
+
+        <Button
+            android:id="@+id/btnEnterCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter Camera" />
+
+</FrameLayout>

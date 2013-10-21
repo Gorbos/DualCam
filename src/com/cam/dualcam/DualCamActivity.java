@@ -92,18 +92,18 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 	// Defined variables
 	// Jap Messages
-	private String errorMessage = "ç”³ã�—è¨³ã�‚ã‚Šã�¾ã�›ã‚“ã�Œã€�ä½•ã�‹ã�Œã‚«ãƒ¡ãƒ©ã�§é–“é�•ã�£ã�¦ã�„ã�Ÿã€‚";
-	private String retakeMessage = "å†™çœŸã‚’æ’®ã‚Šã�ªã�Šã�—ã�¾ã�™ã�‹ï¼Ÿ";
-	private String restartMessage = "å†�èµ·å‹•?";
-	private String addALabelText = "ãƒ©ãƒ™ãƒ«ã‚’è¿½åŠ ?";
-	private String typeTextHereText = "ã�“ã�“ã�«ãƒ†ã‚­ã‚¹ãƒˆã‚’å…¥åŠ›..";
-	private String fontSizeText = "ãƒ•ã‚©ãƒ³ãƒˆã‚µã‚¤ã‚º";
-	private String fontColorText = "ãƒ•ã‚©ãƒ³ãƒˆã�®è‰²";
+	private String errorMessage = "申し訳ありませんが、何かがカメラで間違っていた。";
+	private String retakeMessage = "写真を撮りなおしますか？";
+	private String restartMessage = "再起動?";
+	private String addALabelText = "ラベルを追加?";
+	private String typeTextHereText = "ここにテキストを入力..";
+	private String fontSizeText = "フォントサイズ";
+	private String fontColorText = "フォントの色";
 
-	private String ok = "ã‚ªãƒ¼ã‚±ãƒ¼";
-	private String cancel = "ã‚­ãƒ£ãƒ³ã‚»ãƒ«";
-	private String yes = "ã�¯ã�„ ";
-	private String no = "ã�„ã�„ã�ˆ";
+	private String ok = "オーケー";
+	private String cancel = "キャンセル";
+	private String yes = "はい ";
+	private String no = "いいえ";
 
 	public static String TAG = "DualCamActivity";
 	private String fileName = null;
@@ -373,9 +373,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					Log.i(TAG, "isSharable = " + isSharable);
 					Log.i(TAG, "ERROR = " + e.getCause());
 				}
-				// else
-				// Toast.makeText(getApplicationContext(),"Ã§â€�Â»Ã¥Æ’ï¿½Ã£â€šâ€™Ã¤Â¿ï¿½Ã¥Â­ËœÃ£ï¿½â€”Ã£ï¿½Â¦Ã£ï¿½ï¿½Ã£ï¿½Â Ã£ï¿½â€¢Ã£ï¿½â€ž",Field.SHOWTIME).show();
-
 			}
 
 			
@@ -470,20 +467,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				noButton.setVisibility(View.GONE);
 			}
 			
-			// else if(view.getId() == R.id.utilityButtonLayout){
-			// try{
-			// // hideAct.ninjaMoves();
-			// // if(utilityLayout.isShown())
-			// // utilityLayout.setVisibility(LinearLayout.GONE);
-			// // else
-			// // utilityLayout.setVisibility(LinearLayout.VISIBLE);
-			// }catch(Exception e){
-			//
-			// }
-			// //else
-			// //Toast.makeText(getApplicationContext(),"Ã§â€�Â»Ã¥Æ’ï¿½Ã£â€šâ€™Ã¤Â¿ï¿½Ã¥Â­ËœÃ£ï¿½â€”Ã£ï¿½Â¦Ã£ï¿½ï¿½Ã£ï¿½Â Ã£ï¿½â€¢Ã£ï¿½â€ž",Field.SHOWTIME).show();
-			//
-			// }
 		} catch (Exception e) {
 			Log.i(TAG, "Error in here View = " + view.getId()
 					+ ": Cause? I don't effing know -> " + e.getMessage());
@@ -527,10 +510,11 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	protected void onDestroy() {
 		super.onDestroy();
 		Log.i(TAG, "Destroying onDestroy : isConfigChanging = "+ isConfigChanging);
-		releaseCamera();
+		//releaseCamera();
+		unleashTheKraken();
 		if(!isConfigChanging){
 			 // isConfigChanging = false;
-			Log.i(TAG, "Destroying onPause : releasing onDestroy");
+			Log.i(TAG, "Destroying onDestroy : releasing onDestroy");
 			 relenquishTheSoul();
 		}
 
@@ -579,7 +563,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	protected void onPause() {
 		super.onPause();
 		Log.i(TAG, "Destroying onPause : isConfigChanging = " + isConfigChanging);
-		releaseCamera();
+		//releaseCamera();
+		unleashTheKraken();
 		if(!isConfigChanging){
 			 // isConfigChanging = false;
 			Log.i(TAG, "Destroying onPause : releasing onPause");
@@ -2303,6 +2288,19 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	}
 	
 	
+	
+	public void unleashTheKraken(){
+		releaseCamera();
+		releaseSound();
+	}
+	
+	public void releaseSound(){
+		if(mMediaPlayer != null){
+			mMediaPlayer.stop();
+			mMediaPlayer.release();
+			mMediaPlayer = null;
+		}
+	}
 
 	public void releaseCamera() {
 		if (mCamera != null) {
@@ -2313,10 +2311,12 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 	public void relenquishTheSoul() {
 		releaseCamera(); // release the camera immediately on pause event
-
+		
 		options = null;
 		if (tempPic != null)
 			tempPic.recycle();
+		
+		
 		finish();
 		System.exit(0);
 	}
@@ -2358,7 +2358,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			out.flush();
 			out.close();
 			// Log.d(TAG,"Saved to "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
-			Toast.makeText(getApplicationContext(), "å†™çœŸã�®ä¿�å­˜ã�Œå®Œäº†ã�—ã�¾ã�—ã�Ÿã€‚",
+			Toast.makeText(getApplicationContext(), "写真の保存が完了しました。",
 					Field.SHOWTIME).show();
 			isSharable = true;
 			// shareButton.setImageResource(R.drawable.share1);

@@ -53,6 +53,9 @@ public class GifMovieView extends View {
 
 	private volatile boolean mPaused = false;
 	private boolean mVisible = true;
+	
+	private int maxWidth;
+	private int maxHeight;
 
 	public GifMovieView(Context context) {
 		this(context, null);
@@ -145,9 +148,12 @@ public class GifMovieView extends View {
 
 			if (measureModeWidth != MeasureSpec.UNSPECIFIED) {
 				int maximumWidth = MeasureSpec.getSize(widthMeasureSpec);
-				if (movieWidth > maximumWidth) {
+				if (movieWidth != maximumWidth) {
 					scaleH = (float) movieWidth / (float) maximumWidth;
 				}
+//				else if(movieWidth < maximumWidth) {
+//					scaleH = (float) maximumWidth/ (float) movieWidth ;
+//				}
 			}
 
 			/*
@@ -158,9 +164,12 @@ public class GifMovieView extends View {
 
 			if (measureModeHeight != MeasureSpec.UNSPECIFIED) {
 				int maximumHeight = MeasureSpec.getSize(heightMeasureSpec);
-				if (movieHeight > maximumHeight) {
+				if (movieHeight != maximumHeight) {
 					scaleW = (float) movieHeight / (float) maximumHeight;
 				}
+//				else if(movieHeight < maximumHeight) {
+//					scaleW = (float) maximumHeight / (float) movieHeight ;
+//				}
 			}
 
 			/*

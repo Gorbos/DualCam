@@ -15,7 +15,8 @@ public class GifActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.gif_activity_layout);
+		//setContentView(R.layout.gif_activity_layout);
+		setContentView(R.layout.dummygif);
 		
 		final GifMovieView gif1 = (GifMovieView) findViewById(R.id.gif1);
 		gif1.setMovieResource(R.drawable.landscape_train);
@@ -27,6 +28,7 @@ public class GifActivity extends Activity {
 		Button buttonOne = (Button) findViewById(R.id.btnEnterCamera);
 		buttonOne.setOnClickListener(new Button.OnClickListener() {
 		    public void onClick(View v) {
+		    	finish();
 		    	Intent i = new Intent(GifActivity.this, DualCamActivity.class); 
 		    	i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("showSplashScreen", false);
