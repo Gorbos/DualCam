@@ -111,7 +111,5 @@ public class Field {
 	public static final String PREFS_SET_AUTOFOCUS		= "AutoFocus";
 	public static final String PREFS_SET_FLASH			= "Flash";
 	public static final String PREFS_SET_MELODY			= "Melody";
-	
-	public static final String PREFS_DUALCAM2			= "DualCamSettings";
 }
 
