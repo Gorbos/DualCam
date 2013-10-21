@@ -1108,14 +1108,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		
 		//Set the melody value for Flash
 		switch(melodyStatus){
-		case Field.MODE_Flash_ON:
+		case Field.MODE_Melody_ON:
 			
 			melody1Box.setChecked(true);
 			melody2Box.setChecked(false);
 		
 		break;
 		
-		case Field.MODE_Flash_OFF:
+		case Field.MODE_Melody_OFF:
 			
 			melody1Box.setChecked(false);
 			melody2Box.setChecked(true);
