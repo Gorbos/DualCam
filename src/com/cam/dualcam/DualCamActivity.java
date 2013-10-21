@@ -241,6 +241,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	
 	//Sound items
 	public MediaPlayer mMediaPlayer;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -1766,12 +1767,12 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				int extraHeight = 0;
 				int marginalWidth = 0;
 				int marginalHeight = 0;
-
+				//added by gelo
+				mMediaPlayer.start();
 				// if(tempPic != null){
 				// tempPic.recycle();
 				// tempPic = null;
 				// }
-
 				Log.i(TAG, "Pic taken");
 				if (cameraSide == "BACK") {
 					Log.i(TAG, "Side = " + cameraSide);
@@ -2055,8 +2056,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	
 	private final ShutterCallback shutterKACHANG = new ShutterCallback() {
         public void onShutter() {
-//            AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-//            mgr.playSoundEffect(AudioManager.FLAG_PLAY_SOUND);
+            AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            mgr.playSoundEffect(AudioManager.FLAG_PLAY_SOUND);
         }
     };
 
@@ -2144,7 +2145,11 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 			backPreview.setOnTouchListener(new setTouchMode());
 			frontPreview.setOnTouchListener(new setTouchMode());
-
+			
+			//added by gelo
+			mMediaPlayer = MediaPlayer.create(this, R.raw.loopingmelody);
+			mMediaPlayer.setLooping(true);
+			mMediaPlayer.start();
 			try {
 				orientationOfPhone = this.getResources().getConfiguration().orientation;
 				screenHeight = new PhoneChecker(this).screenHeight;
@@ -2231,9 +2236,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				setButton(saveButton);
 				setButton(textButton);
 				setButton(retryButton);
-				
-				mMediaPlayer = new MediaPlayer();
-				mMediaPlayer = MediaPlayer.create(this, R.raw.melody);
 				
 				popUpDialog = customPopUpMenu();
 				//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
@@ -3546,7 +3548,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		
 		if (mCamera != null && cameraAction != Field.CameraCannotCapture) {
 			try {
-
+				//added by gelo
+	    		mMediaPlayer.pause();
 				mCamera.setErrorCallback(ec);
 				mCamera.takePicture(shutterKACHANG, null, getPic);
 
@@ -3585,8 +3588,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				}
 				
 				public void onFinish() {
-					mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-					mMediaPlayer.start();
 				}
 			}.start();
 		}
