@@ -112,10 +112,6 @@ public class Field {
 	public static final String PREFS_SET_FLASH			= "Flash";
 	public static final String PREFS_SET_MELODY			= "Melody";
 	
-  	//Folder name
-//  	public static final String APPNA
-	
-	//gelo
-	//RJ POGI
+	public static final String PREFS_DUALCAM2			= "DualCamSettings";
 }
 
