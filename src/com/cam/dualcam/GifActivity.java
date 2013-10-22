@@ -7,12 +7,14 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
 
 public class GifActivity extends Activity {
 	private int orientationOfPhone;
 	private boolean showSpalshScreen = true;
+	private String enterCamera = "カメラ";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -23,7 +25,8 @@ public class GifActivity extends Activity {
 		orientationOfPhone = this.getResources().getConfiguration().orientation;
 		
 		if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
-			gif1.setMovieResource(R.drawable.portrait_baby);
+			//gif1.setMovieResource(R.drawable.portrait_baby);
+			gif1.setMovieResource(R.drawable.falls);
 		} else if (orientationOfPhone == Configuration.ORIENTATION_LANDSCAPE) {
 			gif1.setMovieResource(R.drawable.landscape_train);
 		} 
@@ -36,6 +39,9 @@ public class GifActivity extends Activity {
 		showSpalshScreen = extras.getBoolean("showSplashScreen");
 		
 		Button buttonOne = (Button) findViewById(R.id.btnEnterCamera);
+		buttonOne.setText(enterCamera);
+		buttonOne.setTextSize(36);
+		//buttonOne.setBackgroundColor(Color.TRANSPARENT);
 		buttonOne.setOnClickListener(new Button.OnClickListener() {
 		    public void onClick(View v) {
 		    	finish();

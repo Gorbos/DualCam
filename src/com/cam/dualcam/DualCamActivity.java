@@ -1098,14 +1098,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			
 			melody1Box.setChecked(true);
 			melody2Box.setChecked(false);
-		
+			bgMusicUtility("start");
 		break;
 		
 		case Field.MODE_Melody_OFF:
 			
 			melody1Box.setChecked(false);
 			melody2Box.setChecked(true);
-		
+			bgMusicUtility("pause");
 		break;
 		
 		default:
@@ -1496,7 +1496,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				flash3Box.setChecked(false);
 				flashStatus = Field.MODE_Flash_ON;
 				editor.putInt(Field.PREFS_SET_FLASH, Field.MODE_Flash_ON);
-				
 				if(mCamera != null)
 					if(isFlashSupported(pm)) {
 						p = mCamera.getParameters();
@@ -1528,7 +1527,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				melody2Box.setChecked(false);
 				melodyStatus = Field.MODE_Melody_ON;
 				editor.putInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_ON);
-				
+				bgMusicUtility("start");
 				break;
 				
 			case Field.MODE_Melody_OFF:
@@ -1536,6 +1535,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				melody2Box.setChecked(true);
 				melodyStatus = Field.MODE_Melody_OFF;
 				editor.putInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_OFF);
+				bgMusicUtility("pause");
 				break;
 			}
 		}
@@ -1752,8 +1752,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				int extraHeight = 0;
 				int marginalWidth = 0;
 				int marginalHeight = 0;
-				//added by gelo
-				mMediaPlayer.start();
+				
+				bgMusicUtility("captureresume");
 				// if(tempPic != null){
 				// tempPic.recycle();
 				// tempPic = null;
@@ -2140,9 +2140,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			frontPreview.setOnTouchListener(new setTouchMode());
 			
 			//added by gelo
-			mMediaPlayer = MediaPlayer.create(this, R.raw.loopingmelody);
-			mMediaPlayer.setLooping(true);
-			mMediaPlayer.start();
+			bgMusicUtility("initialize");
+			
 			try {
 				orientationOfPhone = this.getResources().getConfiguration().orientation;
 				screenHeight = new PhoneChecker(this).screenHeight;
@@ -3557,7 +3556,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		if (mCamera != null && cameraAction != Field.CameraCannotCapture) {
 			try {
 				//added by gelo
-	    		mMediaPlayer.pause();
+	    		bgMusicUtility("pause");
 				mCamera.setErrorCallback(ec);
 				mCamera.takePicture(shutterKACHANG, null, getPic);
 
@@ -3599,6 +3598,48 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				}
 			}.start();
 		}
+		
+	}
+	
+	public void bgMusicUtility(String action){
+		
+		if(action == "initialize"){
+			mMediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.loopingmelody);
+			mMediaPlayer.setLooping(true);
+			
+			if(melodyStatus == Field.MODE_Melody_ON)
+				mMediaPlayer.start();
+		}
+		else if(action == "pause"){
+			mMediaPlayer.pause();
+		}
+		else if(action == "stop"){
+			mMediaPlayer.stop();
+		}
+		
+		if(melodyStatus == Field.MODE_Melody_ON){
+
+			if(action == "start"){
+				mMediaPlayer.start();
+			}
+			
+			else if(action == "release"){
+				releaseSound();
+			}
+			else if(action == "captureresume"){
+				new CountDownTimer(500,250) {
+					
+					public void onTick(long millisUntilFinished) {
+						
+					}
+					
+					public void onFinish() {
+						mMediaPlayer.start();
+					}
+				}.start();
+			}
+		}
+		
 		
 	}
 
