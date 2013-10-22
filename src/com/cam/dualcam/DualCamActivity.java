@@ -449,22 +449,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			
 			else if (view.getId() == R.id.okButton) {
 				
-				hideAct.showThisView(saveButton, Field.showToBottom);
-				hideAct.showThisView(textButton, Field.showToBottom);
-				hideAct.showThisView(retryButton, Field.showToBottom);
-
-				okButton.setVisibility(View.GONE);
-				noButton.setVisibility(View.GONE);
+				
+				textFeatureUtility("hide");
 			}
 
 			else if (view.getId() == R.id.noButton) {
 				createTextFrameLayout.removeAllViews();
-				hideAct.showThisView(saveButton, Field.showToBottom);
-				hideAct.showThisView(textButton, Field.showToBottom);
-				hideAct.showThisView(retryButton, Field.showToBottom);
-								
-				okButton.setVisibility(View.GONE);
-				noButton.setVisibility(View.GONE);
+				
+				textFeatureUtility("hide");
 			}
 			
 		} catch (Exception e) {
@@ -1036,7 +1028,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				afc1Box.setChecked(true);
 				afc2Box.setChecked(false);
 				afc3Box.setChecked(false);
-			
+				changeSettings(Field.SET_AutoFocus,movingJutsu);
 			break;
 			
 		case Field.singleTapCaptureJutsu:
@@ -1044,7 +1036,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			afc1Box.setChecked(false);
 			afc2Box.setChecked(true);
 			afc3Box.setChecked(false);
-		
+			changeSettings(Field.SET_AutoFocus,movingJutsu);
 		break;
 		
 		case Field.doubleTapCaptureJutsu:
@@ -1052,7 +1044,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			afc1Box.setChecked(false);
 			afc2Box.setChecked(false);
 			afc3Box.setChecked(true);
-		
+			changeSettings(Field.SET_AutoFocus,movingJutsu);
 		break;
 		
 		default:
@@ -1067,7 +1059,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			flash1Box.setChecked(true);
 			flash2Box.setChecked(false);
 			flash3Box.setChecked(false);
-			
+			changeSettings(Field.SET_Flash,flashStatus);
 		break;
 			
 		case Field.MODE_Flash_ON:
@@ -1075,7 +1067,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			flash1Box.setChecked(false);
 			flash2Box.setChecked(true);
 			flash3Box.setChecked(false);
-		
+			changeSettings(Field.SET_Flash,flashStatus);
 		break;
 		
 		case Field.MODE_Flash_OFF:
@@ -1083,7 +1075,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			flash1Box.setChecked(false);
 			flash2Box.setChecked(false);
 			flash3Box.setChecked(true);
-		
+			changeSettings(Field.SET_Flash,flashStatus);
 		break;
 		
 		default:
@@ -1098,14 +1090,16 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			
 			melody1Box.setChecked(true);
 			melody2Box.setChecked(false);
-			bgMusicUtility("start");
+			changeSettings(Field.SET_Melody,melodyStatus);
+			//bgMusicUtility("start");
 		break;
 		
 		case Field.MODE_Melody_OFF:
 			
 			melody1Box.setChecked(false);
 			melody2Box.setChecked(true);
-			bgMusicUtility("pause");
+			changeSettings(Field.SET_Melody,melodyStatus);
+			//bgMusicUtility("pause");
 		break;
 		
 		default:
@@ -1650,13 +1644,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			public void onClick(DialogInterface dialog, int id) {
 				isTextBeingEdited = false;
 				
-				// show ok and no
-				okButton.setVisibility(View.VISIBLE);
-				noButton.setVisibility(View.VISIBLE);
+				textFeatureUtility("show");
+			
 				
-				hideAct.hideThisView(saveButton, Field.hideToBottom);
-				hideAct.hideThisView(textButton, Field.hideToBottom);
-				hideAct.hideThisView(retryButton, Field.hideToBottom);
 			}
 		});
 
@@ -2122,7 +2112,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			pictureLayout = (LinearLayout) findViewById(R.id.picLayout);
 			utilityLayout = (LinearLayout) findViewById(R.id.utilityButtonLayout);
 			createTextFrameLayout = (FrameLayout) findViewById(R.id.createTextFrame);
-			toSaveLayout = (RelativeLayout) findViewById(R.id.createTextLayout);
+			toSaveLayout = (RelativeLayout) findViewById(R.id.overAllLayout);
 
 			hideAct = new HideAct(getApplicationContext());
 			captureButton.setOnClickListener(this);
@@ -3640,6 +3630,31 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			}
 		}
 		
+		
+	}
+	
+	public void textFeatureUtility(String action){
+		
+//		if(action == "hide"){
+//			hideAct.hideThisView(okButton, Field.hideToTop);
+//			hideAct.hideThisView(noButton, Field.hideToTop);
+//			okButton.setVisibility(View.GONE);
+//			noButton.setVisibility(View.GONE);
+//			
+//			hideAct.showThisView(saveButton, Field.showToBottom);
+//			hideAct.showThisView(textButton, Field.showToBottom);
+//			hideAct.showThisView(retryButton, Field.showToBottom);
+//			
+//		}
+//		else if(action == "show"){
+//
+//			hideAct.showThisView(okButton, Field.showToTop);
+//			hideAct.showThisView(noButton, Field.showToTop);
+//			
+//			hideAct.hideThisView(saveButton, Field.hideToBottom);
+//			hideAct.hideThisView(textButton, Field.hideToBottom);
+//			hideAct.hideThisView(retryButton, Field.hideToBottom);
+//		}
 		
 	}
 

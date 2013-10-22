@@ -148,17 +148,18 @@ public class GifMovieView extends View {
 		if (mMovie != null) {
 			int movieWidth = mMovie.width();
 			int movieHeight = mMovie.height();
-
+			float scaleW = 1f;
+			float scaleH = 1f;
 			/*
 			 * Calculate horizontal scaling
 			 */
-			float scaleH = 1f;
+			
 			int measureModeWidth = MeasureSpec.getMode(widthMeasureSpec);
 
 			if (measureModeWidth != MeasureSpec.UNSPECIFIED) {
 				int maximumWidth = MeasureSpec.getSize(widthMeasureSpec);
 				if (movieWidth != maximumWidth) {
-					scaleH = (float) movieWidth / (float) maximumWidth;
+					scaleH = (float) movieWidth / (float) (maximumWidth);
 				}
 //				else if(movieWidth < maximumWidth) {
 //					scaleH = (float) maximumWidth/ (float) movieWidth ;
@@ -168,13 +169,13 @@ public class GifMovieView extends View {
 			/*
 			 * calculate vertical scaling
 			 */
-			float scaleW = 1f;
+			
 			int measureModeHeight = MeasureSpec.getMode(heightMeasureSpec);
 
 			if (measureModeHeight != MeasureSpec.UNSPECIFIED) {
 				int maximumHeight = MeasureSpec.getSize(heightMeasureSpec);
 				if (movieHeight != maximumHeight) {
-					scaleW = (float) movieHeight / (float) maximumHeight;
+					scaleW = (float) movieHeight / (float) (maximumHeight);
 				}
 //				else if(movieHeight < maximumHeight) {
 //					scaleW = (float) maximumHeight / (float) movieHeight ;
@@ -185,7 +186,7 @@ public class GifMovieView extends View {
 			 * calculate overall scale
 			 */
 			mScale = 1f / Math.max(scaleH, scaleW);
-
+			System.out.print(" mScale = "+mScale);
 			mMeasuredMovieWidth = (int) (movieWidth * mScale);
 			mMeasuredMovieHeight = (int) (movieHeight * mScale);
 

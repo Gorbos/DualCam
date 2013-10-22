@@ -33,7 +33,7 @@
 	    >
    		
 	    <RelativeLayout
-    	android:id="@+id/createTextLayout"
+    	android:id="@+id/overAllLayout"
       	android:layout_width="match_parent"
       	android:layout_height="match_parent">
       	
