@@ -543,7 +543,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	// @Override
 	// public void onConfigurationChanged(Configuration newConfig)
 	// {
-	// super.onConfigurationChanged(newConfig);
+	// super.onConfigurationChanged(newConfig);09164508877
 	// isConfigChanging = true;
 	// Log.i(TAG, "OnConfChange");
 	// }
@@ -2195,12 +2195,18 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					i.putExtra("showSplashScreen", false);
 					startActivity(i);*/
 					
-					finish();
+					// Calling GifActivity of Movie View 
+					/*finish();
 					Intent i = new Intent(DualCamActivity.this, GifActivity.class); 
 					i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					i.putExtra("showSplashScreen", false);
-					startActivity(i);
+					startActivity(i);*/
 					
+					finish();
+					Intent i = new Intent(DualCamActivity.this, GifWebviewDisplayActivity.class); 
+					i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					i.putExtra("showSplashScreen", false);
+					startActivity(i);
 				}
 			};
 			

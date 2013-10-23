@@ -26,9 +26,13 @@ public class GifActivity extends Activity {
 		
 		if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
 			//gif1.setMovieResource(R.drawable.portrait_baby);
-			gif1.setMovieResource(R.drawable.falls);
+			//gif1.setMovieResource(R.drawable.falls);
+			//gif1.setMovieResource(R.drawable.funny);
+			gif1.setMovieResource(R.drawable.cute);
 		} else if (orientationOfPhone == Configuration.ORIENTATION_LANDSCAPE) {
-			gif1.setMovieResource(R.drawable.landscape_train);
+
+			//gif1.setMovieResource(R.drawable.landscape_train);
+			gif1.setMovieResource(R.drawable.karate);
 		} 
 
 		
