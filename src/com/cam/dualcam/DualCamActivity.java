@@ -1115,7 +1115,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			break;
 		
 		}
-		//////////////////////
 		switch(orStatus){
 		case Field.MODE_Portrait:
 			
@@ -1138,7 +1137,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			break;
 		
 		}
-		/////////////////////
 		
 		
 		sv.addView(menuLinear);
@@ -1420,7 +1418,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				optionsLinear = melody2Linear;
 			}
 			
-			//////////////////////
 			else if(itemMessage == getResources().getString(R.string.orientation1)){
 				optionsLinear.setTag(Field.MODE_Portrait);
 				or1Box = new CheckBox(this);
@@ -1475,7 +1472,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				optionsLinear = or2Linear;
 			}
 			
-			//////////////////////////
 			
 //			LinearLayout optionsLinearTEXT = new LinearLayout(this);
 //			optionsLinearTEXT.setOrientation(1);
@@ -1622,7 +1618,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				break;
 			}
 		}
-		///////////////
+		
 		else if(set == Field.SET_Orientation){
 			switch(mode){
 			case Field.MODE_Portrait:
@@ -1642,7 +1638,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				break;
 			}
 		}
-		//////////////
 		
 		
 		editor.commit();
