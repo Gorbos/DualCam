@@ -60,19 +60,19 @@ public class GifMovieView extends View {
 
 	public GifMovieView(Context context) {
 		this(context, null);
-		//setMaxSize(context);
+		setMaxSize(context);
 	}
 
 	public GifMovieView(Context context, AttributeSet attrs) {
 		this(context, attrs, R.styleable.CustomTheme_gifMoviewViewStyle);
-		//setMaxSize(context);
+		setMaxSize(context);
 	}
 
 	public GifMovieView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
 		setViewAttributes(context, attrs, defStyle);
-		//setMaxSize(context);
+		setMaxSize(context);
 	}
 	
 	public void setMaxSize(Context context){

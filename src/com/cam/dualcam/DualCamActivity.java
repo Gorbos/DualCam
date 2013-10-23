@@ -539,7 +539,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	// @Override
 	// public void onConfigurationChanged(Configuration newConfig)
 	// {
-	// super.onConfigurationChanged(newConfig);
+	// super.onConfigurationChanged(newConfig);09164508877
 	// isConfigChanging = true;
 	// Log.i(TAG, "OnConfChange");
 	// }
