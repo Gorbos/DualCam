@@ -91,8 +91,7 @@
 	            android:layout_height="wrap_content"
 	            android:text="Enter Camera"
 	            android:layout_centerHorizontal="true"
-	            android:layout_alignParentBottom="true"
-	            android:layout_marginBottom="55dp"/>
+	            android:layout_centerVertical="true"/>
 	    </RelativeLayout>
         
 </FrameLayout>
