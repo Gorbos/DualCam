@@ -73,6 +73,7 @@ public class Field {
 	public static final int doubleTapCaptureJutsu	= 0002;
 	public static final int noTapCaptureJutsu		= 0003;
 	public static final int longTapCaptureJutsu 	= 0004;
+	public static final int onceTapCaptureJutsu 	= 0005;
 	
 	
 	public static final int hideToLeft 	= 1000;
@@ -99,11 +100,16 @@ public class Field {
 	public static final int MODE_Melody_ON 				= 7721;
 	public static final int MODE_Melody_DEFAULT			= MODE_Melody_OFF;
 	
+	public static final int MODE_Portrait	 			= 7722;
+	public static final int MODE_Landscape 				= 7723;
+	public static final int MODE_Orientation_DEFAULT	= MODE_Portrait;
+	
 	
 
 	public static final int SET_AutoFocus				= 7770;
 	public static final int SET_Flash 					= 7771;
 	public static final int SET_Melody					= 7772;
+	public static final int SET_Orientation				= 7773;
 	//public static final int MODE_Flash 					= 7771;
 	
 	//For the sharedPrefs
@@ -111,6 +117,7 @@ public class Field {
 	public static final String PREFS_SET_AUTOFOCUS		= "AutoFocus";
 	public static final String PREFS_SET_FLASH			= "Flash";
 	public static final String PREFS_SET_MELODY			= "Melody";
+	public static final String PREFS_SET_ORIENTATION	= "Orientation";
 	
 
 	public static final String PREFS_SET_MELODY2			= "Melody";

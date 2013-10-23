@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -228,16 +229,19 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	public CheckBox  afc1Box, afc2Box, afc3Box;
 	public CheckBox  flash1Box, flash2Box, flash3Box;
 	public CheckBox  melody1Box, melody2Box;
+	public CheckBox  or1Box, or2Box;
 	public TextView  optionafc1, optionafc2, optionafc3;
 	public TextView  optionflash1, optionflash2, optionflash3;
 	public TextView  optionmelody1, optionmelody2;
+	public TextView  optionor1, optionor2;
 	public LinearLayout afc1Linear,afc2Linear,afc3Linear,
 						flash1Linear,flash2Linear,flash3Linear,
-						melody1Linear,melody2Linear;
+						melody1Linear,melody2Linear,or1Linear,or2Linear;
 	
 	public int movingJutsu;
 	public int flashStatus;
 	public int melodyStatus;
+	public int orStatus;
 	
 	//Sound items
 	public MediaPlayer mMediaPlayer;
@@ -1013,6 +1017,10 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		menuLinear.addView(newLine(getResources().getString(R.string.melody1),"OPTION"));
 		menuLinear.addView(newLine(getResources().getString(R.string.melody2),"OPTION"));
 		
+		menuLinear.addView(newLine(getResources().getString(R.string.orientationtitle),"TITLE"));
+		menuLinear.addView(newLine(getResources().getString(R.string.orientation1),"OPTION"));
+		menuLinear.addView(newLine(getResources().getString(R.string.orientation2),"OPTION"));
+		
 //		menuLinear.setOnClickListener(new OnClickListener() {
 //			
 //			@Override
@@ -1107,6 +1115,30 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			break;
 		
 		}
+		//////////////////////
+		switch(orStatus){
+		case Field.MODE_Portrait:
+			
+			or1Box.setChecked(true);
+			or2Box.setChecked(false);
+			changeSettings(Field.SET_Orientation,orStatus);
+			//bgMusicUtility("start");
+		break;
+		
+		case Field.MODE_Landscape:
+			
+			or1Box.setChecked(false);
+			or2Box.setChecked(true);
+			changeSettings(Field.SET_Orientation,orStatus);
+			//bgMusicUtility("pause");
+		break;
+		
+		default:
+			changeSettings(Field.SET_Orientation,Field.MODE_Orientation_DEFAULT);
+			break;
+		
+		}
+		/////////////////////
 		
 		
 		sv.addView(menuLinear);
@@ -1190,10 +1222,10 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			else if(itemMessage == getResources().getString(R.string.afc2)){
 				optionsLinear.setTag(Field.MODE_SingleAF_and_Capture);
 				afc2Box = new CheckBox(this);
-				optionafc2 = new TextView(this);
+				optionor1 = new TextView(this);
 				afc2Linear = new LinearLayout(this);
 				afc2Linear.setOrientation(0);
-				optionafc2.setText(itemMessage);
+				optionor1.setText(itemMessage);
 				afc2Linear.setOnClickListener(new OnClickListener() {
 					
 					@Override
@@ -1210,7 +1242,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				});
 				
 				checkBox = afc2Box;
-				option	 = optionafc2;
+				option	 = optionor1;
 				optionsLinear = afc2Linear;
 			}
 			
@@ -1388,6 +1420,63 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				optionsLinear = melody2Linear;
 			}
 			
+			//////////////////////
+			else if(itemMessage == getResources().getString(R.string.orientation1)){
+				optionsLinear.setTag(Field.MODE_Portrait);
+				or1Box = new CheckBox(this);
+				optionor1 = new TextView(this);
+				or1Linear = new LinearLayout(this);
+				or1Linear.setOrientation(0);
+				optionor1.setText(itemMessage);
+				or1Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Portrait);
+					}
+				});
+				or1Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Portrait);
+					}
+				});
+				
+				checkBox = or1Box;
+				option	 = optionor1;
+				optionsLinear = or1Linear;
+			}
+			
+			else if(itemMessage == getResources().getString(R.string.orientation2)){
+				optionsLinear.setTag(Field.MODE_Portrait);
+				or2Box = new CheckBox(this);
+				optionor2 = new TextView(this);
+				or2Linear = new LinearLayout(this);
+				or2Linear.setOrientation(0);
+				optionor2.setText(itemMessage);
+				or2Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Landscape);
+					}
+				});
+				or2Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Landscape);
+					}
+				});
+				
+				checkBox = or2Box;
+				option	 = optionor2;
+				optionsLinear = or2Linear;
+			}
+			
+			//////////////////////////
+			
 //			LinearLayout optionsLinearTEXT = new LinearLayout(this);
 //			optionsLinearTEXT.setOrientation(1);
 //			RelativeLayout optionRelativeTEXT = new RelativeLayout(this);
@@ -1533,18 +1622,49 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				break;
 			}
 		}
+		///////////////
+		else if(set == Field.SET_Orientation){
+			switch(mode){
+			case Field.MODE_Portrait:
+				or1Box.setChecked(true);
+				or2Box.setChecked(false);
+				orStatus = Field.MODE_Portrait;
+				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Portrait);
+				OrientationUtility("Portrait");
+				break;
+				
+			case Field.MODE_Landscape:
+				or1Box.setChecked(false);
+				or2Box.setChecked(true);
+				orStatus = Field.MODE_Landscape;
+				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Landscape);
+				OrientationUtility("Landscape");
+				break;
+			}
+		}
+		//////////////
 		
 		
 		editor.commit();
 		
 	}
 	
+	private void OrientationUtility(String string) {
+		if(string=="Portrait"){
+			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+		if(string=="Landscape"){
+			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+	}
+
 	//Initial Settings
 	public void initiateSettings(){
 		SharedPreferences settings = getSharedPreferences(Field.PREFS_DUALCAM, 0);
 		movingJutsu = settings.getInt(Field.PREFS_SET_AUTOFOCUS, Field.MODE_DefaultAF_and_Capture);
 		flashStatus = settings.getInt(Field.PREFS_SET_FLASH, Field.MODE_Flash_Default);
 		melodyStatus = settings.getInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_DEFAULT);
+		orStatus = settings.getInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Orientation_DEFAULT);
 	}
 
 	public void customAlertdialog() {
