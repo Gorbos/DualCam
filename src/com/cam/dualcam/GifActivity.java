@@ -24,12 +24,12 @@ public class GifActivity extends Activity {
 		
 		orientationOfPhone = this.getResources().getConfiguration().orientation;
 		
-		if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
+		/*if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
 			//gif1.setMovieResource(R.drawable.portrait_baby);
 			gif1.setMovieResource(R.drawable.falls);
 		} else if (orientationOfPhone == Configuration.ORIENTATION_LANDSCAPE) {
 			gif1.setMovieResource(R.drawable.landscape_train);
-		} 
+		} */
 
 		
 		

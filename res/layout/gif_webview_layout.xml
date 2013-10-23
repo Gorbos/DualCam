@@ -1,0 +1,97 @@
+<!-- <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context=".GifWebviewDisplayActivity" >
+
+    <com.cam.dualcam.widget.GifWebView
+	    android:id="@+id/gif_view"
+	    android:layout_height="fill_parent"
+	    android:layout_width="fill_parent">
+	</com.cam.dualcam.widget.GifWebView>
+
+</RelativeLayout> -->
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#000000"
+    tools:context=".GifWebviewDisplayActivity" >
+    
+		<RelativeLayout
+		android:id="@+id/gifrelative"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	    
+	   		<LinearLayout
+	   		android:id="@+id/gifheader"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:background="#000000"
+	        android:orientation="horizontal" >
+		        <ImageView
+				android:id="@+id/header_logo"
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_launcher" 
+				/>
+		        <RelativeLayout
+				android:id="@+id/giftext"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent">
+			    	<TextView
+					android:id="@+id/icontitle"
+					android:text="@string/app_name"
+					android:textSize="20sp"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="#FFFFFF"
+					android:layout_centerVertical="true"
+					android:layout_alignParentLeft="true"
+					/>
+			    	
+			    	<TextView
+					android:id="@+id/icontitle2"
+					android:text="@string/app_name"
+					android:textSize="20sp"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="#FFFFFF"
+					android:singleLine="true"
+					android:textStyle="bold"
+					android:shadowDx="3"
+					android:shadowRadius="1" 
+					android:shadowColor="#7C7C7C"
+					android:shadowDy="0"
+					android:paddingLeft="5dp"
+					android:layout_centerInParent="true"
+					android:visibility="gone"
+					/>
+		        </RelativeLayout>
+		        
+	        </LinearLayout>
+   		
+	   		<RelativeLayout
+			android:id="@+id/giflayout"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:layout_below="@+id/gifheader">
+		        
+			    <com.cam.dualcam.widget.GifWebView
+			    			android:id="@+id/gif_view"
+			    			android:layout_height="fill_parent"
+			    			android:layout_width="fill_parent">
+				</com.cam.dualcam.widget.GifWebView>
+					
+			</RelativeLayout>
+			
+	        <Button
+	            android:id="@+id/btnEnterCamera"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="Enter Camera"
+	            android:layout_centerHorizontal="true"
+	            android:layout_centerVertical="true"/>
+	    </RelativeLayout>
+        
+</FrameLayout>
