@@ -229,14 +229,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	public CheckBox  afc1Box, afc2Box, afc3Box;
 	public CheckBox  flash1Box, flash2Box, flash3Box;
 	public CheckBox  melody1Box, melody2Box;
-	public CheckBox  or1Box, or2Box;
+	public CheckBox  or0Box,or1Box, or2Box;
 	public TextView  optionafc1, optionafc2, optionafc3;
 	public TextView  optionflash1, optionflash2, optionflash3;
 	public TextView  optionmelody1, optionmelody2;
-	public TextView  optionor1, optionor2;
+	public TextView  optionor0,optionor1, optionor2;
 	public LinearLayout afc1Linear,afc2Linear,afc3Linear,
 						flash1Linear,flash2Linear,flash3Linear,
-						melody1Linear,melody2Linear,or1Linear,or2Linear;
+						melody1Linear,melody2Linear,or0Linear,or1Linear,or2Linear;
 	
 	public int movingJutsu;
 	public int flashStatus;
@@ -1018,6 +1018,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		menuLinear.addView(newLine(getResources().getString(R.string.melody2),"OPTION"));
 		
 		menuLinear.addView(newLine(getResources().getString(R.string.orientationtitle),"TITLE"));
+		menuLinear.addView(newLine(getResources().getString(R.string.orientation0),"OPTION"));
 		menuLinear.addView(newLine(getResources().getString(R.string.orientation1),"OPTION"));
 		menuLinear.addView(newLine(getResources().getString(R.string.orientation2),"OPTION"));
 		
@@ -1116,8 +1117,15 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		
 		}
 		switch(orStatus){
+		case Field.MODE_Auto:
+			or0Box.setChecked(true);
+			or1Box.setChecked(false);
+			or2Box.setChecked(false);
+			changeSettings(Field.SET_Orientation,orStatus);
+			//bgMusicUtility("start");
+		break;
 		case Field.MODE_Portrait:
-			
+			or0Box.setChecked(false);
 			or1Box.setChecked(true);
 			or2Box.setChecked(false);
 			changeSettings(Field.SET_Orientation,orStatus);
@@ -1125,7 +1133,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		break;
 		
 		case Field.MODE_Landscape:
-			
+			or0Box.setChecked(false);
 			or1Box.setChecked(false);
 			or2Box.setChecked(true);
 			changeSettings(Field.SET_Orientation,orStatus);
@@ -1417,7 +1425,34 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				option	 = optionmelody2;
 				optionsLinear = melody2Linear;
 			}
-			
+			////////////////////
+			else if(itemMessage == getResources().getString(R.string.orientation0)){
+				optionsLinear.setTag(Field.MODE_Auto);
+				or0Box = new CheckBox(this);
+				optionor0 = new TextView(this);
+				or0Linear = new LinearLayout(this);
+				or0Linear.setOrientation(0);
+				optionor0.setText(itemMessage);
+				or0Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Auto);
+					}
+				});
+				or0Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Auto);
+					}
+				});
+				
+				checkBox = or0Box;
+				option	 = optionor0;
+				optionsLinear = or0Linear;
+			}
+			///////////////////
 			else if(itemMessage == getResources().getString(R.string.orientation1)){
 				optionsLinear.setTag(Field.MODE_Portrait);
 				or1Box = new CheckBox(this);
@@ -1621,7 +1656,16 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		
 		else if(set == Field.SET_Orientation){
 			switch(mode){
+			case Field.MODE_Auto:
+				or0Box.setChecked(true);
+				or1Box.setChecked(false);
+				or2Box.setChecked(false);
+				orStatus = Field.MODE_Auto;
+				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Auto);
+				OrientationUtility("Auto");
+				break;
 			case Field.MODE_Portrait:
+				or0Box.setChecked(false);
 				or1Box.setChecked(true);
 				or2Box.setChecked(false);
 				orStatus = Field.MODE_Portrait;
@@ -1630,6 +1674,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				break;
 				
 			case Field.MODE_Landscape:
+				or0Box.setChecked(false);
 				or1Box.setChecked(false);
 				or2Box.setChecked(true);
 				orStatus = Field.MODE_Landscape;
@@ -1645,6 +1690,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	}
 	
 	private void OrientationUtility(String string) {
+		if(string=="Auto"){
+			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+		}
 		if(string=="Portrait"){
 			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}

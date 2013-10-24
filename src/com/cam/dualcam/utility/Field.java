@@ -99,9 +99,9 @@ public class Field {
 	public static final int MODE_Melody_OFF 			= 7720;
 	public static final int MODE_Melody_ON 				= 7721;
 	public static final int MODE_Melody_DEFAULT			= MODE_Melody_OFF;
-	
-	public static final int MODE_Portrait	 			= 7722;
-	public static final int MODE_Landscape 				= 7723;
+	public static final int MODE_Auto	 				= 7722;
+	public static final int MODE_Portrait	 			= 7723;
+	public static final int MODE_Landscape 				= 7724;
 	public static final int MODE_Orientation_DEFAULT	= MODE_Portrait;
 	
 	

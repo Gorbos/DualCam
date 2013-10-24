@@ -17,6 +17,7 @@
     <string name="melody2">Melody Offy</string>
     
     <string name="orientationtitle">Orientation</string>
+    <string name="orientation0">Auto</string>
     <string name="orientation1">Portrait</string>
     <string name="orientation2">Landscape</string>
     <string name="title_activity_gif">GifActivity</string>
