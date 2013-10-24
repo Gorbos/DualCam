@@ -118,8 +118,6 @@ public class Field {
 	public static final String PREFS_SET_FLASH			= "Flash";
 	public static final String PREFS_SET_MELODY			= "Melody";
 	public static final String PREFS_SET_ORIENTATION	= "Orientation";
-	
-
-	public static final String PREFS_SET_MELODY2			= "Melody";
+	public static final String PREFS_SET_MELODY3			= "Melody";
 }
 
