@@ -1433,11 +1433,15 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				or0Linear = new LinearLayout(this);
 				or0Linear.setOrientation(0);
 				optionor0.setText(itemMessage);
+				checkBox = or0Box;
+				option	 = optionor0;
+				optionsLinear = or0Linear;
 				or0Linear.setOnClickListener(new OnClickListener() {
 					
 					@Override
 					public void onClick(View v) {
 						changeSettings(Field.SET_Orientation,Field.MODE_Auto);
+						OrientationUtility("Auto");
 					}
 				});
 				or0Box.setOnClickListener(new OnClickListener() {
@@ -1445,12 +1449,10 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					@Override
 					public void onClick(View v) {
 						changeSettings(Field.SET_Orientation,Field.MODE_Auto);
+						OrientationUtility("Auto");
 					}
 				});
 				
-				checkBox = or0Box;
-				option	 = optionor0;
-				optionsLinear = or0Linear;
 			}
 			///////////////////
 			else if(itemMessage == getResources().getString(R.string.orientation1)){
@@ -1460,11 +1462,15 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				or1Linear = new LinearLayout(this);
 				or1Linear.setOrientation(0);
 				optionor1.setText(itemMessage);
+				checkBox = or1Box;
+				option	 = optionor1;
+				optionsLinear = or1Linear;
 				or1Linear.setOnClickListener(new OnClickListener() {
 					
 					@Override
 					public void onClick(View v) {
 						changeSettings(Field.SET_Orientation,Field.MODE_Portrait);
+						OrientationUtility("Portrait");
 					}
 				});
 				or1Box.setOnClickListener(new OnClickListener() {
@@ -1472,6 +1478,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					@Override
 					public void onClick(View v) {
 						changeSettings(Field.SET_Orientation,Field.MODE_Portrait);
+						OrientationUtility("Portrait");
 					}
 				});
 				
@@ -1487,11 +1494,15 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				or2Linear = new LinearLayout(this);
 				or2Linear.setOrientation(0);
 				optionor2.setText(itemMessage);
+				checkBox = or2Box;
+				option	 = optionor2;
+				optionsLinear = or2Linear;
 				or2Linear.setOnClickListener(new OnClickListener() {
 					
 					@Override
 					public void onClick(View v) {
 						changeSettings(Field.SET_Orientation,Field.MODE_Landscape);
+						OrientationUtility("Landscape");
 					}
 				});
 				or2Box.setOnClickListener(new OnClickListener() {
@@ -1499,12 +1510,10 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					@Override
 					public void onClick(View v) {
 						changeSettings(Field.SET_Orientation,Field.MODE_Landscape);
+						OrientationUtility("Landscape");
 					}
 				});
 				
-				checkBox = or2Box;
-				option	 = optionor2;
-				optionsLinear = or2Linear;
 			}
 			
 			
@@ -1662,7 +1671,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				or2Box.setChecked(false);
 				orStatus = Field.MODE_Auto;
 				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Auto);
-				OrientationUtility("Auto");
+				//OrientationUtility("Auto");
 				break;
 			case Field.MODE_Portrait:
 				or0Box.setChecked(false);
@@ -1670,7 +1679,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				or2Box.setChecked(false);
 				orStatus = Field.MODE_Portrait;
 				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Portrait);
-				OrientationUtility("Portrait");
+				//OrientationUtility("Portrait");
 				break;
 				
 			case Field.MODE_Landscape:
@@ -1679,7 +1688,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				or2Box.setChecked(true);
 				orStatus = Field.MODE_Landscape;
 				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Landscape);
-				OrientationUtility("Landscape");
+				//OrientationUtility("Landscape");
 				break;
 			}
 		}
@@ -2302,7 +2311,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			bgMusicUtility("initialize");
 			
 			try {
-				orientationOfPhone = this.getResources().getConfiguration().orientation;
 				screenHeight = new PhoneChecker(this).screenHeight;
 				screenWidth = new PhoneChecker(this).screenWidth;
 				doubleTapTimer = doDoubleTap();
