@@ -2311,6 +2311,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			bgMusicUtility("initialize");
 			
 			try {
+				orientationOfPhone = this.getResources().getConfiguration().orientation;
 				screenHeight = new PhoneChecker(this).screenHeight;
 				screenWidth = new PhoneChecker(this).screenWidth;
 				doubleTapTimer = doDoubleTap();
