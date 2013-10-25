@@ -2317,7 +2317,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				doubleTapTimer = doDoubleTap();
 				touchAction = Field.ActionStateClickable;
 				jutsuAction = Field.standbyToCaptureJutsu;
-				
+				//
 				
 				
 				initiateSettings();
