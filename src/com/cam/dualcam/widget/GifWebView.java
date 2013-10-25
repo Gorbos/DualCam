@@ -21,22 +21,22 @@ public class GifWebView extends WebView {
 		String baseUrl = pPath.substring(0, pPath.lastIndexOf("/") + 1);
 		String fileName = pPath.substring(pPath.lastIndexOf("/")+1);
 		StringBuilder strBuilder = new StringBuilder();
-		strBuilder.append("<html><head><style type='text/css'>body{margin:auto auto;text-align:center;background-color: #ffffff;} img{width:100%25;} </style>");
-		strBuilder.append("</head><body>");
+		strBuilder.append("<html><head><style type='text/css'>body{width:100%;height: 100%;margin: 0px;padding: 0px;text-align:center;} img{width:100%25;} </style>");
+		strBuilder.append("</head><body style='margin: 0; padding: 0'>");
 		strBuilder.append("<img src=\"" + fileName + "\" height=\"100%\" width=\"100%\" /></body></html>");
 		String data = strBuilder.toString();
 		Log.d(this.getClass().getName(), "data: " + data);
 		Log.d(this.getClass().getName(), "base url: " + baseUrl);
 		Log.d(this.getClass().getName(), "file name: " + fileName);
 		loadDataWithBaseURL("file://" + baseUrl, data, "text/html", "utf-8", null);
-    }
+    } 
 	
 	public void setGifAssetPath(String pPath) {
 		String baseUrl = pPath.substring(0, pPath.lastIndexOf("/") + 1);
 		String fileName = pPath.substring(pPath.lastIndexOf("/")+1);
 		StringBuilder strBuilder = new StringBuilder();
-		strBuilder.append("<html><head><style type='text/css'>body{margin:auto auto;text-align:center;} img{width:100%25;} </style>");
-		strBuilder.append("</head><body>");
+		strBuilder.append("<html><head><style type='text/css'>body{width:100%;height: 100%;margin: 0px;padding: 0px;text-align:center;} img{width:100%25;} </style>");
+		strBuilder.append("</head><body style='margin: 0; padding: 0'>");
 		strBuilder.append("<img src=\"" + fileName + "\" height=\"100%\" width=\"100%\" /></body></html>");
 		String data = strBuilder.toString();
 		Log.d(this.getClass().getName(), "data: " + data);

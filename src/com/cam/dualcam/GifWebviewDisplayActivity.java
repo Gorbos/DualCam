@@ -24,13 +24,20 @@ public class GifWebviewDisplayActivity extends Activity {
 		gifView = (GifWebView) findViewById(R.id.gif_view);
 		
 		orientationOfPhone = this.getResources().getConfiguration().orientation;
-	
+		
+		/*gifView.getSettings().setBuiltInZoomControls(true);
+		gifView.getSettings().setSupportZoom(true);
+		gifView.getSettings().setLoadWithOverviewMode(true);*/
+		//gifView.getSettings().setUseWideViewPort(true);
+        
 		if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
 			gifView.setGifAssetPath("file:///android_asset/falls.gif");
+			gifView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 			//gifView.setGifAssetPath("file:///android_asset/cute.gif");
 			//gifView.setGifAssetPath("file:///android_asset/funny.gif");
 		} else if (orientationOfPhone == Configuration.ORIENTATION_LANDSCAPE) {
 			gifView.setGifAssetPath("file:///android_asset/landscape_train.gif");
+			gifView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 			//gifView.setGifAssetPath("file:///android_asset/karate.gif");
 		} 
 		
