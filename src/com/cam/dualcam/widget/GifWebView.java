@@ -36,7 +36,7 @@ public class GifWebView extends WebView {
 		String fileName = pPath.substring(pPath.lastIndexOf("/")+1);
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append("<html><head><style type='text/css'>body{margin:auto auto;text-align:center;} img{width:100%25;} </style>");
-		strBuilder.append("</head><body>");
+		strBuilder.append("</head><body >");
 		strBuilder.append("<img src=\"" + fileName + "\" height=\"100%\" width=\"100%\" /></body></html>");
 		String data = strBuilder.toString();
 		Log.d(this.getClass().getName(), "data: " + data);
