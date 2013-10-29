@@ -22,4 +22,5 @@
     <string name="orientation2">Landscape</string>
     <string name="title_activity_gif">GifActivity</string>
 
+    <string name="trial">This is a test</string>
 </resources>
