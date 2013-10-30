@@ -9,6 +9,22 @@ package com.cam.dualcam;
 
 public final class R {
     public static final class attr {
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int gif=0x7f010000;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int gifMoviewViewStyle=0x7f010002;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int paused=0x7f010001;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -21,76 +37,108 @@ public final class R {
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int dexlogo=0x7f020000;
-        public static final int focusmark1=0x7f020001;
-        public static final int focusmark2=0x7f020002;
-        public static final int ic_launcher=0x7f020003;
-        public static final int network=0x7f020004;
-        public static final int no=0x7f020005;
-        public static final int ok=0x7f020006;
-        public static final int previewback=0x7f020007;
-        public static final int previewback2=0x7f020008;
-        public static final int previewfront=0x7f020009;
-        public static final int previewfront2=0x7f02000a;
-        public static final int previewfrontlandscape=0x7f02000b;
-        public static final int retry=0x7f02000c;
-        public static final int retry1=0x7f02000d;
-        public static final int retry2=0x7f02000e;
-        public static final int save=0x7f02000f;
-        public static final int save1=0x7f020010;
-        public static final int save2=0x7f020011;
-        public static final int share1=0x7f020012;
-        public static final int share2=0x7f020013;
-        public static final int shoot=0x7f020014;
-        public static final int smiley1=0x7f020015;
-        public static final int text1=0x7f020016;
-        public static final int text2=0x7f020017;
-        public static final int whitebg=0x7f020018;
+        public static final int cute=0x7f020000;
+        public static final int dexlogo=0x7f020001;
+        public static final int focusmark1=0x7f020002;
+        public static final int focusmark2=0x7f020003;
+        public static final int funny=0x7f020004;
+        public static final int ic_launcher=0x7f020005;
+        public static final int karate=0x7f020006;
+        public static final int network=0x7f020007;
+        public static final int no=0x7f020008;
+        public static final int offbutton=0x7f020009;
+        public static final int ok=0x7f02000a;
+        public static final int onbutton=0x7f02000b;
+        public static final int previewback=0x7f02000c;
+        public static final int previewback2=0x7f02000d;
+        public static final int previewfront=0x7f02000e;
+        public static final int previewfront2=0x7f02000f;
+        public static final int previewfrontlandscape=0x7f020010;
+        public static final int retry=0x7f020011;
+        public static final int retry1=0x7f020012;
+        public static final int retry2=0x7f020013;
+        public static final int save=0x7f020014;
+        public static final int save1=0x7f020015;
+        public static final int save2=0x7f020016;
+        public static final int share1=0x7f020017;
+        public static final int share2=0x7f020018;
+        public static final int shoot=0x7f020019;
+        public static final int smiley1=0x7f02001a;
+        public static final int text1=0x7f02001b;
+        public static final int text2=0x7f02001c;
+        public static final int whitebg=0x7f02001d;
     }
     public static final class id {
-        public static final int addCamPreview=0x7f090001;
-        public static final int afcdouble=0x7f09001e;
-        public static final int afcgroup=0x7f09001b;
-        public static final int afcmanual=0x7f09001c;
-        public static final int afcsingle=0x7f09001d;
-        public static final int blankButton=0x7f090019;
-        public static final int bottom=0x7f09000b;
+        public static final int addCamPreview=0x7f090002;
+        public static final int afcdouble=0x7f090033;
+        public static final int afcgroup=0x7f090030;
+        public static final int afcmanual=0x7f090031;
+        public static final int afcsingle=0x7f090032;
+        public static final int blankButton=0x7f09001b;
+        public static final int bottom=0x7f09000c;
         public static final int btnChoose=0x7f090000;
-        public static final int buttonLayout=0x7f090004;
-        public static final int createTextFrame=0x7f090006;
-        public static final int createTextLayout=0x7f090005;
-        public static final int cumPreviewBack=0x7f09000a;
-        public static final int cumPreviewFront=0x7f09000c;
-        public static final int cumshot=0x7f090002;
-        public static final int dexlogo=0x7f09001a;
-        public static final int noButton=0x7f090016;
-        public static final int okButton=0x7f090015;
-        public static final int optionsForTextLayout=0x7f090013;
-        public static final int optionsForTextRelativeLayout=0x7f090014;
-        public static final int picLayout=0x7f090008;
-        public static final int previewImage=0x7f090003;
-        public static final int retakeback=0x7f090017;
-        public static final int retakefront=0x7f090018;
-        public static final int retryButton=0x7f090012;
-        public static final int saveButton=0x7f090010;
-        public static final int shareButton=0x7f09000f;
-        public static final int smileyButton=0x7f09000d;
-        public static final int test=0x7f090007;
-        public static final int textButton=0x7f090011;
-        public static final int top=0x7f090009;
-        public static final int utilityButtonLayout=0x7f09000e;
+        public static final int btnEnterCamera=0x7f090024;
+        public static final int buttonLayout=0x7f090005;
+        public static final int createTextFrame=0x7f090007;
+        public static final int createTextLayout=0x7f09001a;
+        public static final int cumPreviewBack=0x7f09000b;
+        public static final int cumPreviewFront=0x7f09000d;
+        public static final int cumshot=0x7f090003;
+        public static final int dexlogo=0x7f09002f;
+        public static final int editText1=0x7f090027;
+        public static final int enabled=0x7f090001;
+        public static final int gif1=0x7f090023;
+        public static final int gif_view=0x7f090025;
+        public static final int gifheader=0x7f09001d;
+        public static final int giflayout=0x7f090022;
+        public static final int gifrelative=0x7f09001c;
+        public static final int giftext=0x7f09001f;
+        public static final int header_logo=0x7f09001e;
+        public static final int icontitle=0x7f090020;
+        public static final int icontitle2=0x7f090021;
+        public static final int noButton=0x7f090017;
+        public static final int okButton=0x7f090016;
+        public static final int optionsForTextLayout=0x7f090014;
+        public static final int optionsForTextRelativeLayout=0x7f090015;
+        public static final int overAllLayout=0x7f090006;
+        public static final int picLayout=0x7f090009;
+        public static final int previewImage=0x7f090004;
+        public static final int retakeback=0x7f090018;
+        public static final int retakefront=0x7f090019;
+        public static final int retryButton=0x7f090013;
+        public static final int saveButton=0x7f090011;
+        public static final int shareButton=0x7f090010;
+        public static final int shareMessage=0x7f09002d;
+        public static final int shareOkBtn=0x7f09002e;
+        public static final int smileyButton=0x7f09000e;
+        public static final int switchFacebook=0x7f090029;
+        public static final int switchTwitter=0x7f09002b;
+        public static final int test=0x7f090008;
+        public static final int textButton=0x7f090012;
+        public static final int textFacebook=0x7f090028;
+        public static final int textTwitter=0x7f09002a;
+        public static final int textView1=0x7f090026;
+        public static final int textView2=0x7f09002c;
+        public static final int top=0x7f09000a;
+        public static final int utilityButtonLayout=0x7f09000f;
     }
     public static final class layout {
         public static final int chooser_list=0x7f030000;
-        public static final int dualcam=0x7f030001;
-        public static final int list_item=0x7f030002;
-        public static final int splashscreen=0x7f030003;
+        public static final int compound_button=0x7f030001;
+        public static final int dualcam=0x7f030002;
+        public static final int dummygif=0x7f030003;
+        public static final int dupply_of_gif_webview_layout=0x7f030004;
+        public static final int gif_webview_layout=0x7f030005;
+        public static final int list_item=0x7f030006;
+        public static final int sharing_menu=0x7f030007;
+        public static final int splashscreen=0x7f030008;
     }
     public static final class menu {
         public static final int dual_cam=0x7f080000;
     }
     public static final class raw {
-        public static final int melody=0x7f040000;
+        public static final int loopingmelody=0x7f040000;
+        public static final int melody=0x7f040001;
     }
     public static final class string {
         public static final int action_settings=0x7f060001;
@@ -107,6 +155,12 @@ public final class R {
         public static final int melody1=0x7f06000c;
         public static final int melody2=0x7f06000d;
         public static final int melodytitle=0x7f06000b;
+        public static final int orientation0=0x7f06000f;
+        public static final int orientation1=0x7f060010;
+        public static final int orientation2=0x7f060011;
+        public static final int orientationtitle=0x7f06000e;
+        public static final int title_activity_gif=0x7f060012;
+        public static final int trial=0x7f060013;
     }
     public static final class style {
         /** 
@@ -135,5 +189,70 @@ public final class R {
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f070001;
+        public static final int Widget_GifMoviewView=0x7f070002;
     }
+    public static final class styleable {
+        /** Attributes that can be used with a CustomTheme.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #CustomTheme_gifMoviewViewStyle com.cam.dualcam:gifMoviewViewStyle}</code></td><td></td></tr>
+           </table>
+           @see #CustomTheme_gifMoviewViewStyle
+         */
+        public static final int[] CustomTheme = {
+            0x7f010002
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.cam.dualcam.R.attr#gifMoviewViewStyle}
+          attribute's value can be found in the {@link #CustomTheme} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.cam.dualcam:gifMoviewViewStyle
+        */
+        public static final int CustomTheme_gifMoviewViewStyle = 0;
+        /** Attributes that can be used with a GifMoviewView.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #GifMoviewView_gif com.cam.dualcam:gif}</code></td><td></td></tr>
+           <tr><td><code>{@link #GifMoviewView_paused com.cam.dualcam:paused}</code></td><td></td></tr>
+           </table>
+           @see #GifMoviewView_gif
+           @see #GifMoviewView_paused
+         */
+        public static final int[] GifMoviewView = {
+            0x7f010000, 0x7f010001
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.cam.dualcam.R.attr#gif}
+          attribute's value can be found in the {@link #GifMoviewView} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.cam.dualcam:gif
+        */
+        public static final int GifMoviewView_gif = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.cam.dualcam.R.attr#paused}
+          attribute's value can be found in the {@link #GifMoviewView} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.cam.dualcam:paused
+        */
+        public static final int GifMoviewView_paused = 1;
+    };
 }
