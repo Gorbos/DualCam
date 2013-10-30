@@ -11,6 +11,7 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
@@ -243,6 +244,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	
 	//Sound items
 	public MediaPlayer mMediaPlayer;
+	private Bundle savedInstanceState;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -317,9 +319,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 				if (isSavable)
 					try {
-						toSaveLayout.buildDrawingCache();
-						saveImage(toSaveLayout.getDrawingCache());
-						toSaveLayout.destroyDrawingCache();
+						//toSaveLayout.buildDrawingCache();
+						//saveImage(toSaveLayout.getDrawingCache());
+						//toSaveLayout.destroyDrawingCache();
+						Dialog dialog = new Dialog(DualCamActivity.this);
+			            dialog.setContentView(R.layout.sharing_menu);
+			            dialog.setTitle("Sharing Options");
+			            dialog.setCancelable(true);
+			            dialog.show();
 						// saveImage();
 					} catch (Exception e) {
 						Toast.makeText(getApplicationContext(), errorMessage,
@@ -1698,7 +1705,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	
 	private void OrientationUtility(String string) {
 		if(string=="Auto"){
-			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+			super.onCreate(savedInstanceState);
+			letThereBeLight(savedInstanceState);
+			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 		}
 		if(string=="Portrait"){
 			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -2266,9 +2275,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		}
 		
 		else{
-		
 			setContentView(R.layout.dualcam);
-
 			mediaUtility = new MediaUtility(getApplicationContext());
 			packageCheck = new PackageCheck(getApplicationContext());
 
@@ -2305,10 +2312,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 			backPreview.setOnTouchListener(new setTouchMode());
 			frontPreview.setOnTouchListener(new setTouchMode());
-			
 			//added by gelo
 			bgMusicUtility("initialize");
-			
+			//SetSavedOrientation();
 			try {
 				orientationOfPhone = this.getResources().getConfiguration().orientation;
 				screenHeight = new PhoneChecker(this).screenHeight;
@@ -2398,7 +2404,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				
 				popUpDialog = customPopUpMenu();
 				//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
-				
 				
 			} catch (Exception e) {
 				Log.e(TAG, "Something went wrong inside splashScreen viewing");
@@ -2700,6 +2705,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			if (isSavable){
 				saveButton.setImageResource(R.drawable.save1);
 				hideAct.showThisView(saveButton, Field.showToBottom);
+				Log.i("asdf","asdf1");
 			}
 			else{
 				saveButton.setImageResource(R.drawable.save2);
@@ -2887,7 +2893,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			degrees = 270;
 			break;
 		}
-
+		
 		Log.i(TAG, "Degrees = " + degrees);
 		if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 			result = (info.orientation + degrees) % 360;
@@ -3809,7 +3815,21 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		
 		
 	}
-	
+	private void SetSavedOrientation() {
+		SharedPreferences settings = getSharedPreferences(Field.PREFS_DUALCAM, 0);
+		int savedOrientation=settings.getInt(Field.PREFS_SET_ORIENTATION, 0);
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+		if(savedOrientation==7722)this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+		else{
+			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+			if(savedOrientation==7723){
+				this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
+			else if(savedOrientation==7724){
+				this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			}
+		}
+	}
 	public void textFeatureUtility(String action){
 		
 //		if(action == "hide"){
