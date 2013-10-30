@@ -48,6 +48,11 @@
             android:label="@string/app_name" 
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
         </activity>
+                <activity
+            android:name="com.cam.dualcam.DuplicateGifWebviewDisplayActivity"
+            android:label="@string/app_name" 
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+        </activity>
     </application>
 
 </manifest>
