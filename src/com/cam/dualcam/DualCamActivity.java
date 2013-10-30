@@ -45,8 +45,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -2255,7 +2253,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					startActivity(i);*/
 					
 					finish();
-					Intent i = new Intent(DualCamActivity.this, GifWebviewDisplayActivity.class); 
+					//Intent i = new Intent(DualCamActivity.this, GifWebviewDisplayActivity.class); 
+					Intent i = new Intent(DualCamActivity.this, DuplicateGifWebviewDisplayActivity.class); 
 					i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					i.putExtra("showSplashScreen", false);
 					startActivity(i);
