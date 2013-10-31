@@ -23,4 +23,18 @@
     <string name="title_activity_gif">GifActivity</string>
 
     <string name="trial">This is a test</string>
+    
+    
+    <string name="error_message">申し訳ありませんが、何かがカメラで間違っていた</string>
+    <string name="retake_message">写真を撮りなおしますか？</string>
+    <string name="restart_message">再起動?</string>
+    <string name="add_a_label_text">ラベルを追加?</string>
+    <string name="typehere_text">ここにテキストを入力..</string>
+    <string name="fontsize_text">フォントサイズ</string>
+    <string name="fontcolor_text">フォントの色</string>
+	<string name="ok_text">オーケー</string>
+	<string name="cancel_text">キャンセル</string>
+	<string name="yes_text">はい </string>
+	<string name="no_text">いいえ </string>
+
 </resources>
