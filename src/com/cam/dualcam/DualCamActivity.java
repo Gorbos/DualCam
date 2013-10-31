@@ -333,14 +333,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 				if (isSavable)
 					try {
-						//toSaveLayout.buildDrawingCache();
-						//saveImage(toSaveLayout.getDrawingCache());
-						//toSaveLayout.destroyDrawingCache();
-						Dialog dialog = new Dialog(DualCamActivity.this);
-			            dialog.setContentView(R.layout.sharing_menu);
-			            dialog.setTitle("Sharing Options");
-			            dialog.setCancelable(true);
-			            dialog.show();
+						toSaveLayout.buildDrawingCache();
+						saveImage(toSaveLayout.getDrawingCache());
+						toSaveLayout.destroyDrawingCache();
 						// saveImage();
 					} catch (Exception e) {
 						Toast.makeText(getApplicationContext(), errorMessage,
@@ -2276,7 +2271,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					startActivity(i);*/
 					
 					finish();
-					Intent i = new Intent(DualCamActivity.this, GifWebviewDisplayActivity.class); 
+//					Intent i = new Intent(DualCamActivity.this, GifWebviewDisplayActivity.class);
+					Intent i = new Intent(DualCamActivity.this, SocialMediaActivity.class); 
 					i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					i.putExtra("showSplashScreen", false);
 					startActivity(i);
@@ -3699,13 +3695,19 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	}
 
 	public void shareFunction() {
-		Uri uri = Uri.parse("file://" + fileName);
-		String shareBody = "Here is the share content body";
-		sharingIntent = new Intent(Intent.ACTION_SEND);
-		sharingIntent.setType("image/png");
-		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-		finish();
-		startActivity(Intent.createChooser(sharingIntent, "Share via"));
+//		Uri uri = Uri.parse("file://" + fileName);
+//		String shareBody = "Here is the share content body";
+//		sharingIntent = new Intent(Intent.ACTION_SEND);
+//		sharingIntent.setType("image/png");
+//		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//		finish();
+//		startActivity(Intent.createChooser(sharingIntent, "Share via"));
+		
+		Dialog dialog = new Dialog(DualCamActivity.this);
+        dialog.setContentView(R.layout.sharing_menu);
+        dialog.setTitle("Sharing Options");
+        dialog.setCancelable(true);
+        dialog.show();
 	}
 
 	private void showFileChooser() {

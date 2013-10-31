@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">メリーズメモリーズ</string>
+    <string name="app_fb_id">749078545106477</string>
+    
     <string name="action_settings">Choose Save Path</string>
     <string name="hello_world">Hello world!</string>
     <string name="afctitle">Auto Focus and Capture</string>
@@ -36,5 +38,6 @@
 	<string name="cancel_text">キャンセル</string>
 	<string name="yes_text">はい </string>
 	<string name="no_text">いいえ </string>
+	<string name="enter_camera_text">カメラ </string>
 
 </resources>

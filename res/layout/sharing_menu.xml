@@ -37,7 +37,8 @@
             android:layout_weight="1"
             android:text="Facebook" />
 
-        <Switch
+   <!-- <Switch -->
+        <Button
             android:id="@+id/switchFacebook"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -59,7 +60,8 @@
             android:layout_weight="1"
             android:text="Twitter" />
 
-        <Switch
+   <!-- <Switch -->
+        <Button
             android:id="@+id/switchTwitter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
