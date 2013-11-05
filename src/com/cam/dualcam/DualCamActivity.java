@@ -87,6 +87,9 @@ import com.cam.dualcam.utility.*;
 import com.cam.dualcam.utility.ColorPickerDialog.*;
 import com.cam.dualcam.bitmap.*;
 import com.cam.dualcam.view.*;
+import com.facebook.Session;
+
+
 
 @SuppressLint("NewApi")
 public class DualCamActivity extends Activity implements OnClickListener,
@@ -97,6 +100,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	private String errorMessage;
 	private String retakeMessage;
 	private String restartMessage;
+	private String saveMessage;
 	private String addALabelText;
 	private String typeTextHereText;
 	private String fontSizeText;
@@ -106,18 +110,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	private String cancel;
 	private String yes;
 	private String no;
-//	private String errorMessage = "申し訳ありませんが、何かがカメラで間違っていた。";
-//	private String retakeMessage = "写真を撮りなおしますか？";
-//	private String restartMessage = "再起動?";
-//	private String addALabelText = "ラベルを追加?";
-//	private String typeTextHereText = "ここにテキストを入力..";
-//	private String fontSizeText = "フォントサイズ";
-//	private String fontColorText = "フォントの色";
-//
-//	private String ok = "オーケー";
-//	private String cancel = "キャンセル";
-//	private String yes = "はい ";
-//	private String no = "いいえ";
 
 	public static String TAG = "DualCamActivity";
 	private String fileName = null;
@@ -259,6 +251,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	//Sound items
 	public MediaPlayer mMediaPlayer;
 	private Bundle savedInstanceState;
+	
+	//Facebook objects
+	private Session mySession;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -2241,6 +2236,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		if(extras != null){
 			showSpalshScreen = extras.getBoolean("showSplashScreen");
 			movingJutsu		 = extras.getInt("movingJutsu");
+			mySession		 = new SetMyFBSession(getApplicationContext(), this, extras).getMySession();
 		}
 			
 		if(showSpalshScreen){
@@ -2538,7 +2534,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			out.flush();
 			out.close();
 			// Log.d(TAG,"Saved to "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
-			Toast.makeText(getApplicationContext(), "写真の保存が完了しました。",
+			Toast.makeText(getApplicationContext(), saveMessage,
 					Field.SHOWTIME).show();
 			isSharable = true;
 			// shareButton.setImageResource(R.drawable.share1);
@@ -3695,19 +3691,19 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	}
 
 	public void shareFunction() {
-//		Uri uri = Uri.parse("file://" + fileName);
-//		String shareBody = "Here is the share content body";
-//		sharingIntent = new Intent(Intent.ACTION_SEND);
-//		sharingIntent.setType("image/png");
-//		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-//		finish();
-//		startActivity(Intent.createChooser(sharingIntent, "Share via"));
+		Uri uri = Uri.parse("file://" + fileName);
+		String shareBody = "Here is the share content body";
+		sharingIntent = new Intent(Intent.ACTION_SEND);
+		sharingIntent.setType("image/png");
+		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+		finish();
+		startActivity(Intent.createChooser(sharingIntent, "Share via"));
 		
-		Dialog dialog = new Dialog(DualCamActivity.this);
-        dialog.setContentView(R.layout.sharing_menu);
-        dialog.setTitle("Sharing Options");
-        dialog.setCancelable(true);
-        dialog.show();
+//		Dialog dialog = new Dialog(DualCamActivity.this);
+//        dialog.setContentView(R.layout.sharing_menu);
+//        dialog.setTitle("Sharing Options");
+//        dialog.setCancelable(true);
+//        dialog.show();
 	}
 
 	private void showFileChooser() {
@@ -3874,6 +3870,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		errorMessage = getResources().getString(R.string.error_message);
 		retakeMessage = getResources().getString(R.string.retake_message);
 		restartMessage = getResources().getString(R.string.restart_message);
+		saveMessage = getResources().getString(R.string.save_message);
 		addALabelText = getResources().getString(R.string.add_a_label_text);
 		typeTextHereText = getResources().getString(R.string.typehere_text);
 		fontSizeText = getResources().getString(R.string.fontsize_text);

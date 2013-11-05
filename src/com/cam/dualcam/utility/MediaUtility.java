@@ -108,6 +108,42 @@ public class MediaUtility {
 
 	    return null;
 	} 
+	
+	public File getPath(Context context){
+		// To be safe, you should check that the SDCard is mounted
+	    // using Environment.getExternalStorageState() before doing this.
+		if (android.os.Build.VERSION.SDK_INT < 8) {
+			mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "dualCam");
+		} else {
+			mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "dualCam");
+		
+		}
+	    //File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "dualcam");
+//		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "pic4funCamera");
+	    // This location works best if you want the created images to be shared
+	    // between applications and persist after your app has been uninstalled.
+
+	    // Create the storage directory if it does not exist
+	    if (!mediaStorageDir.exists()){
+	        if (!mediaStorageDir.mkdirs()){
+	            Log.d("dualcam", "failed to create External directory");
+	            
+	            //Create Internal Dir as a catch
+	            mediaStorageDir = context.getDir("dualCam", Context.MODE_PRIVATE); 
+	            
+	            //If directory still persists, return null
+	            if(!mediaStorageDir.exists())
+		            return null;
+	        }
+	    }
+
+	    // Create a media file name
+	    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date(System.currentTimeMillis()));
+	    File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
+	    
+
+	    return mediaFile;
+	}
 
 }
 
