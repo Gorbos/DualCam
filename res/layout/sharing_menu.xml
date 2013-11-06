@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="400dp"
+    android:layout_width="250dp"
     android:layout_height="match_parent"
+    android:background="#00766f"
     android:orientation="vertical" >
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:background="#ff00de" >
 
         <TextView
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Share photo to" />
+            android:text="Share photo to"
+            android:layout_marginLeft="5dp"
+            android:textColor="#FFFFFF" />
 
         <EditText
             android:id="@+id/editText1"
@@ -25,66 +32,76 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="#ff00de" >
 
         <TextView
             android:id="@+id/textFacebook"
+            android:layout_marginTop="20dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Facebook" />
+            android:text="Facebook" 
+            android:layout_marginLeft="5dp"
+            android:textColor="#FFFFFF"/>
 
-   <!-- <Switch -->
-        <Button
-            android:id="@+id/switchFacebook"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:focusable="false" />
+   <!-- <Button -->
+        <include layout="@layout/compound_button" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="#ff00de" >
 
         <TextView
             android:id="@+id/textTwitter"
+            android:layout_marginTop="20dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Twitter" />
+            android:text="Twitter"
+            android:layout_marginLeft="5dp"
+   android:textColor="#FFFFFF"/>
 
-   <!-- <Switch -->
-        <Button
-            android:id="@+id/switchTwitter"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+   <!-- <Button -->
+        <include layout="@layout/compound_button" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
+ <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Add a message here:" />
-
-    <EditText
-        android:id="@+id/shareMessage"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"/>
-
-    <Button
-        android:id="@+id/shareOkBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:text="OK" />
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="#ff00de"
+        android:orientation="vertical" >
+     <TextView
+         android:id="@+id/textView2"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="Add a message here:"
+         android:layout_marginLeft="5dp"
+         android:textColor="#FFFFFF" />
+ 
+     <EditText
+         android:id="@+id/shareMessage"
+         android:layout_width="match_parent"
+         android:layout_height="200dp"/>
+ 
+     <Button
+         android:id="@+id/shareOkBtn"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_gravity="center_horizontal"
+         android:layout_marginTop="10dp"
+         android:text="OK" />
+  </LinearLayout>
 
 </LinearLayout>

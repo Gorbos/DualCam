@@ -44,10 +44,13 @@ public class SocialMediaActivity extends Activity {
 	
 	private SetMyFBSession sessionObject;
 	
+	private Bundle globalBundle;
+	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		ultimateSession(savedInstanceState);
+		globalBundle = savedInstanceState;
+		
 		setView(gear);
 		
 	}
@@ -97,7 +100,7 @@ public class SocialMediaActivity extends Activity {
 		else if(gear == "2nd"){
 			    setContentView(R.layout.socialmedia_gear_second);
 			    gifView = (GifWebView) findViewById(R.id.gif_view);
-				//setSession();
+//				simpleSession();
 				orientationOfPhone = this.getResources().getConfiguration().orientation;
 				
 				if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
@@ -128,36 +131,37 @@ public class SocialMediaActivity extends Activity {
 						startActivity(i);
 				    }
 				});
-			  
-			  //Log.i(TAG, "Me facebook ba? "+isLoggedIn);
-			  
-			  // start Facebook Login
-			  
+
+
 			  Button login_button = (Button) findViewById(R.id.login_button);
 			  login_button.setOnClickListener(new Button.OnClickListener() {
 				    public void onClick(View v) {
 				    	
-				    	Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
-//							
-		    			  // callback after Graph API response with user object
-		    			  @Override
-		    			  public void onCompleted(GraphUser user, Response response) {
-			    				  if (user != null) {
-			    					  	Toast.makeText(getApplicationContext(), "Hello!! I'm "+user.getFirstName(),Field.SHOWTIME).show();
-		    					  		finish();
-		    					  		Intent i = new Intent(SocialMediaActivity.this, DualCamActivity.class); 
-		    					  		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		    					  		i.putExtra("showSplashScreen", false);
-		    					  		startActivity(i);
-			    				  } 
-			    				  else {
-//			    					  Toast.makeText(getApplicationContext(), "Aww, its null. ",Field.SHOWTIME).show();
-//			    					  Session.openActiveSession(SocialMediaActivity.this, true,new LogInCallback());
-			    					  sessionObject.newSession();
-			    				  } 
-			    				  
-		    			  }
-		    			});
+				    	ultimateSession(globalBundle);
+				    	
+//				    	Toast.makeText(getApplicationContext(), "Hello!! isLoggedin = "+isLoggedIn,Field.SHOWTIME).show();
+//				  		
+//				    	Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
+////							
+//		    			  // callback after Graph API response with user object
+//		    			  @Override
+//		    			  public void onCompleted(GraphUser user, Response response) {
+//			    				  if (user != null) {
+//			    					  	Toast.makeText(getApplicationContext(), "Hello!! I'm "+user.getFirstName(),Field.SHOWTIME).show();
+//		    					  		finish();
+//		    					  		Intent i = new Intent(SocialMediaActivity.this, DualCamActivity.class); 
+//		    					  		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//		    					  		i.putExtra("showSplashScreen", false);
+//		    					  		startActivity(i);
+//			    				  } 
+//			    				  else {
+//			    					  	Toast.makeText(getApplicationContext(), "Aww, its null. ",Field.SHOWTIME).show();
+////			    					  	Session.openActiveSession(SocialMediaActivity.this, true,new LogInCallback());
+////			    					  	sessionObject.newSession();
+//			    				  } 
+//			    				  
+//		    			  }
+//		    			});
 				    	
 //				    	finish();
 //				  		Intent i = new Intent(SocialMediaActivity.this, DualCamActivity.class); 
@@ -299,7 +303,8 @@ public class SocialMediaActivity extends Activity {
     public void onDestroy(){
     	super.onDestroy();
     	//session.closeAndClearTokenInformation();
-    	sessionObject.storeMySession();
+    	if(sessionObject != null && session != null)
+    		sessionObject.storeMySession();
     }
 
     @Override
@@ -365,18 +370,20 @@ public class SocialMediaActivity extends Activity {
 	 
 	 private void setSession(){
 		//session = mySession();
-		sessionObject = new SetMyFBSession(getApplicationContext(), this);
+		
 		simpleSession();
 	 }
 	 
 	 private void simpleSession(){
-		 
+		 sessionObject = new SetMyFBSession(getApplicationContext(), this);
 		 session = sessionObject.getMySession();
 	 }
 	 
 	 private void ultimateSession(Bundle bundy){
-		 sessionObject = new SetMyFBSession(getApplicationContext(), this);
-		 session = new SetMyFBSession(getApplicationContext(), this, bundy).getMySession();
+		 sessionObject = new SetMyFBSession(getApplicationContext(), this, bundy);
+//		 sessionObject.setClassName("SocialMediaActivity");
+		 session = sessionObject.getMySession();
+		 //makeMeRequest(session);
 	 }
 	 
 	 private void makeMeRequest(final Session session) {
@@ -386,16 +393,18 @@ public class SocialMediaActivity extends Activity {
 		        @Override
 		        public void onCompleted(GraphUser user, Response response) {
 		            // If the response is successful
-		            if (session == Session.getActiveSession()) {
-		                if (user != null) {
-		                    String facebookId = user.getId();
-		                    isLoggedIn = true;
-		                }
-		            }
-		            if (response.getError() != null) {
-		                // Handle error
-		            	isLoggedIn = false;
-		            }
+		           if (user != null) {
+	                    //String facebookId = user.getId();
+	                    isLoggedIn = true;
+	               }
+		            
+//		            else
+//		            	isLoggedIn = false;
+//		            
+//		            if (response.getError() != null) {
+//		                // Handle error
+//		            	isLoggedIn = false;
+//		            }
 		        }
 		    });
 		    request.executeAsync();

@@ -2319,7 +2319,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			frontPreview.setOnTouchListener(new setTouchMode());
 			//added by gelo
 			bgMusicUtility("initialize");
-			//SetSavedOrientation();
+			setSavedOrientation();
 			try {
 				orientationOfPhone = this.getResources().getConfiguration().orientation;
 				screenHeight = new PhoneChecker(this).screenHeight;
@@ -3691,19 +3691,21 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	}
 
 	public void shareFunction() {
-		Uri uri = Uri.parse("file://" + fileName);
-		String shareBody = "Here is the share content body";
-		sharingIntent = new Intent(Intent.ACTION_SEND);
-		sharingIntent.setType("image/png");
-		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-		finish();
-		startActivity(Intent.createChooser(sharingIntent, "Share via"));
+//		Uri uri = Uri.parse("file://" + fileName);
+//		String shareBody = "Here is the share content body";
+//		sharingIntent = new Intent(Intent.ACTION_SEND);
+//		sharingIntent.setType("image/png");
+//		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//		finish();
+//		startActivity(Intent.createChooser(sharingIntent, "Share via"));
 		
-//		Dialog dialog = new Dialog(DualCamActivity.this);
-//        dialog.setContentView(R.layout.sharing_menu);
+		Dialog dialog = new Dialog(DualCamActivity.this);
+        dialog.setContentView(R.layout.sharing_menu);
 //        dialog.setTitle("Sharing Options");
 //        dialog.setCancelable(true);
-//        dialog.show();
+        dialog.show();
+        
+        
 	}
 
 	private void showFileChooser() {
@@ -3826,13 +3828,13 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		
 		
 	}
-	private void SetSavedOrientation() {
+	private void setSavedOrientation() {
 		SharedPreferences settings = getSharedPreferences(Field.PREFS_DUALCAM, 0);
 		int savedOrientation=settings.getInt(Field.PREFS_SET_ORIENTATION, 0);
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 		if(savedOrientation==7722)this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 		else{
-			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+			this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 			if(savedOrientation==7723){
 				this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
