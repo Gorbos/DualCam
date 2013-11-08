@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -2236,7 +2237,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		if(extras != null){
 			showSpalshScreen = extras.getBoolean("showSplashScreen");
 			movingJutsu		 = extras.getInt("movingJutsu");
-			mySession		 = new SetMyFBSession(getApplicationContext(), this, extras).getMySession();
+			//mySession		 = new SetMyFBSession(getApplicationContext(), this, extras).getMySession();
 		}
 			
 		if(showSpalshScreen){
@@ -3636,7 +3637,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 							// "Finger 1 = "+event.getX(firstPointerIndex));
 							// Log.i(TAG,
 							// "Finger 2 = "+event.getX(secondPointerIndex));
-
 							// pointerDistance =
 							// Math.abs(event.getX(firstPointerIndex)/event.getY(firstPointerIndex)
 							// -
@@ -3689,23 +3689,102 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			isFrontTaken = false;
 		}
 	}
-
 	public void shareFunction() {
+//		shareMe();
+//		shareFacebook();
 //		Uri uri = Uri.parse("file://" + fileName);
 //		String shareBody = "Here is the share content body";
 //		sharingIntent = new Intent(Intent.ACTION_SEND);
+//		//sharingIntent.setClassName("com.facebook.katana","com.facebook.katana.ShareLinkActivity");
 //		sharingIntent.setType("image/png");
 //		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
 //		finish();
 //		startActivity(Intent.createChooser(sharingIntent, "Share via"));
-		
+//		
 		Dialog dialog = new Dialog(DualCamActivity.this);
         dialog.setContentView(R.layout.sharing_menu);
-//        dialog.setTitle("Sharing Options");
-//        dialog.setCancelable(true);
+        dialog.setTitle("Sharing Options");
+        dialog.setCancelable(true);
         dialog.show();
         
         
+	}
+	
+	public void shareFacebook() {
+        String fullUrl = "https://m.facebook.com/sharer.php?u=..";
+        Uri uri = Uri.parse("file://" + fileName);
+        try {
+        	Log.e(TAG, "Starting to share");
+        	PackageManager packageManager = getPackageManager();
+        	sharingIntent = new Intent(Intent.ACTION_SEND);
+        	sharingIntent.setClassName("com.facebook.katana","com.facebook.katana.ShareLinkActivity");
+        	sharingIntent.setType("image/png");
+    		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+    		//finish();
+    		startActivity(sharingIntent);
+        	Log.e(TAG, "Ending to share");
+            /*Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+            sharingIntent.setClassName("com.facebook.katana",
+                    "com.facebook.katana.ShareLinkActivity");
+            sharingIntent.putExtra(Intent.EXTRA_TEXT, "your title text");
+            startActivity(sharingIntent);*/
+
+        } catch (Exception e) {
+        	Log.e(TAG, "Error = "+e.getMessage());
+//            Intent i = new Intent(Intent.ACTION_VIEW);
+//            i.setData(Uri.parse(fullUrl));
+//            startActivity(i);
+
+            
+            Log.e("In Exception", "Comes here");
+            Intent i = new Intent();
+            i.setAction(Intent.ACTION_VIEW);
+            i.putExtra(Intent.EXTRA_STREAM, uri);
+            i.setData(Uri.parse(fullUrl));
+            startActivity(i);
+        }
+    }
+	
+	public void shareMe(){
+		String fullUrl = "https://m.facebook.com/sharer.php?u=..";
+		Uri uri = Uri.parse("file://" + fileName);
+//		Intent shareIntent = searchShareIntent(); 
+//		Intent shareIntent = new Intent(Intent.ACTION_SEND);
+//		shareIntent.setPackage("com.facebook.katana");
+//		shareIntent.setType("image/png");
+//		shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+////        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//        startActivity(shareIntent);
+//		Intent i = new Intent();
+//		i.putExtra(Intent.EXTRA_STREAM, uri);
+//        i.setAction(Intent.ACTION_VIEW);
+//        i.setData(Uri.parse(fullUrl));
+//        startActivity(i);
+		
+		Intent i = searchShareIntent();
+		startActivity(Intent.createChooser(i, "Share via"));
+	}
+	
+	public Intent searchShareIntent(){
+		Uri uri = Uri.parse("file://" + fileName);
+		final String[] sharingApps = {"com.facebook.katana"};
+		Intent photoShareIntent = new Intent(Intent.ACTION_SEND);
+		photoShareIntent.setType("image/png");
+		photoShareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+		final PackageManager packageManager = getPackageManager();
+	    List<ResolveInfo> list = packageManager.queryIntentActivities(
+	    		photoShareIntent, PackageManager.MATCH_DEFAULT_ONLY);
+	    
+	    for (int i = 0; i < sharingApps.length; i++) {
+	        for (ResolveInfo resolveInfo : list) {
+	            String p = resolveInfo.activityInfo.packageName;
+	            if (p != null && p.startsWith(sharingApps[i])) {
+	            	photoShareIntent.setPackage(p);
+	                return photoShareIntent;
+	            }
+	        }
+	    }
+	    return null;
 	}
 
 	private void showFileChooser() {

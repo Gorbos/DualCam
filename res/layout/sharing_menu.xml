@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="250dp"
     android:layout_height="match_parent"
-    android:background="#00766f"
+    android:background="#ffff00"
     android:orientation="vertical" >
     <LinearLayout
         android:layout_width="fill_parent"
@@ -10,15 +10,16 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
-        android:background="#ff00de" >
+        android:background="#048604" >
 
         <TextView
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Share photo to"
+            android:textSize="10px"
             android:layout_marginLeft="5dp"
-            android:textColor="#FFFFFF" />
+            android:textColor="#ffff00" />
 
         <EditText
             android:id="@+id/editText1"
@@ -37,17 +38,19 @@
         android:orientation="horizontal"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:background="#ff00de" >
+        android:background="#048604" >
 
         <TextView
             android:id="@+id/textFacebook"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Facebook" 
+            android:textSize="20px"
             android:layout_marginLeft="5dp"
-            android:textColor="#FFFFFF"/>
+            android:textColor="#93ff98"/>
 
    <!-- <Button -->
         <include layout="@layout/compound_button" />
@@ -59,49 +62,52 @@
         android:orientation="horizontal"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:background="#ff00de" >
+        android:background="#048604" >
 
         <TextView
             android:id="@+id/textTwitter"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Twitter"
+            android:textSize="20px"
             android:layout_marginLeft="5dp"
-   android:textColor="#FFFFFF"/>
+			android:textColor="#93ff98"/>
 
    <!-- <Button -->
         <include layout="@layout/compound_button" />
     </LinearLayout>
- <LinearLayout
+	<LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginBottom="5dp"
-        android:background="#ff00de"
+        android:background="#048604"
         android:orientation="vertical" >
-     <TextView
-         android:id="@+id/textView2"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:text="Add a message here:"
-         android:layout_marginLeft="5dp"
-         android:textColor="#FFFFFF" />
- 
-     <EditText
-         android:id="@+id/shareMessage"
-         android:layout_width="match_parent"
-         android:layout_height="200dp"/>
- 
-     <Button
-         android:id="@+id/shareOkBtn"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_gravity="center_horizontal"
-         android:layout_marginTop="10dp"
-         android:text="OK" />
-  </LinearLayout>
+	    <TextView
+	        android:id="@+id/textView2"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Add a message here:"
+	        android:textSize="10px"
+	        android:layout_marginLeft="5dp"
+	        android:textColor="#ffff00" />
+	
+	    <EditText
+	        android:id="@+id/shareMessage"
+	        android:layout_width="match_parent"
+	        android:layout_height="200dp"/>
+	
+	    <Button
+	        android:id="@+id/shareOkBtn"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_horizontal"
+	        android:layout_marginTop="10dp"
+	        android:text="OK" />
+	 </LinearLayout>
 
 </LinearLayout>

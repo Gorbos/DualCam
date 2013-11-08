@@ -25,6 +25,11 @@
     <string name="title_activity_gif">GifActivity</string>
 
     <string name="log_with_facebook">Pic with Facebook!!!</string>
+    <string name="action_people">With whom?</string>
+	<string name="action_people_default">Select friends</string>
+	<string name="error_dialog_title">Error</string>
+	<string name="error_dialog_button_text">OK</string>
+
     
     <string name="error_message">申し訳ありませんが、何かがカメラで間違っていた</string>
     <string name="retake_message">写真を撮りなおしますか？</string>
