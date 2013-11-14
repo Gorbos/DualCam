@@ -80,7 +80,7 @@
 	            android:text="@string/enter_camera_text"
 	            android:layout_centerHorizontal="true"
 	            android:layout_alignParentBottom="true"
-	            android:layout_marginBottom="85dp"/>
+	            android:layout_marginBottom="105dp"/>
 	        <!-- 
 	         <Button
 	            android:id="@+id/login_button"
@@ -107,7 +107,17 @@
 			    android:text="@string/log_with_facebook"
 			    android:layout_centerHorizontal="true"
 	            android:layout_alignParentBottom="true"
-	            android:layout_marginBottom="35dp"
+	            android:layout_marginBottom="55dp"
+	            />
+	           
+	           	<Button
+	            android:id="@+id/btnLoginTwitter"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:text="Login with Twitter"
+			    android:layout_centerHorizontal="true"
+	            android:layout_alignParentBottom="true"
+	            android:layout_marginBottom="5dp"
 	            />
 	         
 	    </RelativeLayout>
