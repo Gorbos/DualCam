@@ -80,7 +80,7 @@
 	            android:text="@string/enter_camera_text"
 	            android:layout_centerHorizontal="true"
 	            android:layout_alignParentBottom="true"
-	            android:layout_marginBottom="85dp"/>
+	            android:layout_marginBottom="110dp"/>
 	        
 	        <LinearLayout
 			android:id="@+id/fbButton"
@@ -90,7 +90,7 @@
 	        android:background="@drawable/com_facebook_button_blue"
 	        android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="35dp"
+            android:layout_marginBottom="63dp"
 	         >
 			    
 			    <RelativeLayout

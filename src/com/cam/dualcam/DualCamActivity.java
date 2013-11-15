@@ -6,12 +6,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
@@ -28,6 +34,7 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -50,6 +57,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -68,6 +76,7 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -88,7 +97,16 @@ import com.cam.dualcam.utility.*;
 import com.cam.dualcam.utility.ColorPickerDialog.*;
 import com.cam.dualcam.bitmap.*;
 import com.cam.dualcam.view.*;
+import com.cam.dualcam.widget.SharingDialog;
+import com.facebook.FacebookRequestError;
+import com.facebook.HttpMethod;
+import com.facebook.Request;
+import com.facebook.RequestAsyncTask;
+import com.facebook.Response;
 import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
+import com.facebook.model.GraphUser;
 
 
 
@@ -113,6 +131,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	private String no;
 
 	public static String TAG = "DualCamActivity";
+	private Bitmap fileBitmap = null;
+	private File   filePath	= null;
 	private String fileName = null;
 	private String cameraSide = null;
 	private String orientationScreen = null;
@@ -145,7 +165,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	private boolean isCameraFocused = false;
 	private boolean isRetaking = false;
 	private boolean hasCameraFocus = false;
-	private boolean isConfigChanging = false;
+	private boolean killMe = false;
 	
 	private boolean showSpalshScreen = true;
 
@@ -254,11 +274,24 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	private Bundle savedInstanceState;
 	
 	//Facebook objects
+	private SetMyFBSession myFBSession;
 	private Session mySession;
+	public Bundle globalBundle;
+	private UiLifecycleHelper uiHelper;
+	private Session.StatusCallback callback = 
+	     new Session.StatusCallback() {
+	     @Override
+	     public void call(Session session, 
+	             SessionState state, Exception exception) {
+	         //onSessionStateChange(session, state, exception);
+	     }
+	 };
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		uiHelper = new UiLifecycleHelper(DualCamActivity.this, callback);
+	    uiHelper.onCreate(savedInstanceState);
 		letThereBeLight(savedInstanceState);
 	}
 
@@ -515,11 +548,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		Log.i(TAG, "Destroying onDestroy : isConfigChanging = "+ isConfigChanging);
+		uiHelper.onDestroy();
+		myFBSession.storeMySession();
+		mySession.closeAndClearTokenInformation();
+		Log.i(TAG, "Destroying onDestroy : killMe = "+ killMe);
 		//releaseCamera();
 		unleashTheKraken();
-		if(!isConfigChanging){
-			 // isConfigChanging = false;
+		if(!killMe){
+			 // killMe = false;
 			Log.i(TAG, "Destroying onDestroy : releasing onDestroy");
 			 relenquishTheSoul();
 		}
@@ -535,13 +571,13 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	
 	 // Checks the orientation of the screen
 		 if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			 isConfigChanging = true;
+			 killMe = true;
 			 //Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
 			 //setContentView(R.layout.dualcam);
 			 linkRESTART();
 		 } 
 		 else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-			 isConfigChanging = true;
+			 killMe = true;
 			 //Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
 			 linkRESTART();
 		 }
@@ -554,25 +590,27 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	// public void onConfigurationChanged(Configuration newConfig)
 	// {
 	// super.onConfigurationChanged(newConfig);09164508877
-	// isConfigChanging = true;
+	// killMe = true;
 	// Log.i(TAG, "OnConfChange");
 	// }
 
-	// @Override
-	// protected void onResume() {
-	// super.onResume();
-	// linkSTART();
-	//
-	// }
+	 @Override
+	 protected void onResume() {
+	 super.onResume();
+	 uiHelper.onResume();
+//	 linkSTART();
+	
+	 }
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		Log.i(TAG, "Destroying onPause : isConfigChanging = " + isConfigChanging);
+		uiHelper.onPause();
+		Log.i(TAG, "Destroying onPause : killMe = " + killMe);
 		//releaseCamera();
 		unleashTheKraken();
-		if(!isConfigChanging){
-			 // isConfigChanging = false;
+		if(!killMe){
+			 // killMe = false;
 			Log.i(TAG, "Destroying onPause : releasing onPause");
 			relenquishTheSoul();
 		}
@@ -582,11 +620,11 @@ public class DualCamActivity extends Activity implements OnClickListener,
 //	@Override
 //	protected void onStop() {
 //		super.onStop();
-//		Log.i(TAG, "Destroying onPause : isConfigChanging = "
-//				+ isConfigChanging);
+//		Log.i(TAG, "Destroying onPause : killMe = "
+//				+ killMe);
 //		releaseCamera();
-//		// if(!isConfigChanging){
-//		// // isConfigChanging = false;
+//		// if(!killMe){
+//		// // killMe = false;
 //		relenquishTheSoul();
 //		// }
 //
@@ -604,7 +642,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		 }
 //		
 //	 public boolean onOptionsItemSelected(MenuItem item) {
-//		 
+//		 (Menu
 //		 switch (item.getItemId()) {
 //	//		 case R.id.savePath:
 //	//		 //startActivity(new Intent(this, About.class));
@@ -630,8 +668,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	@Override
 	public void onSaveInstanceState(Bundle toSave) {
 		super.onSaveInstanceState(toSave);
-		// isConfigChanging = true;
-		Log.i(TAG, "from onSaveInstance isConfigChanging = "+isConfigChanging);
+		uiHelper.onSaveInstanceState(toSave);
+		// killMe = true;
+		Log.i(TAG, "from onSaveInstance killMe = "+killMe);
 		toSave.putBoolean("isBackTaken", isBackTaken);
 		toSave.putBoolean("isFrontTaken", isFrontTaken);
 		toSave.putBoolean("isSavable", isSavable);
@@ -640,7 +679,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		toSave.putBoolean("isTextEditable", isTextEditable);
 		toSave.putBoolean("isTextAdded", isTextAdded);
 		toSave.putBoolean("isRetryable", isRetryable);
-		// toSave.putBoolean("isConfigChanging", isConfigChanging);
+		// toSave.putBoolean("killMe", killMe);
 		toSave.putInt("fontSize", fontSize);
 
 		if (frontPic != null)
@@ -2235,9 +2274,12 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		initiateJapWords();
 		Bundle extras = getIntent().getExtras();
 		if(extras != null){
+			globalBundle = extras;
 			showSpalshScreen = extras.getBoolean("showSplashScreen");
 			movingJutsu		 = extras.getInt("movingJutsu");
-			//mySession		 = new SetMyFBSession(getApplicationContext(), this, extras).getMySession();
+			myFBSession = new SetMyFBSession(getApplicationContext(), this, extras);
+			if(myFBSession.startMySession() != null)
+				mySession		 = myFBSession.startMySession();
 		}
 			
 		if(showSpalshScreen){
@@ -2360,7 +2402,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 //							isRetryable);
 //					cameraSide = extras.getString("cameraSide");
 //					fontSize = extras.getInt("fontSize");
-//					isConfigChanging = false;
+//					killMe = false;
 //
 //					topTapCount = 0;
 //					bottomTapCount = 0;
@@ -2442,7 +2484,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 //		toSave.putExtra("isTextEditable", isTextEditable);
 //		toSave.putExtra("isTextAdded", isTextAdded);
 //		toSave.putExtra("isRetryable", isRetryable);
-//		// toSave.putBoolean("isConfigChanging", isConfigChanging);
+//		// toSave.putBoolean("killMe", killMe);
 //		toSave.putExtra("fontSize", fontSize);
 //
 //		if (frontPic != null)
@@ -2519,6 +2561,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			// bmp,"","");
 			// Log.d(TAG,"the filename = "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
 			// if(!isSavePathset)
+			fileBitmap = bmp;
+			filePath = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE);
 			fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE)
 					.toString();
 			// Log.d(TAG,"The utility = "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
@@ -3690,6 +3734,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		}
 	}
 	public void shareFunction() {
+		
+//		publishStory();
+//		sharePho();
 //		shareMe();
 //		shareFacebook();
 //		Uri uri = Uri.parse("file://" + fileName);
@@ -3701,33 +3748,332 @@ public class DualCamActivity extends Activity implements OnClickListener,
 //		finish();
 //		startActivity(Intent.createChooser(sharingIntent, "Share via"));
 //		
-		Dialog dialog = new Dialog(DualCamActivity.this);
+		final Dialog dialog = new Dialog(DualCamActivity.this);
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.setContentView(R.layout.sharing_menu);
-        dialog.setTitle("Sharing Options");
         dialog.setCancelable(true);
+        
+        final CheckBox fbCB = (CheckBox)dialog.findViewById(R.id.checkBoxFacebook);
+        final CheckBox tCB = (CheckBox)dialog.findViewById(R.id.checkBoxTwitter);
+        
+        
+        Button cancel = (Button) dialog.findViewById(R.id.shareCancelBtn);
+
+        Button ok = (Button) dialog.findViewById(R.id.shareOkBtn);
+        final EditText shareMessage = (EditText)dialog.findViewById(R.id.shareMessage);
+        cancel.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getAction()==MotionEvent.ACTION_DOWN){
+//					if(v.getId()==R.id.shareCancelBtn)
+//						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+					
+//					pushFBRequest(shareMessage.getText().toString());
+				}
+				if(event.getAction()==MotionEvent.ACTION_UP){
+					if(v.getId()==R.id.shareCancelBtn)
+						dialog.dismiss();
+				}
+				return true;
+			}
+		});
+        
+        ok.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getAction()==MotionEvent.ACTION_DOWN){
+//					if(v.getId()==R.id.shareOkBtn)
+//						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+					
+//					pushFBRequest(shareMessage.getText().toString());
+				}
+				if(event.getAction()==MotionEvent.ACTION_UP){
+					if(v.getId()==R.id.shareOkBtn){
+						if(fbCB.isChecked())
+							pushFBRequest(shareMessage.getText().toString());
+						else if(!fbCB.isChecked())
+							Toast.makeText(getApplicationContext(), "Please choose at least 1 media.", Field.SHOWTIME).show();
+						dialog.dismiss();
+					}
+				}
+				return true;
+			}
+		});
+        
+        fbCB.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+//				if(mySession == null)
+//					mySession = new SetMyFBSession(getApplicationContext(), DualCamActivity.this, globalBundle).startMySession();
+			}
+		});
+        
         dialog.show();
         
+//		
+//		final SharingDialog shareDialog = new SharingDialog(DualCamActivity.this);
+//		final SharingDialog shareDialog = new SharingDialog(DualCamActivity.this);
+//        Button cancel = (Button) shareDialog.findViewById(R.id.shareCancelBtn);
+//
+//        Button ok = (Button) shareDialog.findViewById(R.id.shareOkBtn);
+//        final EditText shareMessage = (EditText)shareDialog.findViewById(R.id.shareMessage);
+//        cancel.setOnTouchListener(new OnTouchListener() {
+//			
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				if(event.getAction()==MotionEvent.ACTION_DOWN){
+//					if(v.getId()==R.id.shareCancelBtn)
+//						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+//					
+////					pushFBRequest(shareMessage.getText().toString());
+//				}
+//				if(event.getAction()==MotionEvent.ACTION_UP){
+//					if(v.getId()==R.id.shareCancelBtn)
+//						shareDialog.dismiss();
+//				}
+//				return true;
+//			}
+//		});
+//        
+//        ok.setOnTouchListener(new OnTouchListener() {
+//			
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				if(event.getAction()==MotionEvent.ACTION_DOWN){
+//					if(v.getId()==R.id.shareOkBtn)
+//						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+//					
+////					pushFBRequest(shareMessage.getText().toString());
+//				}
+//				if(event.getAction()==MotionEvent.ACTION_UP){
+//					if(v.getId()==R.id.shareOkBtn){
+//						pushFBRequest(shareMessage.getText().toString());
+//						shareDialog.dismiss();
+//					}
+//				}
+//				return true;
+//			}
+//		});
+//        
+//        shareDialog.show();
         
+        
+		
 	}
 	
-	public void shareFacebook() {
+	private void pushFBRequest(String message){
+		killMe = true;
+		Uri uri = Uri.parse("file://" + fileName);
+		
+		if(mySession == null)
+			mySession		 = new SetMyFBSession(getApplicationContext(), this, globalBundle).startMySession();
+		
+		Request.Callback req = new PhotoReqCallback();
+		try{
+		List<String> permissions = mySession.getPermissions();
+        if (!isSubsetOf(PERMISSIONS, permissions)) {
+            pendingPublishReauthorization = true;
+            Session.NewPermissionsRequest newPermissionsRequest = new Session
+                    .NewPermissionsRequest(DualCamActivity.this, PERMISSIONS);
+            mySession.requestNewPublishPermissions(newPermissionsRequest);
+
+    		Log.i(TAG, "bwahahahahha");
+            //return;
+        }
+	        
+		File f = filePath;
+		Log.i(TAG, "The File "+f.toString());
+		Request postRequest = Request.newStatusUpdateRequest(mySession,f.toString(),req);
+		Request photoRequest = Request.newUploadPhotoRequest(mySession,f/*ileBitmap*/,req);
+		Log.i(TAG,"Session permission count = "+mySession.getPermissions().size());
+		for(int y = 0; y < mySession.getPermissions().size(); y++){
+			Log.i(TAG,"Permission "+y+" = "+mySession.getPermissions().get(y));
+		}
+		
+//		Bundle paramsPost = postRequest.getParameters();
+//		//params.putString("message", "description  goes here");
+//		postRequest.setParameters(paramsPost);
+//		postRequest.executeAsync();
+		
+		Bundle paramsPhoto = photoRequest.getParameters();
+		paramsPhoto.putString("message", message);
+		photoRequest.setParameters(paramsPhoto);
+		photoRequest.executeAsync();
+		
+		}
+		catch(Exception e ){
+			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "ERROR in Posting!!!", Field.SHOWTIME).show();
+		}
+	}
+	
+	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
+	private static final String PENDING_PUBLISH_KEY = "pendingPublishReauthorization";
+	private boolean pendingPublishReauthorization = false;
+	private boolean isSubsetOf(Collection<String> subset, Collection<String> superset) {
+	    for (String string : subset) {
+	        if (!superset.contains(string)) {
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+	
+	public class PhotoReqCallback implements Request.Callback {
+        @Override
+        public void onCompleted(Response response) {
+        	String fbPhotoAddress = null;
+        	killMe = false;
+            //showPublishResult(getString(R.string.photo_post), response.getGraphObject(), response.getError());
+        	if(response != null){
+
+        		Log.i(TAG, "Response is not null");
+        		if(response.getError() == null){
+        			Object graphResponse = response.getGraphObject().getProperty("id");
+        			if (graphResponse == null || !(graphResponse instanceof String) || 
+        					TextUtils.isEmpty((String) graphResponse)) { // [IF Failed upload/no results]
+        				Log.d(TAG,"failed photo upload/no response");
+        			} else {  // [ELSEIF successful upload]
+        				fbPhotoAddress = "https://www.facebook.com/photo.php?fbid=" +graphResponse;     
+        				//Toast.makeText(getApplicationContext(), "Posting SUCCESS!!! : "+fbPhotoAddress, Field.SHOWTIME).show();
+        				Toast.makeText(getApplicationContext(), getResources().getString(R.string.success_upload), Field.SHOWTIME).show();
+            			Log.i(TAG, "SUCCESS in posting");
+        			}  
+        			
+        		}
+        		else{
+        			Log.i(TAG, "Response Error = "+response.getError().getErrorMessage());
+        			Toast.makeText(getApplicationContext(), "Posting FAILED!!! : "+response.getError().getErrorMessage(), Field.SHOWTIME).show();
+        		}
+    			
+        	}
+        	
+        	else {
+        		Log.i(TAG, "Response is null");
+    			Toast.makeText(getApplicationContext(), "FAILED in Posting!!!", Field.SHOWTIME).show();
+    		}
+        	
+        		
+            
+        	//linkRESTART();
+        }
+    }
+	
+	
+	
+	private void publishStory() {
+		Uri uri = Uri.parse("file://" + fileName);
+	    Session session = mySession;
+
+	    if (session != null){
+
+	        // Check for publish permissions    
+//	        List<String> permissions = session.getPermissions();
+//	        if (!isSubsetOf(PERMISSIONS, permissions)) {
+//	            pendingPublishReauthorization = true;
+//	            Session.NewPermissionsRequest newPermissionsRequest = new Session
+//	                    .NewPermissionsRequest(this, PERMISSIONS);
+//	        session.requestNewPublishPermissions(newPermissionsRequest);
+//	            return;
+//	        }
+
+	        Bundle postParams = new Bundle();
+	        postParams.putString("name", "Facebook SDK for Android");
+	        postParams.putString("caption", "Build great social apps and get more installs.");
+	        postParams.putString("description", "The Facebook SDK for Android makes it easier and faster to develop Facebook integrated Android apps.");
+	        postParams.putString("link", "https://developers.facebook.com/android");
+	        postParams.putString("picture",uri.toString());
+
+	        Request.Callback callback= new Request.Callback() {
+	            public void onCompleted(Response response) {
+//	                JSONObject graphResponse = response
+//	                                           .getGraphObject()
+//	                                           .getInnerJSONObject();
+//	                String postId = null;
+//	                try {
+//	                    postId = graphResponse.getString("id");
+//	                } catch (JSONException e) {
+//	                    Log.i(TAG,
+//	                        "JSON error "+ e.getMessage());
+//	                }
+//	                FacebookRequestError error = response.getError();
+//	                if (error != null) {
+//	                    Toast.makeText(getApplicationContext(),
+//	                         error.getErrorMessage(),
+//	                         Toast.LENGTH_SHORT).show();
+//	                    } else {
+//	                        Toast.makeText(getApplicationContext(), 
+//	                             postId,
+//	                             Toast.LENGTH_LONG).show();
+//	                }
+	            }
+	        };
+
+	        Request request = new Request(session, "me/feed", postParams, 
+	                              HttpMethod.POST, callback);
+
+	        RequestAsyncTask task = new RequestAsyncTask(request);
+	        task.execute();
+	    }
+
+	}
+	
+	public void sharePho(){
+		Uri uri = Uri.parse("file://" + fileName);
+		Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+		//shareIntent.setType("text/plain");
+		shareIntent.setType("image/plain");
+		//shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Content to share");
+		PackageManager pm = getApplicationContext().getPackageManager();
+		List<ResolveInfo> activityList = pm.queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
+		int i = 0;
+		int c = 0;
+		for (final ResolveInfo app : activityList) {
+			i++;
+			
+		    if ((app.activityInfo.name).contains("facebook")) {
+		    	c++;
+		        final ActivityInfo activity = app.activityInfo;
+		        final ComponentName name = new ComponentName(activity.applicationInfo.packageName, activity.name);
+		        shareIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		        //shareIntent.setData(uri);
+		        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+		        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+		        shareIntent.setComponent(name);
+		        getApplicationContext().startActivity(shareIntent);
+		        Toast.makeText(getApplicationContext(), " : "+i +" : "+c, Field.SHOWTIME).show();
+		        break;
+		        //shareFacebook(activity);
+				
+		   }
+		}
+		Toast.makeText(getApplicationContext(), "Items = "+activityList.size(), Field.SHOWTIME).show();
+		
+	}
+	
+	
+	public void shareFacebook(ActivityInfo activity) {
         String fullUrl = "https://m.facebook.com/sharer.php?u=..";
         Uri uri = Uri.parse("file://" + fileName);
         try {
         	Log.e(TAG, "Starting to share");
         	PackageManager packageManager = getPackageManager();
-        	sharingIntent = new Intent(Intent.ACTION_SEND);
-        	sharingIntent.setClassName("com.facebook.katana","com.facebook.katana.ShareLinkActivity");
-        	sharingIntent.setType("image/png");
-    		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-    		//finish();
-    		startActivity(sharingIntent);
-        	Log.e(TAG, "Ending to share");
-            /*Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+//        	sharingIntent = new Intent(Intent.ACTION_SEND);
+//        	sharingIntent.setClassName(activity.applicationInfo.packageName.toString(),activity.applicationInfo.packageName.toString()+".ShareLinkActivity");
+//        	sharingIntent.setType("image/png");
+//    		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//    		//finish();
+//    		startActivity(sharingIntent);
+//        	Log.e(TAG, "Ending to share");
+            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
             sharingIntent.setClassName("com.facebook.katana",
                     "com.facebook.katana.ShareLinkActivity");
             sharingIntent.putExtra(Intent.EXTRA_TEXT, "your title text");
-            startActivity(sharingIntent);*/
+            startActivity(sharingIntent);
 
         } catch (Exception e) {
         	Log.e(TAG, "Error = "+e.getMessage());
