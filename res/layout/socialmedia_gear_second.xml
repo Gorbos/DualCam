@@ -80,8 +80,119 @@
 	            android:text="@string/enter_camera_text"
 	            android:layout_centerHorizontal="true"
 	            android:layout_alignParentBottom="true"
-	            android:layout_marginBottom="105dp"/>
+	            android:layout_marginBottom="85dp"/>
+	        
+	        <LinearLayout
+			android:id="@+id/fbButton"
+	        android:layout_width="100dp"
+	        android:layout_height="40dp"
+	        android:orientation="horizontal"
+	        android:background="@drawable/com_facebook_button_blue"
+	        android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="35dp"
+	         >
+			    
+			    <RelativeLayout
+				android:id="@+id/fbRelative1"
+			    android:layout_width="wrap_content"
+			    android:layout_height="match_parent"
+			    android:layout_below="@+id/gifheader"
+			    android:layout_weight="0.5">
+				   <ImageView 
+				    android:id="@+id/fbIcon"
+		            android:layout_width="30dp"
+		            android:layout_height="30dp"
+		            android:src="@drawable/com_facebook_inverse_icon"
+		            android:layout_centerInParent="true"
+				    />
+				</RelativeLayout>
+				
+			    <RelativeLayout
+				android:id="@+id/fbRelative2"
+			    android:layout_width="wrap_content"
+			    android:layout_height="match_parent"
+			    android:layout_below="@+id/gifheader"
+			    android:layout_weight="0.5">
+				   <TextView
+					android:id="@+id/fbText"
+					android:text="@string/fblogin"
+					android:textSize="12sp"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="#FFFFFF"
+					android:layout_centerInParent="true"
+					/>
+				</RelativeLayout>
+			    
+			    	
+			    
+			</LinearLayout>
+			
+			<Button
+	            android:id="@+id/btnLoginTwitter"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:text="Login with Twitter"
+			    android:layout_centerHorizontal="true"
+	            android:layout_alignParentBottom="true"
+	            android:layout_marginBottom="5dp"
+	            />
+	        
 	        <!-- 
+	        <ImageView 
+			    android:id="@+id/fbBtn"
+	            android:layout_width="40dp"
+	            android:layout_height="40dp"
+	            android:layout_centerHorizontal="true"
+	            android:layout_alignParentBottom="true"
+	            android:layout_marginBottom="35dp"
+	            android:src="@drawable/com_facebook_inverse_icon"
+	            android:background="@drawable/com_facebook_button_blue"
+			    />
+			     -->
+			   <!-- 
+			<LinearLayout
+			android:id="@+id/fbLinear"
+	        android:layout_width="100dp"
+	        android:layout_height="40dp"
+	        android:orientation="horizontal"
+	        android:background="@drawable/com_facebook_button_blue"
+	        android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+	         >
+			    
+			    <RelativeLayout
+				android:id="@+id/fbRelative"
+			    android:layout_width="wrap_content"
+			    android:layout_height="match_parent"
+			    android:layout_below="@+id/gifheader">
+			        
+				   <ImageView 
+				    android:id="@+id/fbIcon"
+		            android:layout_width="30dp"
+		            android:layout_height="30dp"
+		            android:src="@drawable/com_facebook_inverse_icon"
+		            android:layout_centerInParent="true"
+				    />
+			    
+						
+				</RelativeLayout>
+			
+			    
+			    <TextView
+					android:id="@+id/fbText"
+					android:text="@string/fblogin"
+					android:textSize="12sp"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="#FFFFFF"
+					/>
+			    	
+			    
+			</LinearLayout>
+	        
+	     
 	         <Button
 	            android:id="@+id/login_button"
 			    android:layout_width="wrap_content"
@@ -99,7 +210,7 @@
 	            android:layout_alignParentBottom="true"
 	            android:layout_marginBottom="35dp"
 		    	/>
-	          -->
+	          
 	           <Button
 	            android:id="@+id/login_button"
 			    android:layout_width="wrap_content"
@@ -107,19 +218,9 @@
 			    android:text="@string/log_with_facebook"
 			    android:layout_centerHorizontal="true"
 	            android:layout_alignParentBottom="true"
-	            android:layout_marginBottom="55dp"
+	            android:layout_marginBottom="35dp"
 	            />
-	           
-	           	<Button
-	            android:id="@+id/btnLoginTwitter"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:text="Login with Twitter"
-			    android:layout_centerHorizontal="true"
-	            android:layout_alignParentBottom="true"
-	            android:layout_marginBottom="5dp"
-	            />
-	         
+	         -->
 	    </RelativeLayout>
         
 </FrameLayout>

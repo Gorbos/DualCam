@@ -1,42 +1,47 @@
 package com.cam.dualcam;
 
 
+//Local Widget/Class imports
 import com.cam.dualcam.widget.GifWebView;
+import com.cam.dualcam.twitter.TwitterConstant;
+import com.cam.dualcam.twitter.TwitterUtil;
 import com.cam.dualcam.utility.Field;
 import com.cam.dualcam.utility.SetMyFBSession;
+import com.cam.dualcam.widget.LoadingDialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.Toast;
+
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 import android.widget.TextView;
-import android.content.Intent;
 
 import com.cam.dualcam.utility.*;
+
 //Facebook imports
 import com.facebook.*;
 import com.facebook.model.*;
 import com.facebook.widget.LoginButton;
-//Twitter imports
-import com.cam.dualcam.twitter.*;
+
 
 import twitter4j.auth.RequestToken;
-/*import com.hintdesk.core.activities.AlertMessageBox;
-import com.hintdesk.core.util.OSUtil;
-import com.hintdesk.core.util.StringUtil;*/
 
 public class SocialMediaActivity extends Activity {
 	
@@ -59,10 +64,26 @@ public class SocialMediaActivity extends Activity {
 	
 	private Bundle globalBundle;
 	
+	private LoadingDialog loading;
+	private boolean isLoading = false;
+	
+	private UiLifecycleHelper uiHelper;
+	private Session.StatusCallback callback = 
+	     new Session.StatusCallback() {
+	     @Override
+	     public void call(Session session, 
+	             SessionState state, Exception exception) {
+	         //onSessionStateChange(session, state, exception);
+	     }
+	 };
+	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//uiHelper = new UiLifecycleHelper(SocialMediaActivity.this, callback);
+	    //uiHelper.onCreate(savedInstanceState);
 		globalBundle = savedInstanceState;
+		loading = new LoadingDialog(SocialMediaActivity.this);
 		
 		setView(gear);
 		
@@ -146,74 +167,18 @@ public class SocialMediaActivity extends Activity {
 				});
 
 
-			  Button login_button = (Button) findViewById(R.id.login_button);
+			  //Button login_button = (Button) findViewById(R.id.login_button);
+			  //ImageView login_button = (ImageView) findViewById(R.id.fbBtn);
+			  LinearLayout login_button = (LinearLayout) findViewById(R.id.fbButton);
 			  login_button.setOnClickListener(new Button.OnClickListener() {
 				    public void onClick(View v) {
 				    	
 				    	ultimateSession(globalBundle);
-				    	
-//				    	Toast.makeText(getApplicationContext(), "Hello!! isLoggedin = "+isLoggedIn,Field.SHOWTIME).show();
-//				  		
-//				    	Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
-////							
-//		    			  // callback after Graph API response with user object
-//		    			  @Override
-//		    			  public void onCompleted(GraphUser user, Response response) {
-//			    				  if (user != null) {
-//			    					  	Toast.makeText(getApplicationContext(), "Hello!! I'm "+user.getFirstName(),Field.SHOWTIME).show();
-//		    					  		finish();
-//		    					  		Intent i = new Intent(SocialMediaActivity.this, DualCamActivity.class); 
-//		    					  		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//		    					  		i.putExtra("showSplashScreen", false);
-//		    					  		startActivity(i);
-//			    				  } 
-//			    				  else {
-//			    					  	Toast.makeText(getApplicationContext(), "Aww, its null. ",Field.SHOWTIME).show();
-////			    					  	Session.openActiveSession(SocialMediaActivity.this, true,new LogInCallback());
-////			    					  	sessionObject.newSession();
-//			    				  } 
-//			    				  
-//		    			  }
-//		    			});
-				    	
-//				    	finish();
-//				  		Intent i = new Intent(SocialMediaActivity.this, DualCamActivity.class); 
-//				  		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//				  		i.putExtra("showSplashScreen", false);
-//				  		startActivity(i);
-				    	
-				    	
-				    	
-/*//				    	Intent i = new Intent("com.facebook.katana"); 
-//	  			    	i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//	  					i.putExtra("showSplashScreen", false);
-//	  					startActivity(i);
-					    //Session activeSession = mySession();
-					    Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
-//							
-		    			  // callback after Graph API response with user object
-		    			  @Override
-		    			  public void onCompleted(GraphUser user, Response response) {
-			    				  if (user != null) {
-			    					  	Toast.makeText(getApplicationContext(), "Hello!! I'm "+user.getFirstName(),Field.SHOWTIME).show();
-//		    					  		finish();
-//		    					  		Intent i = new Intent(SocialMediaActivity.this, DualCamActivity.class); 
-//		    					  		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//		    					  		i.putExtra("session", session);
-//		    					  		i.putExtra("showSplashScreen", false);
-//		    					  		startActivity(i);
-			    				  } 
-			    				  else {
-			    					  Toast.makeText(getApplicationContext(), "Aww, its null. ",Field.SHOWTIME).show();
-			    					  Session.openActiveSession(SocialMediaActivity.this, true,new LogInCallback());
-			    				  } 
-			    				  
-		    			  }
-		    			});*/
+//				    	sessionTime();
+
 				    }
 				});
-			  
-			  
+				
 			  Button BtnTwitterLogin = (Button) findViewById(R.id.btnLoginTwitter);
 			  BtnTwitterLogin.setOnClickListener(new Button.OnClickListener() {
 				    public void onClick(View v) {
@@ -375,19 +340,7 @@ public class SocialMediaActivity extends Activity {
 //        Session.getActiveSession().removeCallback(statusCallback);
 //    }
 //    
-    @Override
-    public void onDestroy(){
-    	super.onDestroy();
-    	//session.closeAndClearTokenInformation();
-    	if(sessionObject != null && session != null)
-    		sessionObject.storeMySession();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
-    }
+   
 //
 //    @Override
 //    protected void onSaveInstanceState (Bundle outState) {
@@ -434,15 +387,7 @@ public class SocialMediaActivity extends Activity {
 		   
 		}
 	
-	 private UiLifecycleHelper uiHelper;
-	 private Session.StatusCallback callback = 
-	     new Session.StatusCallback() {
-	     @Override
-	     public void call(Session session, 
-	             SessionState state, Exception exception) {
-	         onSessionStateChange(session, state, exception);
-	     }
-	 };
+	
 	 
 	 private void setSession(){
 		//session = mySession();
@@ -456,10 +401,12 @@ public class SocialMediaActivity extends Activity {
 	 }
 	 
 	 private void ultimateSession(Bundle bundy){
+		 loading.show();
 		 sessionObject = new SetMyFBSession(getApplicationContext(), this, bundy);
 //		 sessionObject.setClassName("SocialMediaActivity");
-		 session = sessionObject.getMySession();
-		 //makeMeRequest(session);
+		 session = sessionObject.startMySession();
+//		 Toast.makeText(getApplicationContext(), "It Happened. session = "+session.getState().toString(), Field.SHOWTIME).show();
+//		 makeMeRequest(session);
 	 }
 	 
 	 private void makeMeRequest(final Session session) {
@@ -472,7 +419,12 @@ public class SocialMediaActivity extends Activity {
 		           if (user != null) {
 	                    //String facebookId = user.getId();
 	                    isLoggedIn = true;
+	                    Toast.makeText(getApplicationContext(), "It Happened. User = "+user.getName(), Field.SHOWTIME).show();
+	           		 
 	               }
+		           else
+		        	   Toast.makeText(getApplicationContext(), "It Happened. User = null", Field.SHOWTIME).show();
+	           		 
 		            
 //		            else
 //		            	isLoggedIn = false;
@@ -486,34 +438,91 @@ public class SocialMediaActivity extends Activity {
 		    request.executeAsync();
 		} 
 	 
-	 private Session mySession(){
-		 Session session = Session.getActiveSession();
-         if (session != null) {
-            //return session.isOpened();
-        	 
-         }
-         
-         if (session == null || session.isOpened()) {
-         	isLoggedIn = false;
-//             if (savedInstanceState != null) {
-//             	Log.i(TAG,"savedInstanceState is not null");
-//                 session = Session.restoreSession(this, null, statusCallback, savedInstanceState);
-//             }
-             if (session == null) {
-             	Log.i(TAG,"session itself is null");
-                 session = new Session(this);
-             }
-             Session.setActiveSession(session);
-             if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED)) {
-             	Log.i(TAG,"session openForRead");
-                 session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
-             }
-         }
-         
-         //return Session.openActiveSessionFromCache(context) != null;
-         return session;
-	 }
 	 
+	 private void sessionTime(){
+			Session session = Session.getActiveSession();
+			Log.i(TAG,"sessionTime active");	
+			//Log.i(TAG,"session = "+session.getState());	  
+	        if (session == null) {
+	        	Log.i(TAG,"session itself is null");
+//		            	Session.openActiveSession(parentActivity, true,statusCallback);
+	        	//session = new Session(getApplicationContext());
+		        session = Session.openActiveSession(SocialMediaActivity.this, true, new Session.StatusCallback() {
+					
+					@Override
+					public void call(Session session, SessionState state, Exception exception) {
+						if(session.isOpened()){
+			    	 		Log.i(TAG,"It went here at LogInCallback");
+			    	 		Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
+//								
+			    			  // callback after Graph API response with user object
+			    			  @Override
+			    			  public void onCompleted(GraphUser user, Response response) {
+								  if (user != null) {
+									  	Toast.makeText(getApplicationContext(), "Hello!! "+user.getFirstName()+".",Field.SHOWTIME).show();
+//									  	if(parentName == gifClassName){
+									  		ultimateSession(globalBundle);
+				    				  		finish();
+				    				  		Intent i = new Intent(getApplicationContext(), DualCamActivity.class); 
+				    				  		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				    				  		i.putExtra("showSplashScreen", false);
+				    				  		startActivity(i);
+				    				  		
+//				    				  	}
+								  } 
+				    				  
+			    			  }
+			    			});
+			    	 	}
+					}
+				});
+	        }
+	        else{
+	        	Log.i(TAG,"sessionTime to UltimateSession");
+	        	
+	        	ultimateSession(globalBundle);
+	        }
+	        
+	            
+		 }
+	 
+	@Override
+	public void onResume() {
+	    super.onResume();
+	    //uiHelper.onResume();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle bundle) {
+	    super.onSaveInstanceState(bundle);
+	    //uiHelper.onSaveInstanceState(bundle);
+	}
+	@Override
+	public void onPause() {
+	    super.onPause();
+	    //uiHelper.onPause();
+	}
+	 @Override
+	    public void onDestroy(){
+	    	super.onDestroy();
+	    	loading.dismiss();
+	    	//uiHelper.onDestroy();
+	    	//session.closeAndClearTokenInformation();
+	    	if(sessionObject != null && session != null){
+	    		sessionObject.storeMySession();
+	    		//session.closeAndClearTokenInformation();
+	    	}
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
+        if (requestCode == 100) {
+	        //uiHelper.onActivityResult(requestCode, resultCode, data);
+	    }
+    }
+	
 	 class TwitterAuthenticateTask extends AsyncTask<String, String, RequestToken> {
 
 	        @Override
@@ -526,5 +535,6 @@ public class SocialMediaActivity extends Activity {
 	        protected RequestToken doInBackground(String... params) {
 	            return TwitterUtil.getInstance().getRequestToken();
 	        }
-	    }
+	}
+	
 }

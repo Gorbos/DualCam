@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 
+import com.cam.dualcam.R;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.hardware.Camera;
@@ -39,9 +41,9 @@ public class MediaUtility {
 		// To be safe, you should check that the SDCard is mounted
 	    // using Environment.getExternalStorageState() before doing this.
 		if (android.os.Build.VERSION.SDK_INT < 8) {
-			mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "dualCam");
+			mediaStorageDir = new File(Environment.getExternalStorageDirectory(), context.getResources().getString(R.string.save_to_folder_name));
 		} else {
-			mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "dualCam");
+			mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getResources().getString(R.string.save_to_folder_name));
 		
 		}
 	    //File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "dualcam");
@@ -113,9 +115,9 @@ public class MediaUtility {
 		// To be safe, you should check that the SDCard is mounted
 	    // using Environment.getExternalStorageState() before doing this.
 		if (android.os.Build.VERSION.SDK_INT < 8) {
-			mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "dualCam");
+			mediaStorageDir = new File(Environment.getExternalStorageDirectory(), context.getResources().getString(R.string.save_to_folder_name));
 		} else {
-			mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "dualCam");
+			mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getResources().getString(R.string.save_to_folder_name));
 		
 		}
 	    //File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "dualcam");
