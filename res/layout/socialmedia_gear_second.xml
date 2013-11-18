@@ -5,6 +5,7 @@
     android:background="#000000"
     tools:context=".GifWebviewDisplayActivity" >
     
+    
 		<RelativeLayout
 		android:id="@+id/gifrelative"
 	    android:layout_width="match_parent"

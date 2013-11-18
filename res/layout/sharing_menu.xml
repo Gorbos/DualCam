@@ -18,100 +18,103 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sharing_menu"
-            android:textSize="30px"
+            android:textSize="40px"
             android:layout_centerInParent="true"
             android:textColor="#ffff00" />
     </RelativeLayout>
 
 	<LinearLayout
+	    android:id="@+id/facebookLinear"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp" 
         >
+        
+    <RelativeLayout
+       android:layout_width="fill_parent" 
+   	   android:layout_height="fill_parent"
+   	   android:layout_weight="0.5"
+         >
 
-        <TextView
+       <TextView
             android:id="@+id/textFacebook"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Facebook" 
-            android:textSize="20px"
+            android:textSize="30px"
             android:textStyle="bold"
-            android:layout_marginLeft="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:textColor="#00ff00"
-              />
+        />
 
- 		<CheckBox
+    </RelativeLayout>
+    
+     <RelativeLayout
+       android:layout_width="fill_parent" 
+   	   android:layout_height="fill_parent"
+   	   android:layout_weight="0.5"
+         >
+
+      <CheckBox
             android:id="@+id/checkBoxFacebook"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_centerInParent="true"/>
        
+    </RelativeLayout>
+
+        
+ 		
     </LinearLayout>
     
 	<LinearLayout
+	    android:id="@+id/twitterLinear"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp" 
         >
+        
+    <RelativeLayout
+       android:layout_width="fill_parent" 
+   	   android:layout_height="fill_parent"
+   	   android:layout_weight="0.5"
+         >
 
-        <TextView
+       <TextView
             android:id="@+id/textTwitter"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Twitter" 
-            android:textSize="20px"
+            android:textSize="30px"
             android:textStyle="bold"
-            android:layout_marginLeft="5dp"
+			android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:textColor="#00ff00"
-              />
+        />
 
- 		<CheckBox
-            android:id="@+id/checkBoxTwitter"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-       
-    </LinearLayout>
+    </RelativeLayout>
     
-	
+     <RelativeLayout
+       android:layout_width="fill_parent" 
+   	   android:layout_height="fill_parent"
+   	   android:layout_weight="0.5"
+         >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:background="#048604" >
-
-        <TextView
-            android:id="@+id/textTwitter"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_width="0dp"
+      <CheckBox
+            android:id="@+id/checkBoxTwitter"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Twitter"
-            android:textSize="20px"
-            android:layout_marginLeft="5dp"
-			android:textColor="#93ff98"
-			 android:visibility="gone" />
+            android:layout_centerInParent="true"/>
+       
+    </RelativeLayout>
 
-
-       <!--   <include layout="@layout/compound_button" />-->
+        
+ 		
     </LinearLayout>
     
 	<LinearLayout
@@ -127,8 +130,8 @@
 	        android:id="@+id/shareMessage"
 	        android:layout_width="match_parent"
 	        android:hint="@string/image_description"
-	        android:layout_marginLeft="5dp"
-        	android:layout_marginRight="5dp"
+	        android:layout_marginLeft="20dp"
+        	android:layout_marginRight="20dp"
 	        android:layout_height="200dp"/>
 	 </LinearLayout>
 	 
@@ -137,7 +140,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        android:paddingBottom="20dp">
 
 	    <Button
 	        android:id="@+id/shareCancelBtn"

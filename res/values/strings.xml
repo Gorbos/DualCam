@@ -16,7 +16,7 @@
     <string name="flash3">Flash Mode Off</string>
     <string name="melodytitle">Melody</string>
     <string name="melody1">Melody On</string>
-    <string name="melody2">Melody Offy</string>
+    <string name="melody2">Melody Off</string>
     
     <string name="orientationtitle">Orientation</string>
     <string name="orientation0">Auto</string>

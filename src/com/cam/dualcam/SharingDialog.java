@@ -1,4 +1,4 @@
-package com.cam.dualcam.widget;
+package com.cam.dualcam;
 
 import com.cam.dualcam.R;
 

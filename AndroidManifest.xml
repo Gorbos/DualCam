@@ -18,7 +18,6 @@
 
     <uses-sdk
         android:maxSdkVersion="17"
-        android:targetSdkVersion="14"
         android:minSdkVersion="8"  />
     <application
         android:allowBackup="true"
@@ -34,8 +33,13 @@
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="oauth" android:host="com.cam.dualcam"  />
             </intent-filter>
         </activity>
         <activity
@@ -51,9 +55,9 @@
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+               <!--  <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="oauth" android:host="com.cam.dualcam"  />
+                <data android:scheme="oauth" android:host="com.cam.dualcam"  />  -->
             </intent-filter>
         </activity>
         <activity

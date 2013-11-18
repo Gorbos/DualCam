@@ -22,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -34,12 +33,13 @@ import android.preference.PreferenceManager;
 import android.widget.TextView;
 
 import com.cam.dualcam.utility.*;
-
 //Facebook imports
 import com.facebook.*;
 import com.facebook.model.*;
 import com.facebook.widget.LoginButton;
-
+import com.hintdesk.core.activities.AlertMessageBox;
+import com.hintdesk.core.util.OSUtil;
+import com.hintdesk.core.util.StringUtil;
 
 import twitter4j.auth.RequestToken;
 
@@ -87,7 +87,23 @@ public class SocialMediaActivity extends Activity {
 		
 		setView(gear);
 		
+		
+		
+		///detect if there is an internet
+        if (!OSUtil.IsNetworkAvailable(getApplicationContext())) {
+            AlertMessageBox.Show(SocialMediaActivity.this, "Internet connection", "A valid internet connection can't be established", AlertMessageBox.AlertMessageBoxIcon.Info);
+            return;
+        }
+        
+        //detect if constants has a null or whitespace
+        if (StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_KEY) || StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_SECRET)) {
+            AlertMessageBox.Show(SocialMediaActivity.this, "Twitter oAuth infos", "Please set your twitter consumer key and consumer secret", AlertMessageBox.AlertMessageBoxIcon.Info);
+            return; 
+        }
 	}
+	
+	
+	
 	
 	public void setView(String gear){
 
@@ -179,67 +195,10 @@ public class SocialMediaActivity extends Activity {
 				    }
 				});
 				
-			  Button BtnTwitterLogin = (Button) findViewById(R.id.btnLoginTwitter);
-			  BtnTwitterLogin.setOnClickListener(new Button.OnClickListener() {
-				    public void onClick(View v) {
-				    	/*//detect if there is an internet
-				        if (!OSUtil.IsNetworkAvailable(getApplicationContext())) {
-				            AlertMessageBox.Show(SocialMediaActivity.this, "Internet connection", "A valid internet connection can't be established", AlertMessageBox.AlertMessageBoxIcon.Info);
-				            return;
-				        }
-				        
-				        //detect if constants has a null or whitespace
-				        if (StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_KEY) || StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_SECRET)) {
-				            AlertMessageBox.Show(SocialMediaActivity.this, "Twitter oAuth infos", "Please set your twitter consumer key and consumer secret", AlertMessageBox.AlertMessageBoxIcon.Info);
-				            return;
-				        }*/
-				    	ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-				    	if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || 
-					            connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-				    		
-				    	}else{
-				    		AlertDialog alertDialog = new AlertDialog.Builder(SocialMediaActivity.this).create();
-							 
-			        		alertDialog.setTitle("No Connection");
-					    	alertDialog.setMessage("This application requires internet connection to run, Cross check your connectivity and try again.");
-					    	//alertDialog.setIcon(R.drawable.wifilogo);
-					    	// Setting OK Button
-					    		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-					    			public void onClick(DialogInterface dialog, int which) {
-			                	}
-					    	});
-			 
-					    		// Showing Alert Message
-					    	alertDialog.show();
-				    	}
-				    	
-				    	if (TwitterConstant.TWITTER_CONSUMER_KEY == null || TwitterConstant.TWITTER_CONSUMER_SECRET == null) {
-				    		AlertDialog alertDialog = new AlertDialog.Builder(SocialMediaActivity.this).create();
-			        		alertDialog.setTitle("Null Key");
-					    	alertDialog.setMessage("This application has no Twitter Key");
-					    	//alertDialog.setIcon(R.drawable.wifilogo);
-					    	// Setting OK Button
-					    		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-					    			public void onClick(DialogInterface dialog, int which) {
-			                	}
-					    	});
-					    		// Showing Alert Message
-					    	alertDialog.show();
-				    	}
-				    	
-				    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-			            if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
-			            {
-			                new TwitterAuthenticateTask().execute();
-			            }
-			            else
-			            {
-			                /*Intent intent = new Intent(MainActivity.this, TwitterActivity.class);
-			                startActivity(intent);*/
-			            }
-			            
-				    }
-				});
+			  initializeComponent();
+			  
+			  Button BtnTwitterLogin;
+
 			  
 		}
 		
@@ -349,6 +308,41 @@ public class SocialMediaActivity extends Activity {
 //        Session.saveSession(session, outState);
 //    }
 	
+	private void initializeComponent() {
+		// TODO Auto-generated method stub
+		Button BtnTwitterLogin = (Button) findViewById(R.id.btnLoginTwitter);
+		BtnTwitterLogin.setOnClickListener(buttonLoginOnClickListener);
+	}
+
+	private View.OnClickListener buttonLoginOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+            {
+                new TwitterAuthenticateTask().execute();
+                
+                Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+                Toast.makeText(getApplicationContext(), we + "Has No Logged In.", Toast.LENGTH_LONG).show();
+                
+            } else {
+            	Bundle extras = getIntent().getExtras();
+            	if(extras != null)
+            	showSpalshScreen = extras.getBoolean("showSplashScreen");
+            	
+                Intent intent = new Intent(SocialMediaActivity.this, DualCamActivity.class);
+                intent.putExtra("showSplashScreen", false);
+                startActivity(intent);
+                
+                Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+                Toast.makeText(getApplicationContext(), we + "Has Logged In.", Toast.LENGTH_LONG).show();
+            }
+
+        }
+    };
+
+
 	public boolean logCheck(){
 		Session session = Session.getActiveSession();
 		
@@ -490,6 +484,8 @@ public class SocialMediaActivity extends Activity {
 	public void onResume() {
 	    super.onResume();
 	    //uiHelper.onResume();
+	    if(loading != null)
+        	loading.dismiss();
 	}
 
 	@Override
@@ -521,6 +517,8 @@ public class SocialMediaActivity extends Activity {
         if (requestCode == 100) {
 	        //uiHelper.onActivityResult(requestCode, resultCode, data);
 	    }
+        if(loading != null)
+        	loading.dismiss();
     }
 	
 	 class TwitterAuthenticateTask extends AsyncTask<String, String, RequestToken> {
