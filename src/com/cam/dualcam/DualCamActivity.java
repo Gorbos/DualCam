@@ -1,7 +1,6 @@
 package com.cam.dualcam;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -106,6 +105,8 @@ import com.cam.dualcam.utility.*;
 import com.cam.dualcam.utility.ColorPickerDialog.*;
 import com.cam.dualcam.bitmap.*;
 import com.cam.dualcam.view.*;
+import com.cam.dualcam.widget.LoadingDialog;
+import com.cam.dualcam.widget.LoadingDialog;
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
 import com.facebook.Request;
@@ -293,6 +294,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	         //onSessionStateChange(session, state, exception);
 	     }
 	 };
+	 private LoadingDialog loading;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -369,6 +371,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 				if (isSavable)
 					try {
+						loading.show();
 						toSaveLayout.buildDrawingCache();
 						saveImage(toSaveLayout.getDrawingCache());
 						toSaveLayout.destroyDrawingCache();
@@ -2352,6 +2355,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			utilityLayout = (LinearLayout) findViewById(R.id.utilityButtonLayout);
 			createTextFrameLayout = (FrameLayout) findViewById(R.id.createTextFrame);
 			toSaveLayout = (RelativeLayout) findViewById(R.id.overAllLayout);
+			
+			loading = new LoadingDialog(DualCamActivity.this);
 
 			hideAct = new HideAct(getApplicationContext());
 			captureButton.setOnClickListener(this);
@@ -2586,6 +2591,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			out.flush();
 			out.close();
 			// Log.d(TAG,"Saved to "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
+			if(loading != null)
+	        	loading.dismiss();
 			Toast.makeText(getApplicationContext(), saveMessage,
 					Field.SHOWTIME).show();
 			isSharable = true;
@@ -3824,11 +3831,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				}
 				if(event.getAction()==MotionEvent.ACTION_UP){
 					if(v.getId()==R.id.shareOkBtn){
-						if(fbCB.isChecked())
+						if(fbCB.isChecked()){
 							pushFBRequest(shareMessage.getText().toString());
+							dialog.dismiss();
+							loading.show();
+						}
 						else if(!fbCB.isChecked())
 							Toast.makeText(getApplicationContext(), "Please choose at least 1 media.", Field.SHOWTIME).show();
-						dialog.dismiss();
+						
 						
 						if(tCB.isChecked()) {
 							fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE)
@@ -3974,6 +3984,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
         @Override
         public void onCompleted(Response response) {
         	String fbPhotoAddress = null;
+        	if(loading != null)
+            	loading.dismiss();
         	killMe = false;
             //showPublishResult(getString(R.string.photo_post), response.getGraphObject(), response.getError());
         	if(response != null){
