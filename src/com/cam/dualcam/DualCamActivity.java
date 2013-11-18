@@ -1,6 +1,7 @@
 package com.cam.dualcam;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -105,8 +106,6 @@ import com.cam.dualcam.utility.*;
 import com.cam.dualcam.utility.ColorPickerDialog.*;
 import com.cam.dualcam.bitmap.*;
 import com.cam.dualcam.view.*;
-import com.cam.dualcam.widget.LoadingDialog;
-import com.cam.dualcam.widget.LoadingDialog;
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
 import com.facebook.Request;
@@ -116,6 +115,7 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
+import com.hintdesk.core.util.StringUtil;
 
 
 @SuppressLint("NewApi")
@@ -294,7 +294,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	         //onSessionStateChange(session, state, exception);
 	     }
 	 };
-	 private LoadingDialog loading;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -371,7 +370,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 				if (isSavable)
 					try {
-						loading.show();
 						toSaveLayout.buildDrawingCache();
 						saveImage(toSaveLayout.getDrawingCache());
 						toSaveLayout.destroyDrawingCache();
@@ -2355,8 +2353,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			utilityLayout = (LinearLayout) findViewById(R.id.utilityButtonLayout);
 			createTextFrameLayout = (FrameLayout) findViewById(R.id.createTextFrame);
 			toSaveLayout = (RelativeLayout) findViewById(R.id.overAllLayout);
-			
-			loading = new LoadingDialog(DualCamActivity.this);
 
 			hideAct = new HideAct(getApplicationContext());
 			captureButton.setOnClickListener(this);
@@ -2591,8 +2587,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			out.flush();
 			out.close();
 			// Log.d(TAG,"Saved to "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
-			if(loading != null)
-	        	loading.dismiss();
 			Toast.makeText(getApplicationContext(), saveMessage,
 					Field.SHOWTIME).show();
 			isSharable = true;
@@ -3749,6 +3743,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	}
 	public void shareFunction() {
 		
+		initControlTwitter();
 //		publishStory();
 //		sharePho();
 //		shareMe();
@@ -3831,14 +3826,11 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				}
 				if(event.getAction()==MotionEvent.ACTION_UP){
 					if(v.getId()==R.id.shareOkBtn){
-						if(fbCB.isChecked()){
+						if(fbCB.isChecked())
 							pushFBRequest(shareMessage.getText().toString());
-							dialog.dismiss();
-							loading.show();
-						}
 						else if(!fbCB.isChecked())
 							Toast.makeText(getApplicationContext(), "Please choose at least 1 media.", Field.SHOWTIME).show();
-						
+						dialog.dismiss();
 						
 						if(tCB.isChecked()) {
 							fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE)
@@ -3984,8 +3976,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
         @Override
         public void onCompleted(Response response) {
         	String fbPhotoAddress = null;
-        	if(loading != null)
-            	loading.dismiss();
         	killMe = false;
             //showPublishResult(getString(R.string.photo_post), response.getGraphObject(), response.getError());
         	if(response != null){
@@ -4369,6 +4359,17 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	}
 	
 	//Twitter 
+	
+	private void initControlTwitter() {
+        Uri uri = getIntent().getData();
+        if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
+            String verifier = uri.getQueryParameter(TwitterConstant.URL_PARAMETER_TWITTER_OAUTH_VERIFIER);
+            new TwitterGetAccessTokenTask().execute(verifier);
+        } else
+            new TwitterGetAccessTokenTask().execute("");
+    }
+	
+	
 	 class TwitterAuthenticateTask extends AsyncTask<String, String, RequestToken> {
 
 	        @Override
@@ -4383,13 +4384,11 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	        }
 	    }
 	 
-	//Twitter 
 	 class TwitterGetAccessTokenTask extends AsyncTask<String, String, String> {
 
 	        @Override
 	        protected void onPostExecute(String userName) {
-	        	//textViewUserName.setText(Html.fromHtml("<b> Welcome " + userName + "</b>"));
-	        	Toast.makeText(getApplicationContext(), "Welcome " + userName , Field.SHOWTIME).show();
+	            //textViewUserName.setText(Html.fromHtml("<b> Welcome " + userName + "</b>"));
 	        }
 
 	        @Override
@@ -4397,7 +4396,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 	            Twitter twitter = TwitterUtil.getInstance().getTwitter();
 	            RequestToken requestToken = TwitterUtil.getInstance().getRequestToken();
-	            if ((params[0]) != null) { //(!StringUtil.isNullOrWhitespace(params[0])) {
+	            if (!StringUtil.isNullOrWhitespace(params[0])) {
 	                try {
 
 	                    AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, params[0]);
@@ -4427,8 +4426,8 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	            return null;  //To change body of implemented methods use File | Settings | File Templates.
 	        }
 	    }
-	 
-	 class TwitterUpdateStatusTask extends AsyncTask<String, String, Boolean> {
+
+	    class TwitterUpdateStatusTask extends AsyncTask<String, String, Boolean> {
 
 	        @Override
 	        protected void onPostExecute(Boolean result) {
@@ -4445,7 +4444,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	                String accessTokenString = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
 	                String accessTokenSecret = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
 
-	                if (accessTokenString != null && accessTokenSecret != null) {
+	                if (!StringUtil.isNullOrWhitespace(accessTokenString) && !StringUtil.isNullOrWhitespace(accessTokenSecret)) {
 	                    AccessToken accessToken = new AccessToken(accessTokenString, accessTokenSecret);
 	                    
 	                   // working original
@@ -4463,22 +4462,18 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 	                    StatusUpdate ad=new StatusUpdate(params[0]);
 
-	                    fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE)
-	                    	     .toString();
-	                    // The InputStream opens the resourceId and sends it to the buffer
-	                    File imageFile = new File(fileName);
 	                    
-	                    if(imageFile.exists()){  
+	                    // The InputStream opens the resourceId and sends it to the buffer
+	                    //File imageFile = new File("/storage/sdcard0/Pictures/tmp.jpg");
+	                    
+	                    /*if(imageFile.exists()){  
 	                    	System.out.println("file does  existing");
 	                    }else {
 	                    	System.out.println("file does not exist");
-	                    }
-	                    
-	                    //InputStream is = getResources().openRawResource(R.drawable.ic_launcher);
-	                    
+	                    }*/
 	                    
 	                    //String path = file.getAbsolutePath();
-	                    FileInputStream xs = new FileInputStream(imageFile);
+	                    FileInputStream xs = new FileInputStream(filePath);
 	                    
 	                    
 	                    
