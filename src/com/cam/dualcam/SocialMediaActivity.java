@@ -490,6 +490,8 @@ public class SocialMediaActivity extends Activity {
 	public void onResume() {
 	    super.onResume();
 	    //uiHelper.onResume();
+	    if(loading != null)
+        	loading.dismiss();
 	}
 
 	@Override
@@ -521,6 +523,8 @@ public class SocialMediaActivity extends Activity {
         if (requestCode == 100) {
 	        //uiHelper.onActivityResult(requestCode, resultCode, data);
 	    }
+        if(loading != null)
+        	loading.dismiss();
     }
 	
 	 class TwitterAuthenticateTask extends AsyncTask<String, String, RequestToken> {
