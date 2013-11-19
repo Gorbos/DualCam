@@ -126,13 +126,23 @@
          
         android:orientation="vertical" >
 
+		<TextView
+		    android:id="@+id/messageCounter"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="120/120"
+		    android:layout_marginLeft="20dp"
+        	android:layout_marginRight="20dp"/>
+
 	    <EditText
 	        android:id="@+id/shareMessage"
 	        android:layout_width="match_parent"
 	        android:hint="@string/image_description"
 	        android:layout_marginLeft="20dp"
         	android:layout_marginRight="20dp"
-	        android:layout_height="200dp"/>
+	        android:layout_height="200dp"
+	        android:maxLength="120"/>
+
 	 </LinearLayout>
 	 
 	<RelativeLayout
