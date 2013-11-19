@@ -1,6 +1,7 @@
 package com.cam.dualcam;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,6 +14,11 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import twitter4j.StatusUpdate;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -49,6 +55,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -57,6 +64,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -96,6 +104,7 @@ import android.view.OrientationEventListener;
 import com.cam.dualcam.utility.*;
 import com.cam.dualcam.utility.ColorPickerDialog.*;
 import com.cam.dualcam.bitmap.*;
+import com.cam.dualcam.twitter.*;
 import com.cam.dualcam.view.*;
 import com.cam.dualcam.widget.LoadingDialog;
 import com.facebook.FacebookRequestError;
@@ -107,6 +116,7 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
+import com.hintdesk.core.util.StringUtil;
 
 
 
@@ -3741,6 +3751,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	}
 	public void shareFunction() {
 		
+		initControlTwitter();
 //		publishStory();
 //		sharePho();
 //		shareMe();
@@ -3763,6 +3774,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
         
         final CheckBox fbCB = (CheckBox)dialog.findViewById(R.id.checkBoxFacebook);
         final CheckBox tCB = (CheckBox)dialog.findViewById(R.id.checkBoxTwitter);
+        
         final EditText shareMessage = (EditText)dialog.findViewById(R.id.shareMessage);
         final TextView messageCounter = (TextView)dialog.findViewById(R.id.messageCounter);
         messageCounter.setText("0/120");
@@ -3792,6 +3804,31 @@ public class DualCamActivity extends Activity implements OnClickListener,
             } 
 
         });
+        
+        tCB.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (((CheckBox) v).isChecked()) {
+					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+						/*if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+							{
+					        	new TwitterAuthenticateTask().execute();
+					            Toast.makeText(getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
+					                  }else {*/
+					                	  new TwitterGetAccessTokenTask().execute("");
+					                	  //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
+					                 /* }*/
+					                  
+					              }else{
+					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show();
+					            	  
+					              }
+			}
+        	
+        });
+        
+        
         cancel.setOnTouchListener(new OnTouchListener() {
 			
 			@Override
@@ -3829,7 +3866,21 @@ public class DualCamActivity extends Activity implements OnClickListener,
 						}
 						else if(!fbCB.isChecked())
 							Toast.makeText(getApplicationContext(), "Please choose at least 1 media.", Field.SHOWTIME).show();
-						
+							dialog.dismiss();
+							
+							dialog.dismiss();
+	 						
+							if(tCB.isChecked()) {
+								fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString();
+								String TwitText = shareMessage.getText().toString();
+								String TwitStatus = TwitText + " via #DualCam";
+								//Toast.makeText(getApplicationContext(), "TwitStatus" + TwitStatus, Field.SHOWTIME).show();  
+								new TwitterUpdateStatusTask().execute(TwitStatus);
+														  
+							}else if(!tCB.isChecked()) {
+						       					
+							}
+
 					}
 				}
 				return true;
@@ -3999,8 +4050,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
         }
     }
 	
-	
-	
 	private void publishStory() {
 		Uri uri = Uri.parse("file://" + fileName);
 	    Session session = mySession;
@@ -4090,7 +4139,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		Toast.makeText(getApplicationContext(), "Items = "+activityList.size(), Field.SHOWTIME).show();
 		
 	}
-	
 	
 	public void shareFacebook(ActivityInfo activity) {
         String fullUrl = "https://m.facebook.com/sharer.php?u=..";
@@ -4344,6 +4392,122 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		yes = getResources().getString(R.string.yes_text);
 		no = getResources().getString(R.string.no_text);
 	}
+	
+	private void initControlTwitter() {
+        Uri uri = getIntent().getData();
+        if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
+            String verifier = uri.getQueryParameter(TwitterConstant.URL_PARAMETER_TWITTER_OAUTH_VERIFIER);
+            new TwitterGetAccessTokenTask().execute(verifier);
+        } else
+            new TwitterGetAccessTokenTask().execute("");
+	}
 
+	class TwitterGetAccessTokenTask extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onPostExecute(String userName) {
+            //textViewUserName.setText(Html.fromHtml("<b> Welcome " + userName + "</b>"));
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            Twitter twitter = TwitterUtil.getInstance().getTwitter();
+            RequestToken requestToken = TwitterUtil.getInstance().getRequestToken();
+            if (!StringUtil.isNullOrWhitespace(params[0])) {
+                try {
+
+                    AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, params[0]);
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, accessToken.getToken());
+                    editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, accessToken.getTokenSecret());
+                    editor.putBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, true);
+                    editor.commit();
+                    return twitter.showUser(accessToken.getUserId()).getName();
+                } catch (TwitterException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            } else {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                String accessTokenString = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+                String accessTokenSecret = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+                AccessToken accessToken = new AccessToken(accessTokenString, accessTokenSecret);
+                try {
+                    TwitterUtil.getInstance().setTwitterFactory(accessToken);
+                    return TwitterUtil.getInstance().getTwitter().showUser(accessToken.getUserId()).getName();
+                } catch (TwitterException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+    }
+
+    class TwitterUpdateStatusTask extends AsyncTask<String, String, Boolean> {
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result)
+                Toast.makeText(getApplicationContext(), "Tweet successfully", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(getApplicationContext(), "Tweet failed", Toast.LENGTH_SHORT).show();
+        }
+        
+        @Override
+        protected Boolean doInBackground(String... params) {
+            try {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                String accessTokenString = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+                String accessTokenSecret = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+
+                if (!StringUtil.isNullOrWhitespace(accessTokenString) && !StringUtil.isNullOrWhitespace(accessTokenSecret)) {
+                    AccessToken accessToken = new AccessToken(accessTokenString, accessTokenSecret);
+                    
+                   // working original
+                   // twitter4j.Status status = TwitterUtil.getInstance().getTwitterFactory().getInstance(accessToken).updateStatus(params[0]);
+                    
+                    /*File finalFile = new File("file:///sdcard/Pictures/temp.jpg");
+                    Twitter twitter = null;
+                    StatusUpdate stat = new StatusUpdate("awwww");
+                    stat.setMedia(finalFile);
+                    twitter.updateStatus(stat);*/
+                    
+                    Twitter twitter =  TwitterUtil.getInstance().getTwitterFactory().getInstance(accessToken);
+
+                    // Update status
+
+                    StatusUpdate ad=new StatusUpdate(params[0]);
+
+                    
+                    // The InputStream opens the resourceId and sends it to the buffer
+                   
+                    //InputStream is = getResources().openRawResource(R.drawable.ic_launcher);
+                    
+                    
+                    //String path = file.getAbsolutePath();
+                    FileInputStream xs = new FileInputStream(filePath);
+                    
+                    
+                    
+                    ad.setMedia(params[0],xs);
+                    
+                    twitter4j.Status response = twitter.updateStatus(ad);
+                    
+                    return true;
+                }
+                
+            } catch (TwitterException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            return false;  //To change body of implemented methods use File | Settings | File Templates.
+            
+        }
+    }
+    
+    
 }
-
