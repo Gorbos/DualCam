@@ -83,7 +83,7 @@
 	            android:layout_alignParentBottom="true"
 	            android:layout_marginBottom="110dp"/>
 	        
-	        <LinearLayout
+	       <!--  <LinearLayout
 			android:id="@+id/fbButton"
 	        android:layout_width="100dp"
 	        android:layout_height="40dp"
@@ -104,7 +104,7 @@
 				    android:id="@+id/fbIcon"
 		            android:layout_width="30dp"
 		            android:layout_height="30dp"
-		            android:src="@drawable/com_facebook_inverse_icon"
+		            android:src="@drawable/f"
 		            android:layout_centerInParent="true"
 				    />
 				</RelativeLayout>
@@ -128,16 +128,26 @@
 			    
 			    	
 			    
-			</LinearLayout>
+			</LinearLayout> -->
+			
+			<Button
+	            android:id="@+id/fbButton"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerHorizontal="true"
+	            android:layout_alignParentBottom="true"
+	            android:layout_marginBottom="60dp"
+	            android:background="@drawable/facebooklogin"
+	            />
 			
 			<Button
 	            android:id="@+id/btnLoginTwitter"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
-			    android:text="Login with Twitter"
 			    android:layout_centerHorizontal="true"
 	            android:layout_alignParentBottom="true"
 	            android:layout_marginBottom="5dp"
+	            android:background="@drawable/twitterlogin"
 	            />
 	        
 	        <!-- 

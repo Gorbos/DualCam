@@ -185,7 +185,7 @@ public class SocialMediaActivity extends Activity {
 
 			  //Button login_button = (Button) findViewById(R.id.login_button);
 			  //ImageView login_button = (ImageView) findViewById(R.id.fbBtn);
-			  LinearLayout login_button = (LinearLayout) findViewById(R.id.fbButton);
+			  /*LinearLayout login_button = (LinearLayout) findViewById(R.id.fbButton);
 			  login_button.setOnClickListener(new Button.OnClickListener() {
 				    public void onClick(View v) {
 				    	
@@ -193,12 +193,11 @@ public class SocialMediaActivity extends Activity {
 //				    	sessionTime();
 
 				    }
-				});
+				});*/
 				
-			  initializeComponent();
+			  initialFacebookComponent();
 			  
-			  Button BtnTwitterLogin;
-
+			  initializeComponent();
 			  
 		}
 		
@@ -308,12 +307,28 @@ public class SocialMediaActivity extends Activity {
 //        Session.saveSession(session, outState);
 //    }
 	
+	private void initialFacebookComponent() {
+		// TODO Auto-generated method stub
+		Button BtnFacebookLogin = (Button) findViewById(R.id.fbButton);
+		BtnFacebookLogin.setOnClickListener(buttonfacebookLoginOnClickListener);
+	}
+	
 	private void initializeComponent() {
 		// TODO Auto-generated method stub
 		Button BtnTwitterLogin = (Button) findViewById(R.id.btnLoginTwitter);
 		BtnTwitterLogin.setOnClickListener(buttonLoginOnClickListener);
 	}
 
+	private View.OnClickListener buttonfacebookLoginOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+        	ultimateSession(globalBundle);
+
+        }
+    };
+
+    
 	private View.OnClickListener buttonLoginOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -323,8 +338,8 @@ public class SocialMediaActivity extends Activity {
             {
                 new TwitterAuthenticateTask().execute();
                 
-                Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
-                Toast.makeText(getApplicationContext(), we + "Has No Logged In.", Toast.LENGTH_LONG).show();
+                /*Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+                Toast.makeText(getApplicationContext(), we + "Has No Logged In.", Toast.LENGTH_LONG).show();*/
                 
             } else {
             	Bundle extras = getIntent().getExtras();
@@ -335,8 +350,8 @@ public class SocialMediaActivity extends Activity {
                 intent.putExtra("showSplashScreen", false);
                 startActivity(intent);
                 
-                Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
-                Toast.makeText(getApplicationContext(), we + "Has Logged In.", Toast.LENGTH_LONG).show();
+                /*Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+                Toast.makeText(getApplicationContext(), we + "Has Logged In.", Toast.LENGTH_LONG).show();*/
             }
 
         }
