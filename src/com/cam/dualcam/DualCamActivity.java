@@ -3778,6 +3778,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
         
         final EditText shareMessage = (EditText)dialog.findViewById(R.id.shareMessage);
         final TextView messageCounter = (TextView)dialog.findViewById(R.id.messageCounter);
+        messageCounter.setText("0/120");
         Button cancel = (Button) dialog.findViewById(R.id.shareCancelBtn);
         Button ok = (Button) dialog.findViewById(R.id.shareOkBtn);
         shareMessage.addTextChangedListener(new TextWatcher() {
@@ -3786,7 +3787,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
             public void afterTextChanged(Editable s) {
             	String charCount=""+shareMessage.getText();
             	messageCounter.setText(""+charCount.length()+"/120");
-
             }
 
             @Override

@@ -199,6 +199,8 @@ public class SocialMediaActivity extends Activity {
 			  
 			  initializeComponent();
 			  
+			  initializeTwitterLogout();
+			  
 		}
 		
 		//From the creators of FACEBOOK ...
@@ -327,6 +329,28 @@ public class SocialMediaActivity extends Activity {
 
         }
     };
+    
+    private void initializeTwitterLogout() {
+    	     // TODO Auto-generated method stub
+    	     Button BtnTwitterLogout = (Button) findViewById(R.id.btnLogoutTwitter);
+    	     BtnTwitterLogout.setOnClickListener(buttonLogOutClickListener);
+    }
+    
+    private View.OnClickListener buttonLogOutClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+    
+              SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+                editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+                editor.putBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+                editor.commit();
+                
+                Toast.makeText(getApplicationContext(),  "Logging Out on Twitter", Toast.LENGTH_LONG).show();
+            }
+        };
+    
 
     
 	private View.OnClickListener buttonLoginOnClickListener = new View.OnClickListener() {
