@@ -107,6 +107,7 @@ import com.cam.dualcam.bitmap.*;
 import com.cam.dualcam.twitter.*;
 import com.cam.dualcam.view.*;
 import com.cam.dualcam.widget.LoadingDialog;
+import com.cam.dualcam.SharingDialog;
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
 import com.facebook.Request;
@@ -3777,16 +3778,15 @@ public class DualCamActivity extends Activity implements OnClickListener,
         
         final EditText shareMessage = (EditText)dialog.findViewById(R.id.shareMessage);
         final TextView messageCounter = (TextView)dialog.findViewById(R.id.messageCounter);
-        messageCounter.setText("0/120");
         Button cancel = (Button) dialog.findViewById(R.id.shareCancelBtn);
         Button ok = (Button) dialog.findViewById(R.id.shareOkBtn);
-
         shareMessage.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void afterTextChanged(Editable s) {
             	String charCount=""+shareMessage.getText();
-            		messageCounter.setText(""+charCount.length()+"/120");
+            	messageCounter.setText(""+charCount.length()+"/120");
+
             }
 
             @Override
