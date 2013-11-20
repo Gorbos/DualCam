@@ -1065,6 +1065,48 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		LinearLayout menuLinear = new LinearLayout(DualCamActivity.this);
 		menuLinear.setOrientation(1);
 		
+		menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
+		
+		Button btnHome = new Button(this);
+		//btnHome.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		btnHome.setText("Home");  
+		btnHome.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(DualCamActivity.this, SocialMediaActivity.class); 
+				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				i.putExtra("showSplashScreen", false);
+				startActivity(i);
+			}
+		});
+	    menuLinear.addView(btnHome);
+		
+	    Button btnFacebookLogout = new Button(this);
+	    //btnFacebookLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+	    btnFacebookLogout.setText("Facebook Log Out");  
+	    btnFacebookLogout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	    menuLinear.addView(btnFacebookLogout);
+	    
+	    Button btnTwitterLogout = new Button(this);
+	    //btnTwitterLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+	    btnTwitterLogout.setText("Twitter Log Out"); 
+	    btnTwitterLogout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				twitterLogout();
+			}
+		});
+	    menuLinear.addView(btnTwitterLogout);
+	    
 		menuLinear.addView(newLine(getResources().getString(R.string.afctitle),"TITLE"));
 		menuLinear.addView(newLine(getResources().getString(R.string.afc1),"OPTION"));
 		menuLinear.addView(newLine(getResources().getString(R.string.afc2),"OPTION"));
@@ -3811,18 +3853,17 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
 					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-						/*if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+						if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
 							{
 					        	new TwitterAuthenticateTask().execute();
 					            Toast.makeText(getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
-					                  }else {*/
+					                  }else {
 					                	  new TwitterGetAccessTokenTask().execute("");
 					                	  //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
-					                 /* }*/
+					                  }
 					                  
 					              }else{
-					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show();
-					            	  
+					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
 					              }
 			}
         	
@@ -4393,6 +4434,33 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		no = getResources().getString(R.string.no_text);
 	}
 	
+	// Twitter Log in
+	class TwitterAuthenticateTask extends AsyncTask<String, String, RequestToken> {
+
+        @Override
+        protected void onPostExecute(RequestToken requestToken) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL()));
+            startActivity(intent);
+        }
+
+        @Override
+        protected RequestToken doInBackground(String... params) {
+            return TwitterUtil.getInstance().getRequestToken();
+        }
+	}
+	
+	// Twitter Log out function
+	private void twitterLogout() {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+        editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+        editor.putBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+        editor.commit();
+        Toast.makeText(getApplicationContext(),  "Logging Out on Twitter", Toast.LENGTH_LONG).show();
+	}
+	
+	// Twitter initial Control for getting token Data
 	private void initControlTwitter() {
         Uri uri = getIntent().getData();
         if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
@@ -4402,6 +4470,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
             new TwitterGetAccessTokenTask().execute("");
 	}
 
+	// Background task on getting Access token in twitter
 	class TwitterGetAccessTokenTask extends AsyncTask<String, String, String> {
 
         @Override
@@ -4445,6 +4514,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
         }
     }
 
+	// Background task on Posting Tweet on Twitter 
     class TwitterUpdateStatusTask extends AsyncTask<String, String, Boolean> {
 
         @Override

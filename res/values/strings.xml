@@ -6,6 +6,9 @@
     
     <string name="action_settings">Choose Save Path</string>
     <string name="hello_world">Hello world!</string>
+    <string name="mainctitle">Main Options</string>
+    <string name="main1">Home</string>
+    <string name="main2">Logout on Twitter</string>
     <string name="afctitle">Auto Focus and Capture</string>
     <string name="afc1">Manual AF and Capture (Default)</string>
     <string name="afc2">Single Tap AF and Capture</string>

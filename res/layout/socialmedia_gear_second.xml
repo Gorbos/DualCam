@@ -130,7 +130,7 @@
 			    
 			</LinearLayout> -->
 			
-			 <Button
+			 <!-- <Button
                	android:id="@+id/btnLogoutTwitter"
            		android:layout_width="wrap_content"
           		android:layout_height="wrap_content"
@@ -138,7 +138,7 @@
                	android:layout_alignParentBottom="true"
                	android:layout_marginBottom="180dp"
                	android:text="Log out Twitter" 
-               />
+               /> -->
 			
 			<Button
 	            android:id="@+id/fbButton"

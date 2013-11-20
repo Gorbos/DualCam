@@ -100,6 +100,19 @@ public class SocialMediaActivity extends Activity {
             AlertMessageBox.Show(SocialMediaActivity.this, "Twitter oAuth infos", "Please set your twitter consumer key and consumer secret", AlertMessageBox.AlertMessageBoxIcon.Info);
             return; 
         }
+        
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if (sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,true)) {
+        	
+        	Bundle extras = getIntent().getExtras();
+        	if(extras != null)
+        	showSpalshScreen = extras.getBoolean("showSplashScreen");
+        	
+            Intent intent = new Intent(SocialMediaActivity.this, DualCamActivity.class);
+            intent.putExtra("showSplashScreen", false);
+            startActivity(intent);
+            
+        }
 	}
 	
 	
@@ -199,7 +212,7 @@ public class SocialMediaActivity extends Activity {
 			  
 			  initializeComponent();
 			  
-			  initializeTwitterLogout();
+			  //initializeTwitterLogout();
 			  
 		}
 		
@@ -330,13 +343,13 @@ public class SocialMediaActivity extends Activity {
         }
     };
     
-    private void initializeTwitterLogout() {
+    /*private void initializeTwitterLogout() {
     	     // TODO Auto-generated method stub
     	     Button BtnTwitterLogout = (Button) findViewById(R.id.btnLogoutTwitter);
     	     BtnTwitterLogout.setOnClickListener(buttonLogOutClickListener);
-    }
+    }*/
     
-    private View.OnClickListener buttonLogOutClickListener = new View.OnClickListener() {
+    /*private View.OnClickListener buttonLogOutClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
     
@@ -349,7 +362,7 @@ public class SocialMediaActivity extends Activity {
                 
                 Toast.makeText(getApplicationContext(),  "Logging Out on Twitter", Toast.LENGTH_LONG).show();
             }
-        };
+        };*/
     
 
     
