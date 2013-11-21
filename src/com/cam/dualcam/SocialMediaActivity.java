@@ -102,7 +102,9 @@ public class SocialMediaActivity extends Activity {
         }
         
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if (sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,true)) {
+        if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false)) {
+        
+        } else {
         	
         	Bundle extras = getIntent().getExtras();
         	if(extras != null)
