@@ -141,6 +141,12 @@
 		        android:src="@drawable/retry2" 
 		        android:clickable="false"/>
 
+		    <com.cam.dualcam.SuperButton
+		        android:id="@+id/button1"
+		        android:layout_width="50dp"
+		        android:layout_height="50dp"
+		        android:text="Button" />
+
 		</LinearLayout>
 		
 		<LinearLayout 
