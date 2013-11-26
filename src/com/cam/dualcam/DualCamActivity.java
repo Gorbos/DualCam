@@ -143,7 +143,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 	public static String TAG = "DualCamActivity";
 	private Bitmap fileBitmap = null;
-	private File   filePath	= null;
+	public static File   filePath	= null;
 	private String fileName = null;
 	private String cameraSide = null;
 	private String orientationScreen = null;
@@ -427,14 +427,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				try {
 					Log.i(TAG, "isSharable = " + isSharable);
 					if (isSharable)
-						shareFunction();
-
+						shareFunction(); 
+						//shareFunctionInActivity();
 				} catch (Exception e) {
 					Log.i(TAG, "isSharable = " + isSharable);
 					Log.i(TAG, "ERROR = " + e.getCause());
 				}
 			}
-
+ 
 			
 			else if (view.getId() == R.id.cumPreviewBack) {
 				Log.i(TAG, ".cumPreviewBack is clicked");
@@ -1065,7 +1065,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		LinearLayout menuLinear = new LinearLayout(DualCamActivity.this);
 		menuLinear.setOrientation(1);
 		
-		menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
+		/*menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
 		
 		Button btnHome = new Button(this);
 		//btnHome.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -1080,7 +1080,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				startActivity(i);
 			}
 		});
-	    menuLinear.addView(btnHome);
+	    menuLinear.addView(btnHome);*/
 		
 	    Button btnFacebookLogout = new Button(this);
 	    //btnFacebookLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -3853,18 +3853,19 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
 					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+						
 						if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
-							{
+							  {
 					        	new TwitterAuthenticateTask().execute();
 					            Toast.makeText(getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
-					                  }else {
-					                	  new TwitterGetAccessTokenTask().execute("");
-					                	  //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
-					                  }
+					    }else {
+					             new TwitterGetAccessTokenTask().execute("");
+					             //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
+					           }
 					                  
-					              }else{
-					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
-					              }
+				}else{
+					//Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
+			    }
 			}
         	
         });
@@ -3908,17 +3909,15 @@ public class DualCamActivity extends Activity implements OnClickListener,
 						else if(!fbCB.isChecked())
 							Toast.makeText(getApplicationContext(), "Please choose at least 1 media.", Field.SHOWTIME).show();
 							dialog.dismiss();
-							
-							dialog.dismiss();
-	 						
-							if(tCB.isChecked()) {
+
+						if(tCB.isChecked()) {
 								fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString();
 								String TwitText = shareMessage.getText().toString();
 								String TwitStatus = TwitText + " via #DualCam";
 								//Toast.makeText(getApplicationContext(), "TwitStatus" + TwitStatus, Field.SHOWTIME).show();  
 								new TwitterUpdateStatusTask().execute(TwitStatus);
 														  
-							}else if(!tCB.isChecked()) {
+						}else if(!tCB.isChecked()) {
 						       					
 							}
 
@@ -3989,6 +3988,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
         
         
 		
+	}
+	
+	public void shareFunctionInActivity(){
+		Intent intent = new Intent(DualCamActivity.this,  SharingActivity.class); 
+		System.out.println(filePath.toString());
+		intent.putExtra("imagePath", filePath.toString()); 
+		DualCamActivity.this.startActivity(intent);	
+		DualCamActivity.this.finish();
 	}
 	
 	private void pushFBRequest(String message){

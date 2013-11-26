@@ -3,6 +3,7 @@ package com.cam.dualcam;
 
 //Local Widget/Class imports
 import com.cam.dualcam.widget.GifWebView;
+import com.cam.dualcam.DualCamActivity.TwitterGetAccessTokenTask;
 import com.cam.dualcam.twitter.TwitterConstant;
 import com.cam.dualcam.twitter.TwitterUtil;
 import com.cam.dualcam.utility.Field;
@@ -41,6 +42,9 @@ import com.hintdesk.core.activities.AlertMessageBox;
 import com.hintdesk.core.util.OSUtil;
 import com.hintdesk.core.util.StringUtil;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
 public class SocialMediaActivity extends Activity {
@@ -85,27 +89,68 @@ public class SocialMediaActivity extends Activity {
 		globalBundle = savedInstanceState;
 		loading = new LoadingDialog(SocialMediaActivity.this);
 		
+
 		setView(gear);
+	
+	}
+	
+	
+	
+	
+	@SuppressWarnings("deprecation")
+	private void checkNetworkConnection() {
+		// TODO Auto-generated method stub
+		int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+		if (currentapiVersion <= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
+		    // Do something for API 15 and below versions
+			System.out.println("Do something for API 15 and below versions");
+			ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || 
+		            connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+
+		         }
+		         else{
+		        	 
+		        	 AlertDialog alertDialog = new AlertDialog.Builder(SocialMediaActivity.this).create();
+		        		alertDialog.setTitle("No Connection");
+				    	alertDialog.setMessage("This application requires internet connection to run, Cross check your connectivity and try again.");
+				    	// Setting OK Button
+				    		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+				    			public void onClick(DialogInterface dialog, int which) {
+		                	}
+				    	});
+		 
+				    		// Showing Alert Message
+				    	alertDialog.show();
+		         }
+			
+			
+		} else{
+			System.out.println("do something for phones running an SDK above API 15");
+		    // do something for phones running an SDK above API 15
+			///detect if there is an internet
+	        if (!OSUtil.IsNetworkAvailable(getApplicationContext())) {
+	            AlertMessageBox.Show(SocialMediaActivity.this, "Internet connection", "A valid internet connection can't be established", AlertMessageBox.AlertMessageBoxIcon.Info);
+	            return;
+	        }
+	        
+	        //detect if constants has a null or whitespace
+	        if (StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_KEY) || StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_SECRET)) {
+	            AlertMessageBox.Show(SocialMediaActivity.this, "Twitter oAuth infos", "Please set your twitter consumer key and consumer secret", AlertMessageBox.AlertMessageBoxIcon.Info);
+	            return; 
+	        }
+	          
+		}
 		
+	}
+
+	private void detectIfUserLogInTwitter() {
 		
-		
-		///detect if there is an internet
-        if (!OSUtil.IsNetworkAvailable(getApplicationContext())) {
-            AlertMessageBox.Show(SocialMediaActivity.this, "Internet connection", "A valid internet connection can't be established", AlertMessageBox.AlertMessageBoxIcon.Info);
-            return;
-        }
-        
-        //detect if constants has a null or whitespace
-        if (StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_KEY) || StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_SECRET)) {
-            AlertMessageBox.Show(SocialMediaActivity.this, "Twitter oAuth infos", "Please set your twitter consumer key and consumer secret", AlertMessageBox.AlertMessageBoxIcon.Info);
-            return; 
-        }
-        
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false)) {
-        
+        	System.out.println("Not Log in ");
         } else {
-        	
+        	System.out.println("Log in ");
         	Bundle extras = getIntent().getExtras();
         	if(extras != null)
         	showSpalshScreen = extras.getBoolean("showSplashScreen");
@@ -115,11 +160,9 @@ public class SocialMediaActivity extends Activity {
             startActivity(intent);
             
         }
-	}
-	
-	
-	
-	
+		
+	} 
+
 	public void setView(String gear){
 
 		//THE ORIGINAL!!
@@ -192,7 +235,7 @@ public class SocialMediaActivity extends Activity {
 				    	finish();
 				    	Intent i = new Intent(SocialMediaActivity.this, DualCamActivity.class); 
 				    	i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						i.putExtra("showSplashScreen", false);
+						i.putExtra("showSplashScreen", false);  
 						startActivity(i);
 				    }
 				});
@@ -210,9 +253,15 @@ public class SocialMediaActivity extends Activity {
 				    }
 				});*/
 				
-			  initialFacebookComponent();
-			  
+			  checkNetworkConnection();	 
 			  initializeComponent();
+			  initialFacebookComponent();
+			  initControlTwitter();
+			  
+			  detectIfUserLogInTwitter();
+		      
+				 
+			  
 			  
 			  //initializeTwitterLogout();
 			  
@@ -365,37 +414,35 @@ public class SocialMediaActivity extends Activity {
                 Toast.makeText(getApplicationContext(),  "Logging Out on Twitter", Toast.LENGTH_LONG).show();
             }
         };*/
-    
 
-    
 	private View.OnClickListener buttonLoginOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
 
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
-            {
-                new TwitterAuthenticateTask().execute();
+    			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+                {
+                    new TwitterAuthenticateTask().execute();
+                    
+                    /*Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+                    Toast.makeText(getApplicationContext(), we + "Has No Logged In.", Toast.LENGTH_LONG).show();*/
+                    
+                } else {
+                	Bundle extras = getIntent().getExtras();
+                	if(extras != null)
+                	showSpalshScreen = extras.getBoolean("showSplashScreen");
+                	
+                    Intent intent = new Intent(SocialMediaActivity.this, DualCamActivity.class);
+                    intent.putExtra("showSplashScreen", false);
+                    startActivity(intent);
+                    
+                    /*Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+                    Toast.makeText(getApplicationContext(), we + "Has Logged In.", Toast.LENGTH_LONG).show();*/
                 
-                /*Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
-                Toast.makeText(getApplicationContext(), we + "Has No Logged In.", Toast.LENGTH_LONG).show();*/
-                
-            } else {
-            	Bundle extras = getIntent().getExtras();
-            	if(extras != null)
-            	showSpalshScreen = extras.getBoolean("showSplashScreen");
-            	
-                Intent intent = new Intent(SocialMediaActivity.this, DualCamActivity.class);
-                intent.putExtra("showSplashScreen", false);
-                startActivity(intent);
-                
-                /*Boolean we = sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
-                Toast.makeText(getApplicationContext(), we + "Has Logged In.", Toast.LENGTH_LONG).show();*/
-            }
-
+    		}
+    		
         }
     };
-
 
 	public boolean logCheck(){
 		Session session = Session.getActiveSession();
@@ -540,6 +587,8 @@ public class SocialMediaActivity extends Activity {
 	    //uiHelper.onResume();
 	    if(loading != null)
         	loading.dismiss();
+	    
+	    detectIfUserLogInTwitter();
 	}
 
 	@Override
@@ -580,8 +629,11 @@ public class SocialMediaActivity extends Activity {
 	        @Override
 	        protected void onPostExecute(RequestToken requestToken) {
 	            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL()));
+	            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+	            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+	            intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
 	            startActivity(intent);
-	        }
+	        } 
 
 	        @Override
 	        protected RequestToken doInBackground(String... params) {
@@ -589,6 +641,58 @@ public class SocialMediaActivity extends Activity {
 	        }
 	}
 	 
-	 
+	// Twitter initial Control for getting token Data
+		private void initControlTwitter() {
+	        Uri uri = getIntent().getData();
+	        if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
+	            String verifier = uri.getQueryParameter(TwitterConstant.URL_PARAMETER_TWITTER_OAUTH_VERIFIER);
+	            new TwitterGetAccessTokenTask().execute(verifier);
+	        } else
+	            new TwitterGetAccessTokenTask().execute("");
+		}
+
+		// Background task on getting Access token in twitter
+		class TwitterGetAccessTokenTask extends AsyncTask<String, String, String> {
+
+	        @Override
+	        protected void onPostExecute(String userName) {
+	            //textViewUserName.setText(Html.fromHtml("<b> Welcome " + userName + "</b>"));
+	        }
+ 
+	        @Override
+	        protected String doInBackground(String... params) {
+ 
+	            Twitter twitter = TwitterUtil.getInstance().getTwitter();
+	            RequestToken requestToken = TwitterUtil.getInstance().getRequestToken();
+	            if (!StringUtil.isNullOrWhitespace(params[0])) {
+	                try {
+
+	                    AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, params[0]);
+	                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+	                    SharedPreferences.Editor editor = sharedPreferences.edit();
+	                    editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, accessToken.getToken());
+	                    editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, accessToken.getTokenSecret());
+	                    editor.putBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, true);
+	                    editor.commit();
+	                    return twitter.showUser(accessToken.getUserId()).getName();
+	                } catch (TwitterException e) {
+	                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+	                }
+	            } else {
+	                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+	                String accessTokenString = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+	                String accessTokenSecret = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+	                AccessToken accessToken = new AccessToken(accessTokenString, accessTokenSecret);
+	                try {
+	                    TwitterUtil.getInstance().setTwitterFactory(accessToken);
+	                    return TwitterUtil.getInstance().getTwitter().showUser(accessToken.getUserId()).getName();
+	                } catch (TwitterException e) {
+	                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+	                }
+	            }
+
+	            return null;  //To change body of implemented methods use File | Settings | File Templates.
+	        }
+	    }
 	
 }
