@@ -63,4 +63,6 @@
 	<string name="socialmedia">Account settings</string>
 	<string name="fblogin">Log in<!--  to Facebook --></string>
 	<string name="fblogout">Logout</string>
+	
+	<string name="title_activity_sharing">Logout</string>
 </resources>

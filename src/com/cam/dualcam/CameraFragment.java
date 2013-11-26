@@ -117,12 +117,13 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
+import com.facebook.widget.LoginButton;
 import com.hintdesk.core.util.StringUtil;
 
 
 
 @SuppressLint("NewApi")
-public class DualCamActivity extends Activity implements OnClickListener,
+public class CameraFragment extends Activity implements OnClickListener,
 		OnColorChangedListener {
 
 	// Defined variables
@@ -143,7 +144,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 	public static String TAG = "DualCamActivity";
 	private Bitmap fileBitmap = null;
-	public static File   filePath	= null;
+	private File   filePath	= null;
 	private String fileName = null;
 	private String cameraSide = null;
 	private String orientationScreen = null;
@@ -302,7 +303,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		uiHelper = new UiLifecycleHelper(DualCamActivity.this, callback);
+		uiHelper = new UiLifecycleHelper(CameraFragment.this, callback);
 	    uiHelper.onCreate(savedInstanceState);
 		letThereBeLight(savedInstanceState);
 	}
@@ -392,7 +393,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				if (isRetryable) {
 
 					AlertDialog.Builder retryDialog = new AlertDialog.Builder(
-							DualCamActivity.this);
+							CameraFragment.this);
 
 					// set title
 					// retryDialog.setTitle("");
@@ -427,14 +428,14 @@ public class DualCamActivity extends Activity implements OnClickListener,
 				try {
 					Log.i(TAG, "isSharable = " + isSharable);
 					if (isSharable)
-						shareFunction(); 
-						//shareFunctionInActivity();
+						shareFunction();
+
 				} catch (Exception e) {
 					Log.i(TAG, "isSharable = " + isSharable);
 					Log.i(TAG, "ERROR = " + e.getCause());
 				}
 			}
- 
+
 			
 			else if (view.getId() == R.id.cumPreviewBack) {
 				Log.i(TAG, ".cumPreviewBack is clicked");
@@ -914,7 +915,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		final String message = thismessage;
 
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-				DualCamActivity.this);
+				CameraFragment.this);
 
 		// set title
 		// alertDialogBuilder.setTitle(title);
@@ -1059,13 +1060,13 @@ public class DualCamActivity extends Activity implements OnClickListener,
 	
 	//The customPupUpMenu
 	public AlertDialog customPopUpMenu(){
-		AlertDialog.Builder popUpMenu = new AlertDialog.Builder(DualCamActivity.this);
-		ScrollView sv = new ScrollView(DualCamActivity.this);
+		AlertDialog.Builder popUpMenu = new AlertDialog.Builder(CameraFragment.this);
+		ScrollView sv = new ScrollView(CameraFragment.this);
 		
-		LinearLayout menuLinear = new LinearLayout(DualCamActivity.this);
+		LinearLayout menuLinear = new LinearLayout(CameraFragment.this);
 		menuLinear.setOrientation(1);
 		
-		/*menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
+		menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
 		
 		Button btnHome = new Button(this);
 		//btnHome.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -1074,13 +1075,15 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(DualCamActivity.this, SocialMediaActivity.class); 
+				Intent i = new Intent(CameraFragment.this, SocialMediaActivity.class); 
 				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("showSplashScreen", false);
 				startActivity(i);
 			}
 		});
-	    menuLinear.addView(btnHome);*/
+	    menuLinear.addView(btnHome);
+	    
+	    com.facebook.widget.LoginButton lb = new com.facebook.widget.LoginButton(getApplicationContext());
 		
 	    Button btnFacebookLogout = new Button(this);
 	    //btnFacebookLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -1089,11 +1092,9 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				
 			}
 		});
-	    menuLinear.addView(btnFacebookLogout);
+	    menuLinear.addView(lb);
 	    
 	    Button btnTwitterLogout = new Button(this);
 	    //btnTwitterLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -1885,10 +1886,10 @@ public class DualCamActivity extends Activity implements OnClickListener,
 
 				// Changes by Aid
 				initialColor = PreferenceManager.getDefaultSharedPreferences(
-						DualCamActivity.this).getInt(COLOR_PREFERENCE_KEY,
+						CameraFragment.this).getInt(COLOR_PREFERENCE_KEY,
 						Color.WHITE);
-				colorPickerDialog = new ColorPickerDialog(DualCamActivity.this,
-						DualCamActivity.this, initialColor, addedText);
+				colorPickerDialog = new ColorPickerDialog(CameraFragment.this,
+						CameraFragment.this, initialColor, addedText);
 				// Changes by Aid
 				colorPickerDialog.show();
 			}
@@ -2366,7 +2367,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 					
 					finish();
 //					Intent i = new Intent(DualCamActivity.this, GifWebviewDisplayActivity.class);
-					Intent i = new Intent(DualCamActivity.this, SocialMediaActivity.class); 
+					Intent i = new Intent(CameraFragment.this, SocialMediaActivity.class); 
 					i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					i.putExtra("showSplashScreen", false);
 					startActivity(i);
@@ -2401,7 +2402,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			createTextFrameLayout = (FrameLayout) findViewById(R.id.createTextFrame);
 			toSaveLayout = (RelativeLayout) findViewById(R.id.overAllLayout);
 			
-			loading = new LoadingDialog(DualCamActivity.this);
+			loading = new LoadingDialog(CameraFragment.this);
 
 			hideAct = new HideAct(getApplicationContext());
 			captureButton.setOnClickListener(this);
@@ -3030,7 +3031,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		// textButton.setImageResource(R.drawable.text2);
 		// Do the Text
 		AlertDialog.Builder alertDialogBuilderCreateText = new AlertDialog.Builder(
-				DualCamActivity.this);
+				CameraFragment.this);
 
 		// set title
 		// alertDialogBuilderCreateText.setTitle("Create Text");
@@ -3808,7 +3809,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
 //		finish();
 //		startActivity(Intent.createChooser(sharingIntent, "Share via"));
 //		
-		final Dialog dialog = new Dialog(DualCamActivity.this);
+		final Dialog dialog = new Dialog(CameraFragment.this);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.setContentView(R.layout.sharing_menu);
@@ -3853,19 +3854,18 @@ public class DualCamActivity extends Activity implements OnClickListener,
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
 					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-						
 						if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
-							  {
+							{
 					        	new TwitterAuthenticateTask().execute();
 					            Toast.makeText(getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
-					    }else {
-					             new TwitterGetAccessTokenTask().execute("");
-					             //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
-					           }
+					                  }else {
+					                	  new TwitterGetAccessTokenTask().execute("");
+					                	  //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
+					                  }
 					                  
-				}else{
-					//Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
-			    }
+					              }else{
+					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
+					              }
 			}
         	
         });
@@ -3909,15 +3909,17 @@ public class DualCamActivity extends Activity implements OnClickListener,
 						else if(!fbCB.isChecked())
 							Toast.makeText(getApplicationContext(), "Please choose at least 1 media.", Field.SHOWTIME).show();
 							dialog.dismiss();
-
-						if(tCB.isChecked()) {
+							
+							dialog.dismiss();
+	 						
+							if(tCB.isChecked()) {
 								fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString();
 								String TwitText = shareMessage.getText().toString();
 								String TwitStatus = TwitText + " via #DualCam";
 								//Toast.makeText(getApplicationContext(), "TwitStatus" + TwitStatus, Field.SHOWTIME).show();  
 								new TwitterUpdateStatusTask().execute(TwitStatus);
 														  
-						}else if(!tCB.isChecked()) {
+							}else if(!tCB.isChecked()) {
 						       					
 							}
 
@@ -3990,15 +3992,6 @@ public class DualCamActivity extends Activity implements OnClickListener,
 		
 	}
 	
-	public void shareFunctionInActivity(){
-		Intent intent = new Intent(DualCamActivity.this,  DualCamActivity.class); 
-		//Intent intent = new Intent(DualCamActivity.this,  SharingActivity.class); 
-		System.out.println(filePath.toString());
-		intent.putExtra("imagePath", filePath.toString()); 
-		DualCamActivity.this.startActivity(intent);	
-		DualCamActivity.this.finish();
-	}
-	
 	private void pushFBRequest(String message){
 		killMe = true;
 		Uri uri = Uri.parse("file://" + fileName);
@@ -4012,7 +4005,7 @@ public class DualCamActivity extends Activity implements OnClickListener,
         if (!isSubsetOf(PERMISSIONS, permissions)) {
             pendingPublishReauthorization = true;
             Session.NewPermissionsRequest newPermissionsRequest = new Session
-                    .NewPermissionsRequest(DualCamActivity.this, PERMISSIONS);
+                    .NewPermissionsRequest(CameraFragment.this, PERMISSIONS);
             mySession.requestNewPublishPermissions(newPermissionsRequest);
 
     		Log.i(TAG, "bwahahahahha");
