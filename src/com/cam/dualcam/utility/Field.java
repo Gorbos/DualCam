@@ -34,7 +34,7 @@ public class Field {
   	//Toast showtime
   	public static final int SHOWTIME = 5000;
 	public static final int FILE_SELECT_CODE = 0;
-
+	public static final int sdk = android.os.Build.VERSION.SDK_INT;
 	
 	public static Integer ActionClick = 1001;
 	public static Integer ActionClicking = 1002;
@@ -119,5 +119,15 @@ public class Field {
 	public static final String PREFS_SET_MELODY			= "Melody";
 	public static final String PREFS_SET_ORIENTATION	= "Orientation";
 	public static final String PREFS_SET_MELODY3			= "Melody";
+	
+	
+	//For MotherCrystal bundydundy keys
+	public static String mother = "MotherCrystal";
+	public static String splash = "SplashFragment";
+	public static String social = "SocialMediaFragment";
+	public static String camera = "CameraFragment";
+	public static String cam 	= "CamFragment";
+	
+	public static String isShown = "isShown";
 }
 

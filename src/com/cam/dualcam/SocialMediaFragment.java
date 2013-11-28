@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
@@ -78,6 +79,7 @@ public class SocialMediaFragment extends Fragment{
 	    super.onCreate(savedInstanceState);
 	    uiHelper = new UiLifecycleHelper(getActivity(), callback);
 	    uiHelper.onCreate(savedInstanceState);
+	    Log.i(TAG, "from onCreate.");
 	    
 	    globalBundle = savedInstanceState;
 		loading = new LoadingDialog(getActivity());
@@ -89,6 +91,7 @@ public class SocialMediaFragment extends Fragment{
 	        ViewGroup container, Bundle savedInstanceState) {
 		
 	    View view = inflater.inflate(R.layout.socialmedia_fragment, container, false);
+	    Log.i(TAG, "from onCreateView.");
 //	    Toast.makeText(getActivity().getApplicationContext(),
 //	    		"getArguments() = "+getArguments(), 
 //	    		Field.SHOWTIME).show();
@@ -124,10 +127,16 @@ public class SocialMediaFragment extends Fragment{
 //		});
 
 		
-		//fbLogin.setOnClicListener(superButton);
+		fbLogin.setOnClickListener(superButton);
 		twLogin.setOnClickListener(superButton);
 		cameraButton.setOnClickListener(superButton);
-		
+//		fbLoginButton.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				Log.i(TAG, "fbLoginButton clicked");
+//			}
+//		});
 	  return view;
 	}
 
@@ -138,6 +147,19 @@ public class SocialMediaFragment extends Fragment{
         		
         		//Log-in to FB
 //            	ultimateSession(globalBundle);
+        		Session ses = Session.getActiveSession();
+        		if(ses != null && ses.isOpened()){
+        			Log.i(TAG, "ses is not null and is "+ses.getState());
+        			((MotherCrystal)getActivity()).showFragment(MotherCrystal.CAM, false);
+        		}
+        		else{
+        			Log.i(TAG, "ses is null");
+        			
+        			ses.openActiveSession(getActivity()	, 
+        					SocialMediaFragment.this, 
+        					true, 
+        					((MotherCrystal)getActivity()).callback);
+        		}
         	}
         	else if(v.getId() == R.id.twitterButton){
         		//Log-in to Twitter
@@ -145,7 +167,7 @@ public class SocialMediaFragment extends Fragment{
         	}
         	else if(v.getId() == R.id.cameraButton){
         		//Start Cam
-        		trial();
+        		((MotherCrystal)getActivity()).showFragment(MotherCrystal.CAM, false);
         	}
     
 
@@ -157,34 +179,52 @@ public class SocialMediaFragment extends Fragment{
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    super.onActivityResult(requestCode, resultCode, data);
 	    uiHelper.onActivityResult(requestCode, resultCode, data);
-	    Toast.makeText(getActivity().getApplicationContext(),TAG, Field.SHOWTIME).show();
-	    Log.i(TAG, "here at "+TAG);
+	    Log.i(TAG, "from onActivityResult.");
 	}
 	
 	@Override
 	public void onResume() {
 	    super.onResume();
 	    uiHelper.onResume();
+	    Log.i(TAG, "from onResume.");
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle bundle) {
 	    super.onSaveInstanceState(bundle);
 	    uiHelper.onSaveInstanceState(bundle);
+	    Log.i(TAG, "from onSaveInstanceState.");
 	}
 
 	@Override
 	public void onPause() {
 	    super.onPause();
 	    uiHelper.onPause();
+	    Log.i(TAG, "from onPause.");
 	}
 
 	@Override
 	public void onDestroy() {
 	    super.onDestroy();
 	    uiHelper.onDestroy();
+	    Log.i(TAG, "from onDestroy.");
 	}
 	
+	@Override
+	public void onDestroyView() {
+	    super.onDestroyView();
+	    if(uiHelper != null)
+	    	uiHelper.onDestroy();
+	    Log.i(TAG, "from onDestroyView.");
+	}
+	
+	@Override
+	public void onStop(){
+		super.onStop();
+		if(uiHelper != null)
+			uiHelper.onStop();
+	    Log.i(TAG, "from onStop.");
+	}
 
 	private void makeMeRequest(final Session session) {
 	    // Make an API call to get user data and define a 
@@ -210,6 +250,7 @@ public class SocialMediaFragment extends Fragment{
 	} 
 	
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
+		Log.i(TAG,"from onSessionStateChange.");
 	    if (session != null && session.isOpened()) {
 	        // Get the user's data.
 	        makeMeRequest(session);
