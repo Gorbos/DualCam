@@ -100,7 +100,7 @@ public class MotherCrystal extends FragmentActivity {
 			
 		case SOCIALMEDIA:
 			bundyDundy.putBoolean(Field.social+Field.isShown, true);
-			
+			//((MotherCrystal).).setInteractions();
 			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
 			bundyDundy.putBoolean(Field.cam+Field.isShown, false);
 			break;
@@ -134,6 +134,7 @@ public class MotherCrystal extends FragmentActivity {
 	    if (addToBackStack) {
 	        transaction.addToBackStack(null);
 	    }
+	    
 	    transaction.commit();
 	    
 	}

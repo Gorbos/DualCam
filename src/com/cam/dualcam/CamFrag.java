@@ -1,5 +1,8 @@
 package com.cam.dualcam;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 import com.cam.dualcam.CameraFragment.setTouchMode;
 import com.cam.dualcam.utility.CameraUtility;
 import com.cam.dualcam.utility.ColorPickerDialog;
@@ -19,14 +22,20 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.ErrorCallback;
 import android.hardware.Camera.Parameters;
+import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -50,7 +59,7 @@ import android.widget.Toast;
 @SuppressLint("NewApi")
 public class CamFrag extends Fragment {
 
-	private static final String TAG = "SplashFragment";
+	private static final String TAG = "CamFrag";
 	
 	// Defined variables
 		// Jap Messages
@@ -79,11 +88,12 @@ public class CamFrag extends Fragment {
 		
 	    View view = inflater.inflate(R.layout.cam_fragment, container, false);
 	    Log.i(TAG, "from onCreateView.");
+	    initiateJapWords();
 	    
 	    mainView = view;
 	    setWidgets(view);
 	    initVar();
-		
+	    //setInteractions();
 		
 	  return view;
 	}
@@ -158,6 +168,16 @@ public class CamFrag extends Fragment {
 	
 	//Phone settings
 	private String orientationScreen = null;
+	public MediaPlayer mMediaPlayer;
+	
+	//For the image
+	private Bitmap fileBitmap = null;
+	private File   filePath	= null;
+	private String fileName = null;
+	private Bitmap tempPic = null;
+	private Bitmap frontPic = null;
+	private Bitmap backPic = null;
+	public BitmapFactory.Options options = null;
 	
 	//Camera objects
 	// Camera Settings
@@ -194,6 +214,12 @@ public class CamFrag extends Fragment {
 		
 	//Dialogs
 		public AlertDialog popUpDialog;
+		
+		//Jap words
+		private String ok;
+		private String cancel;
+		private String yes;
+		private String no;
 		
 	//Touch Actions
 		// Touch and click events
@@ -297,14 +323,31 @@ public class CamFrag extends Fragment {
 		doubleTapTimer = null;//doDoubleTap();
 	}
 	
+	//Initiate jap words
+	public void initiateJapWords(){
+		errorMessage = getResources().getString(R.string.error_message);
+		retakeMessage = getResources().getString(R.string.retake_message);
+		restartMessage = getResources().getString(R.string.restart_message);
+		saveMessage = getResources().getString(R.string.save_message);
+		addALabelText = getResources().getString(R.string.add_a_label_text);
+		typeTextHereText = getResources().getString(R.string.typehere_text);
+		fontSizeText = getResources().getString(R.string.fontsize_text);
+		fontColorText = getResources().getString(R.string.fontcolor_text);
+
+		ok = getResources().getString(R.string.ok_text);
+		cancel = getResources().getString(R.string.cancel_text);
+		yes = getResources().getString(R.string.yes_text);
+		no = getResources().getString(R.string.no_text);
+	}
+	
 	private String cameraSide = null;
-	private void setInteractions(){
-//		setSide("BACK");
-//		
-//		setButton(shareButton);
-//		setButton(saveButton);
-//		setButton(textButton);
-//		setButton(retryButton);
+	public void setInteractions(){
+		setSide("BACK");
+		
+		setButton(shareButton);
+		setButton(saveButton);
+		setButton(textButton);
+		setButton(retryButton);
 	}
 	
 	public void setUntake(String cameraSide) {
@@ -314,6 +357,15 @@ public class CamFrag extends Fragment {
 			isFrontTaken = false;
 		}
 	}	
+	
+	public void setRetake(String cameraSide) {
+
+		if (cameraSide == "BACK") {
+			isBackTaken = true;
+		} else if (cameraSide == "FRONT") {
+			isFrontTaken = true;
+		}
+	}
 	
 	public void setSide(String thisside) {
 		touchAction = Field.ActionStateClickable;
@@ -409,11 +461,8 @@ public class CamFrag extends Fragment {
 			setUntake(cameraSide);
 			ImageView buttonView = getPressedPreview(cameraSide);
 			cameraUtility = new CameraUtility(getActivity().getApplicationContext());
-			Log.i(TAG, "1");
 
-			// Normal
-			// mCamera =
-			// cameraUtility.getCameraInstance(cameraSide,screenHeight,screenWidth,orientationScreen);
+
 			mCamera = cameraUtility.getCameraInstance(cameraSide,
 					screenHeight / 2, screenWidth, orientationScreen);
 
@@ -430,22 +479,16 @@ public class CamFrag extends Fragment {
 
 			setCameraDisplayOrientation(getActivity(),
 					cameraUtility.findCamera(cameraSide), mCamera);
-			Log.i(TAG, "b");
+
 			cameraPreview = new CameraPreview(getActivity().getApplicationContext(), mCamera);
 			mainPreview.removeAllViews();
 
 			android.widget.RelativeLayout.LayoutParams layoutParams = (android.widget.RelativeLayout.LayoutParams) mainPreview
 					.getLayoutParams();
 
-			// LayoutParams grav = (LayoutParams) mainPreview.getLayoutParams();
-			// int gr = grav.getClass()
-			RelativeLayout rl = (RelativeLayout) mainView.findViewById(R.id.addCamPreview);
-			// android.widget.RelativeLayout.LayoutParams layoutParams =
-			// (android.widget.RelativeLayout.LayoutParams)
-			// rl.getLayoutParams();
+			//RelativeLayout rl = (RelativeLayout) mainView.findViewById(R.id.addCamPreview);
 
 			if (orientationScreen == "PORTRAIT") {
-				// Log.i(TAG,"PASOK DITO!!!");
 				if (cameraSide == "BACK") {
 					layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 1);
 					layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
@@ -499,7 +542,6 @@ public class CamFrag extends Fragment {
 
 			mainPreview.setLayoutParams(layoutParams);
 			mainPreview.addView(cameraPreview);
-			Log.i(TAG, "2");
 
 			buttonView.setBackgroundDrawable(null);
 			buttonView.setImageBitmap(null);
@@ -643,17 +685,13 @@ public class CamFrag extends Fragment {
 			focusMarker.setImageDrawable(getResources().getDrawable(
 					R.drawable.focusmark1));
 
-			// FrameLayout.LayoutParams lp = new
-			// FrameLayout.LayoutParams(80,80);
-			// Log.i(TAG, "The Size = "+focusMarker.getWidth());
+
 			if (touchX != null && touchY != null) {
 				if (cameraSide == "BACK"
 						&& beingTouched.getId() == R.id.cumPreviewBack) {
 					lp.setMargins((int) Math.abs(touchX - 40),
 							(int) Math.abs(touchY - 40), 0, 0);
-					// Log.i(TAG, "It went here"+(int) Math.abs(touchX - 40));
-					// lp.setMargins((screenWidth - 80) / 4 , (screenHeight -
-					// 80) / 2, 0,0);
+
 					focusMarker.setLayoutParams(lp);
 					mainPreview.addView(focusMarker);
 				} else if (cameraSide == "FRONT"
@@ -668,8 +706,7 @@ public class CamFrag extends Fragment {
 									(int) Math.abs(touchY - 40)
 											+ (screenHeight / 2), 0, 0);
 						} else {
-							// lp.setMargins((int) Math.abs(touchX - 40) , (int)
-							// Math.abs(touchY ) + 150, 0,0);
+
 							lp.setMargins(
 									(int) Math.abs(touchX - 40),
 									(int) Math.abs(touchY - 40)
@@ -680,18 +717,13 @@ public class CamFrag extends Fragment {
 
 					} else if (orientationScreen == "LANDSCAPE") {
 						if (Field.sdk >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-							// lp.setMargins((int) Math.abs(touchX - 40) , (int)
-							// Math.abs(touchY - 40) + (screenHeight /2), 0,0);
+							
 							lp.setMargins((int) Math.abs(touchX - 40)
 									+ (screenWidth / 2),
 									(int) Math.abs(touchY - 40), 0, 0);
 
 						} else {
-							// lp.setMargins((int) Math.abs(touchX - 40) , (int)
-							// Math.abs(touchY ) + 150, 0,0);
-							// lp.setMargins((int) Math.abs(touchX - 40) , (int)
-							// Math.abs(touchY - 40 ) + frontPreview.getHeight()
-							// / 2 , 0,0);
+
 							lp.setMargins((int) Math.abs(touchX - 40)
 									+ (frontPreview.getWidth() / 2),
 									(int) Math.abs(touchY - 40), 0, 0);
@@ -704,35 +736,6 @@ public class CamFrag extends Fragment {
 				}
 
 			} 
-//			else if (touchX == null && touchY == null && beingTouched != null) {
-//
-//				if (cameraSide == "BACK"
-//						&& beingTouched.getId() == R.id.cumPreviewBack) {
-//					if (orientationScreen == "PORTRAIT")
-//						lp.setMargins((screenWidth - 80) / 2,
-//								(screenHeight - 80) / 4, 0, 0);
-//					else if (orientationScreen == "LANDSCAPE")
-//						lp.setMargins((screenWidth - 80) / 4,
-//								(screenHeight - 80) / 2, 0, 0);
-//
-//					focusMarker.setLayoutParams(lp);
-//					mainPreview.addView(focusMarker);
-//				} else if (cameraSide == "FRONT"
-//						&& beingTouched.getId() == R.id.cumPreviewFront) {
-//					if (orientationScreen == "PORTRAIT")
-//						lp.setMargins((screenWidth - 80) / 2,
-//								((screenHeight - 80) * 3) / 4, 0, 0);
-//					else if (orientationScreen == "LANDSCAPE")
-//						lp.setMargins(((screenWidth - 80) * 3) / 4,
-//								(screenHeight - 80) / 2, 0, 0);
-//
-//					focusMarker.setLayoutParams(lp);
-//					mainPreview.addView(focusMarker);
-//				}
-//
-//			}
-			// else if(touchX == null && touchY == null && beingTouched ==
-			// null){
 			else {
 				if (cameraSide == "BACK") {
 					if (orientationScreen == "PORTRAIT")
@@ -746,23 +749,15 @@ public class CamFrag extends Fragment {
 					mainPreview.addView(focusMarker);
 				} else if (cameraSide == "FRONT") {
 					if (orientationScreen == "PORTRAIT") {
-						// lp.gravity = -1;
-						// lp.setMargins((screenWidth - 80) / 2 ,
-						// (frontPreview.getHeight() /2) +
-						// frontPreview.getHeight(), 0,0);
-						// Log.i(TAG,
-						// "screenWidth = "+screenWidth+" : screenHeight = "+screenHeight+" : frontPreview.getHeight() = "+frontPreview.getHeight()+" : backPreview.getHeight() = "+backPreview.getHeight()+" : mainPreview = "+mainPreview.getHeight()+" : ((screenHeight - 80) * 3 )/4 = "+((screenHeight
-						// - 80) * 3 )/4);
+						
 						lp.setMargins((screenWidth - 80) / 2,
 								(int) ((screenHeight - 80) * 3) / 4, 0, 0);
-						// lp.setMargins((screenWidth - 80) / 2
-						// ,frontPreview.getHeight(), 0,0);
+
 					} else if (orientationScreen == "LANDSCAPE")
 						lp.setMargins(((screenWidth - 80) * 3) / 4,
 								(screenHeight - 80) / 2, 0, 0);
 
 					focusMarker.setLayoutParams(lp);
-					// mainPreview.addView(focusMarker);
 				}
 
 			}
@@ -770,7 +765,6 @@ public class CamFrag extends Fragment {
 		} else if (focusState == "UNFOCUS") {
 			if (focusMarker != null)
 				mainPreview.removeView(focusMarker);
-			// focusMarker.setImageDrawable(getResources().getDrawable(R.drawable.focusmark2));
 		} else if (focusState == "SHOOT") {
 			if (focusMarker != null) {
 				focusMarker.setImageDrawable(getResources().getDrawable(
@@ -805,6 +799,16 @@ public class CamFrag extends Fragment {
 
 		}
 
+	}
+	
+	public void settoBackground(View view, Bitmap bitmap) {
+		BitmapDrawable bd = new BitmapDrawable(bitmap);
+
+		if (Field.sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+			view.setBackgroundDrawable(bd);
+		} else {
+			view.setBackground(bd);
+		}
 	}
 	
 	public CountDownTimer cameraSetFocus(final String focusState,
@@ -899,7 +903,7 @@ public class CamFrag extends Fragment {
 				mCamera.setErrorCallback(ec);
 				
 				//etong method ang take a pic na mismo :D
-				//mCamera.takePicture(shutterKACHANG, null, getPic);
+				mCamera.takePicture(shutterKACHANG, null, getPic);
 
 			} catch (Exception e) {
 				Log.i(TAG, "Error at capture button : e = " + e.getCause());
@@ -909,6 +913,15 @@ public class CamFrag extends Fragment {
 
 		}
 	}
+	
+	public void retakeImage(String thisside) {
+
+		cameraSide = thisside;
+		String message = retakeMessage;
+		String title = "retake";
+		createAlert(title, cameraSide, message);
+	}
+
 	
 	public ErrorCallback ec = new ErrorCallback() {
 
@@ -925,18 +938,594 @@ public class CamFrag extends Fragment {
             mgr.playSoundEffect(AudioManager.FLAG_PLAY_SOUND);
         }
     };
+    
 
+	public PictureCallback getPic = new PictureCallback() {
+
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+
+			try {
+				isRetaking = false;
+				isRetryable = true;
+				setButton(retryButton);
+				//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
+				ImageView buttonView = getPressedPreview(cameraSide);
+				Matrix matrix = new Matrix();
+				int width = 0;
+				int height = 0;
+				int extraWidth = 0;
+				int extraHeight = 0;
+				int marginalWidth = 0;
+				int marginalHeight = 0;
+				
+				bgMusicUtility("captureresume");
+				// if(tempPic != null){
+				// tempPic.recycle();
+				// tempPic = null;
+				// }
+				Log.i(TAG, "Pic taken");
+				if (cameraSide == "BACK") {
+					Log.i(TAG, "Side = " + cameraSide);
+					setRetake(cameraSide);
+					matrix.postRotate(result);
+
+					options = new BitmapFactory.Options();
+					options.inSampleSize = 1;
+					options.inJustDecodeBounds = true;
+
+					// Determine how much to scale down the image
+					// int scaleFactor = Math.min(photoW/targetW,
+					// photoH/targetH);
+
+					Bitmap temp = BitmapFactory.decodeByteArray(data, 0,
+							data.length);
+					int xW = temp.getWidth();
+					int xH = temp.getHeight();
+					// Determine how much to scale down the image
+					// int scaleFactor = Math.min(xW/screenHeight,
+					// xH/screenWidth);
+					int scaleFactor = Math.max(xW / screenHeight, xH
+							/ screenWidth);
+					// Calculate inSampleSize
+					// options.inSampleSize =
+					// bitmapResizer.calculateInSampleSize(options, shortWidth,
+					// shortHeight);
+					options.inSampleSize = scaleFactor;
+					// Decode bitmap with inSampleSize set
+					options.inJustDecodeBounds = false;
+					tempPic = BitmapFactory.decodeByteArray(data, 0,
+							data.length, options);
+					width = tempPic.getWidth();
+					height = tempPic.getHeight();
+
+					Log.i(TAG, "Before SShot");
+					Log.i(TAG,
+							"*******************   TADAA!!   ***************************");
+					Log.i(TAG, "xW = " + xW + ": xH = " + xH);
+					Log.i(TAG, "Width = " + tempPic.getWidth() + ": Height = "
+							+ tempPic.getHeight());
+					Log.i(TAG, "screenWidth = " + screenWidth
+							+ ": screenHeight = " + screenHeight);
+					Log.i(TAG, "scaleFactor = " + scaleFactor);
+
+					Log.i(TAG,
+							"*******************   TADAA!!   ***************************");
+					if (width > screenHeight || height > screenWidth) {
+						if (width > 1280 || height > 1280) {
+							tempPic = Bitmap.createScaledBitmap(tempPic,
+									Math.round(width / 2),
+									Math.round(height / 2), true);
+						}
+						tempPic = Bitmap.createBitmap(tempPic, 0, 0,
+								tempPic.getWidth(), tempPic.getHeight(),
+								matrix, true);
+						width = tempPic.getWidth();
+						height = tempPic.getHeight();
+						extraWidth = width - screenWidth;
+						extraHeight = height - screenHeight;
+						marginalWidth = Math.round(extraWidth / 2);
+						marginalHeight = Math.round(extraHeight / 2);
+						if (marginalHeight < 0)
+							marginalHeight = 0;
+						if (marginalWidth < 0)
+							marginalWidth = 0;
+						if (extraWidth < 0)
+							extraWidth = 0;
+						if (extraHeight < 0)
+							extraHeight = 0;
+
+						Log.i(TAG, "Width = " + width + ": Height = " + height);
+						Log.i(TAG, "screenWidth = " + screenWidth
+								+ ": screenHeight = " + screenHeight);
+						Log.i(TAG, "marginalWidth = " + marginalWidth
+								+ ": marginalHeight = " + marginalHeight);
+
+						if (orientationScreen == "PORTRAIT") {
+							tempPic = Bitmap.createBitmap(tempPic,
+									marginalWidth, marginalHeight, width
+											- extraWidth, height
+											- marginalHeight);
+							// tempPic = Bitmap.createBitmap(tempPic,0,0,width,
+							// height);
+						}
+					} else {
+						tempPic = Bitmap.createBitmap(tempPic, 0, 0,
+								tempPic.getWidth(), tempPic.getHeight(),
+								matrix, true);
+						width = tempPic.getWidth();
+						height = tempPic.getHeight();
+						Log.i(TAG, "Width = " + width + ": Height = " + height);
+						Log.i(TAG, "screenWidth = " + screenWidth
+								+ ": screenHeight = " + screenHeight);
+					}
+
+					width = tempPic.getWidth();
+					height = tempPic.getHeight();
+					// tempPic = Bitmap.createBitmap(tempPic, 0,0,width,
+					// Math.round(height/2));
+
+					if (orientationScreen == "PORTRAIT") {
+						// Portrait
+						tempPic = Bitmap.createBitmap(tempPic, 0, 0, width,
+								height - Math.round(height / 3));
+
+					} else if (orientationScreen == "LANDSCAPE") {
+						// Landscape
+						tempPic = Bitmap.createBitmap(tempPic, 0, 0, width
+								- Math.round(width / 3), height);
+
+					}
+
+					settoBackground(buttonView, tempPic);
+					backPic = tempPic;
+					mCamera.stopPreview();
+					releaseCamera();
+					previewImage.setVisibility(ImageView.GONE);
+					isBackTaken = true;
+
+					if (!isFrontTaken) {
+						setSide("FRONT");
+						// setUntake("BACK");
+					}
+
+				} else {
+					Log.i(TAG, "Side = " + cameraSide);
+					setRetake(cameraSide);
+					matrix.postRotate(result);
+					matrix.preScale(-1, 1);
+
+					options = new BitmapFactory.Options();
+					options.inSampleSize = 1;
+					options.inJustDecodeBounds = true;
+
+					// Determine how much to scale down the image
+					// int scaleFactor = Math.min(photoW/targetW,
+					// photoH/targetH);
+
+					Bitmap temp = BitmapFactory.decodeByteArray(data, 0,
+							data.length);
+					int xW = temp.getWidth();
+					int xH = temp.getHeight();
+					// Determine how much to scale down the image
+					int scaleFactor = Math.min(xW / screenHeight, xH
+							/ screenWidth);
+					// Calculate inSampleSize
+					// options.inSampleSize =
+					// bitmapResizer.calculateInSampleSize(options, shortWidth,
+					// shortHeight);
+					options.inSampleSize = scaleFactor;
+					// Decode bitmap with inSampleSize set
+					options.inJustDecodeBounds = false;
+
+					tempPic = BitmapFactory.decodeByteArray(data, 0,
+							data.length, options);
+					width = tempPic.getWidth();
+					height = tempPic.getHeight();
+
+					Log.i(TAG, "Before SShot");
+					Log.i(TAG, "Width = " + tempPic.getWidth() + ": Height = "
+							+ tempPic.getHeight());
+
+					if (width > screenHeight || height > screenWidth) {
+						if (width > 1280 || height > 1280) {
+							tempPic = Bitmap.createScaledBitmap(tempPic,
+									Math.round(width / 2),
+									Math.round(height / 2), true);
+						}
+						tempPic = Bitmap.createBitmap(tempPic, 0, 0,
+								tempPic.getWidth(), tempPic.getHeight(),
+								matrix, true);
+						width = tempPic.getWidth();
+						height = tempPic.getHeight();
+						extraWidth = width - screenWidth;
+						extraHeight = height - screenHeight;
+						marginalWidth = Math.round(extraWidth / 2);
+						marginalHeight = Math.round(extraHeight / 2);
+						if (marginalHeight < 0)
+							marginalHeight = 0;
+						if (marginalWidth < 0)
+							marginalWidth = 0;
+						if (extraWidth < 0)
+							extraWidth = 0;
+						if (extraHeight < 0)
+							extraHeight = 0;
+
+						Log.i(TAG, "Width = " + width + ": Height = " + height);
+						Log.i(TAG, "screenWidth = " + screenWidth
+								+ ": screenHeight = " + screenHeight);
+						Log.i(TAG, "marginalWidth = " + marginalWidth
+								+ ": marginalHeight = " + marginalHeight);
+						Log.i(TAG, "Resizing~ ching ching!");
+
+						if (orientationScreen == "PORTRAIT") {
+							tempPic = Bitmap.createBitmap(tempPic,
+									marginalWidth, marginalHeight, width
+											- extraWidth, height
+											- marginalHeight);
+						}
+					} else {
+						tempPic = Bitmap.createBitmap(tempPic, 0, 0,
+								tempPic.getWidth(), tempPic.getHeight(),
+								matrix, true);
+						width = tempPic.getWidth();
+						height = tempPic.getHeight();
+						Log.i(TAG, "Width = " + width + ": Height = " + height);
+						Log.i(TAG, "screenWidth = " + screenWidth
+								+ ": screenHeight = " + screenHeight);
+						Log.i(TAG, "Unresized booya!");
+					}
+					width = tempPic.getWidth();
+					height = tempPic.getHeight();
+					boolean b = tempPic.isMutable();
+					Log.i(TAG, "The reason = " + b);
+					Log.i(TAG, "Flag 1");
+					// tempPic = Bitmap.createBitmap(tempPic,
+					// 0,Math.round(height/2),width, height/2);
+
+					if (orientationScreen == "PORTRAIT") {
+						// Portrait
+						tempPic = Bitmap.createBitmap(tempPic, 0,
+								Math.round(height / 3), width,
+								height - Math.round(height / 3));
+					} else if (orientationScreen == "LANDSCAPE") {
+						// Landscape
+						tempPic = Bitmap.createBitmap(tempPic,
+								Math.round(width / 3), 0,
+								width - Math.round(width / 3), height);
+
+					}
+
+					Log.i(TAG, "Flag 2");
+					settoBackground(buttonView, tempPic);
+					frontPic = tempPic;
+					Log.i(TAG, "Flag 3");
+					mCamera.stopPreview();
+					releaseCamera();
+					isFrontTaken = true;
+
+				}
+				// FileOutputStream fos = new FileOutputStream(pictureFile);
+				// fos.write(data);
+				// fos.close();
+				if (isBackTaken && isFrontTaken) {
+					isRetryable = true;
+					isSharable = false;
+					isSavable = true;
+					isTextEditable = true;
+					// textButton.setImageResource(R.drawable.text1);
+					// saveButton.setImageResource(R.drawable.save1);
+					//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
+					// if(!isTextAdded)
+					// setEditText();
+//					setButton(shareButton);
+					setButton(saveButton);
+					setButton(textButton);
+					setButton(retryButton);
+				}
+
+				cameraAction = Field.CameraCanCapture;
+				touchAction = Field.ActionStateClickable;
+				jutsuAction = Field.standbyToCaptureJutsu;
+
+				Log.i(TAG, "From getPic... "
+						+"performedAction = " + performedAction
+						+" :cameraAction = "+cameraAction
+						+" :touchAction = " + touchAction
+						+" :cameraSide = "+cameraSide);
+			} catch (Exception e) {
+				Log.i(TAG, "not isSharable");
+				Log.e(TAG, "Error accessing file: " + e.getMessage());
+				Toast.makeText(getActivity().getApplicationContext(), errorMessage,
+						Field.SHOWTIME).show();
+				// linkSTART();
+
+			}
+		}
+	};
+
+    public void saveImage(Bitmap bmp) {
+		try {
+
+			// MediaStore.Images.Media.insertImage(getContentResolver(),
+			// bmp,"","");
+			// Log.d(TAG,"the filename = "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
+			// if(!isSavePathset)
+			fileBitmap = bmp;
+			filePath = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE);
+			fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE)
+					.toString();
+			// Log.d(TAG,"The utility = "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
+			FileOutputStream out = new FileOutputStream(
+					mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE));
+			// Log.d(TAG,"Before saving");
+			bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+			// Log.d(TAG,"After saving");
+			mediaUtility.updateMedia(TAG, "file://"
+					+ mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE)
+							.toString());
+			// Log.d(TAG,"file://"
+			// +mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
+			out.flush();
+			out.close();
+			// Log.d(TAG,"Saved to "+mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString());
+			if(loading != null)
+	        	loading.dismiss();
+			Toast.makeText(getActivity().getApplicationContext(), saveMessage,
+					Field.SHOWTIME).show();
+			isSharable = true;
+			// shareButton.setImageResource(R.drawable.share1);
+			setButton(shareButton);
+			//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d(TAG, "Saving failed cause = " + e.getCause());
+			Toast.makeText(getActivity().getApplicationContext(), errorMessage,
+					Field.SHOWTIME).show();
+
+		}
+	}
+    
+
+	public void createAlert(String currentFunction, String thisside,
+			String thismessage) {
+		final String title = currentFunction;
+		final String side = thisside;
+		final String message = thismessage;
+
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+				getActivity());
+
+		// set title
+		// alertDialogBuilder.setTitle(title);
+
+		// set dialog message
+		alertDialogBuilder.setMessage(message).setCancelable(false)
+				.setPositiveButton(yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						if (title == "retake") {
+							isRetaking = true;
+							if (isBackTaken && !isFrontTaken) {
+								ImageView buttonView = getPressedPreview("FRONT");
+								buttonView.setBackgroundDrawable(getResources()
+										.getDrawable(R.drawable.whitebg));
+								buttonView.setImageDrawable(getResources()
+										.getDrawable(R.drawable.previewfront));
+							}
+
+							Log.i(TAG, "Initiating Retake :D");
+							
+							jutsuAction = Field.standbyToCaptureJutsu;
+							releaseCamera();
+							setSide(side);
+						}
+					}
+				}).setNegativeButton(no, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						isRetaking = false;
+
+						cameraAction= Field.CameraCanCapture;
+						touchAction = Field.ActionStateClickable;
+						jutsuAction = Field.standbyToCaptureJutsu;
+					}
+				});
+
+		// create alert dialog
+		AlertDialog alert = alertDialogBuilder.create();
+		alert.show();
+
+	}
 
 	private View.OnClickListener superButton = new View.OnClickListener() {
         @Override
-        public void onClick(View v) {
-        	if(v.getId() == R.id.captureButton){
-        		
-        	}	
-        	else if(v.getId() == R.id.textButton){
-        		
-        	}
-        	//... etc.
+        public void onClick(View view) {
+        	String viewName = "outside try";
+        	try {
+    			if (view.getId() == R.id.captureButton) {
+    				viewName = "captureButton";
+    				// setFocusMarker("FOCUS", null,null,null);
+    				if (isCameraFocused)
+    					takeAShot();
+    				
+    			}
+
+    			else if (view.getId() == R.id.textButton) {
+    				viewName = "textButton";
+//    				// if(isSavable)
+//    				try {
+//    					if (isTextEditable)
+//    						setEditText();
+//    				} catch (Exception e) {
+//    					Toast.makeText(getagetApplicationContext(), errorMessage,
+//    							Field.SHOWTIME).show();
+//    				}
+//    				// else
+//    				// Toast.makeText(getApplicationContext(),"You don't want a pic of yourself?",Field.SHOWTIME).show();
+
+    			}
+
+    			else if (view.getId() == R.id.saveButton) {
+    				viewName = "saveButton";
+    				if (isSavable)
+    					try {
+    						loading.show();
+    						toSaveLayout.buildDrawingCache();
+    						//saveImage(toSaveLayout.getDrawingCache());
+    						toSaveLayout.destroyDrawingCache();
+    						// saveImage();
+    					} catch (Exception e) {
+    						Toast.makeText(getActivity().getApplicationContext(), errorMessage,
+    								Field.SHOWTIME).show();
+    					}
+    				// else
+    				// Toast.makeText(getApplicationContext(),"You don't want a pic of yourself?",Field.SHOWTIME).show();
+
+    			}
+
+    			else if (view.getId() == R.id.retryButton) {
+    				viewName = "retryButton";
+    				if (isRetryable) {
+
+    					AlertDialog.Builder retryDialog = new AlertDialog.Builder(
+    							getActivity());
+
+    					// set title
+    					// retryDialog.setTitle("");
+
+    					// set dialog message
+    					retryDialog
+    							.setMessage(restartMessage)
+    							.setCancelable(false)
+    							.setPositiveButton(yes,
+    									new DialogInterface.OnClickListener() {
+    										public void onClick(
+    												DialogInterface dialog, int id) {
+    											//linkSTART();restart the app
+    										}
+    									})
+    							.setNegativeButton(no,
+    									new DialogInterface.OnClickListener() {
+    										public void onClick(
+    												DialogInterface dialog, int id) {
+
+    										}
+    									});
+
+    					// create alert dialog
+    					AlertDialog alert = retryDialog.create();
+    					alert.show();
+
+    				}
+    			}
+
+    			else if (view.getId() == R.id.shareButton) {
+    				viewName = "shareButton";
+    				try {
+    					Log.i(TAG, "isSharable = " + isSharable);
+//    					if (isSharable)
+//    						shareFunction();share the pic
+
+    				} catch (Exception e) {
+    					Log.i(TAG, "isSharable = " + isSharable);
+    					Log.i(TAG, "ERROR = " + e.getCause());
+    				}
+    			}
+
+    			
+    			else if (view.getId() == R.id.cumPreviewBack) {
+    				viewName = "cumPreviewBack";
+    				Log.i(TAG, ".cumPreviewBack is clicked");
+    				if (isSavable) {
+    					// setSide("BACK");
+    					retakeImage("BACK");
+    					// createAlert("","","");
+
+    				} else if (isBackTaken && !isFrontTaken) {
+    					retakeImage("BACK");
+    					ImageView buttonView = getPressedPreview("FRONT");
+    					buttonView.setImageDrawable(getResources().getDrawable(
+    							R.drawable.previewfront));
+    				} else {
+    					if (cameraSide == "BACK")
+    						takeAShot();
+    				}
+    				// else{
+    				// mCamera.autoFocus(new AutoFocusCallback(){
+    				// @Override
+    				// public void onAutoFocus(boolean arg0, Camera arg1) {
+    				// //camera.takePicture(shutterCallback, rawCallback,
+    				// jpegCallback);
+    				// }
+    				// });
+    				// }
+    			}
+
+    			else if (view.getId() == R.id.cumPreviewFront) {
+    				viewName = "cumPreviewFront";
+    				if (isSavable) {
+    					// setSide("FRONT");
+    					retakeImage("FRONT");
+    				} else {
+    					if (cameraSide == "FRONT")
+    						takeAShot();
+    				}
+    				// else{
+    				// mCamera.autoFocus(new AutoFocusCallback(){
+    				// @Override
+    				// public void onAutoFocus(boolean arg0, Camera arg1) {
+    				// //camera.takePicture(shutterCallback, rawCallback,
+    				// jpegCallback);
+    				// }
+    				// });
+    				// }
+    				//
+    				// if(cameraSide == "BACK")
+    				// {
+    				// try{
+    				// //mCamera.takePicture(null, null, s3FixIloveS3);
+    				// mCamera.setErrorCallback(ec);
+    				// mCamera.takePicture(null, null, mPicture);
+    				// //Toast.makeText(getApplicationContext(),"Nice shot!",Field.SHOWTIME).show();
+    				//
+    				// }catch(Exception e){
+    				// //mCamera.takePicture(null, null, s3FixIloveS3);
+    				// Toast.makeText(getApplicationContext(),errorMessage,Field.SHOWTIME).show();
+    				//
+    				// }
+    				// }
+    			}
+
+    			else if (view.getId() == R.id.cumshot) {
+    				viewName = "cumshot";
+    				// if(isSavable){
+    				// if(cameraSide == "BACK")
+    				// setSide("BACK");
+    				// else if(cameraSide == "FRONT")
+    				// setSide("FRONT");
+    				// }
+
+    			}
+    			
+    			else if (view.getId() == R.id.okButton) {
+    				viewName = "okButton";
+    				//textFeatureUtility("hide");
+    			}
+
+    			else if (view.getId() == R.id.noButton) {
+    				viewName = "noButton";
+    				createTextFrameLayout.removeAllViews();
+    				
+    				//textFeatureUtility("hide");
+    			}
+    			
+    			Log.i(TAG, viewName+" is clicked.");
+    			
+    		} catch (Exception e) {
+    			Log.i(TAG, "Error in here View = " + viewName
+    					+ ": Cause? I don't effing know -> " + e.getMessage());
+    			Toast.makeText(getActivity(), errorMessage, Field.SHOWTIME).show();
+    		}
         	
 
         }
@@ -1100,44 +1689,44 @@ public class CamFrag extends Fragment {
     
 	public void bgMusicUtility(String action){
 //		
-//		if(action == "initialize"){
-//			mMediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.loopingmelody);
-//			mMediaPlayer.setLooping(true);
-//			
-//			if(melodyStatus == Field.MODE_Melody_ON)
-//				mMediaPlayer.start();
-//		}
-//		else if(action == "pause"){
-//			mMediaPlayer.pause();
-//		}
-//		else if(action == "stop"){
-//			mMediaPlayer.stop();
-//		}
-//		
-//		if(melodyStatus == Field.MODE_Melody_ON){
-//
-//			if(action == "start"){
-//				mMediaPlayer.start();
-//			}
-//			
-//			else if(action == "release"){
-//				releaseSound();
-//			}
-//			else if(action == "captureresume"){
-//				new CountDownTimer(500,250) {
-//					
-//					public void onTick(long millisUntilFinished) {
-//						
-//					}
-//					
-//					public void onFinish() {
-//						mMediaPlayer.start();
-//					}
-//				}.start();
-//			}
-//		}
-//		
-//		
+		if(action == "initialize"){
+			mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.loopingmelody);
+			mMediaPlayer.setLooping(true);
+			
+			if(melodyStatus == Field.MODE_Melody_ON)
+				mMediaPlayer.start();
+		}
+		else if(action == "pause"){
+			mMediaPlayer.pause();
+		}
+		else if(action == "stop"){
+			mMediaPlayer.stop();
+		}
+		
+		if(melodyStatus == Field.MODE_Melody_ON){
+
+			if(action == "start"){
+				mMediaPlayer.start();
+			}
+			
+			else if(action == "release"){
+				releaseSound();
+			}
+			else if(action == "captureresume"){
+				new CountDownTimer(500,250) {
+					
+					public void onTick(long millisUntilFinished) {
+						
+					}
+					
+					public void onFinish() {
+						mMediaPlayer.start();
+					}
+				}.start();
+			}
+		}
+		
+		
 	}
 	
 	//Freedom Methods
@@ -1145,6 +1734,14 @@ public class CamFrag extends Fragment {
 		if (mCamera != null) {
 			mCamera.release(); // release the camera for other applications
 			mCamera = null;
+		}
+	}
+	
+	public void releaseSound(){
+		if(mMediaPlayer != null){
+			mMediaPlayer.stop();
+			mMediaPlayer.release();
+			mMediaPlayer = null;
 		}
 	}
 
