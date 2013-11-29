@@ -149,7 +149,7 @@
 	            android:layout_alignParentBottom="true"
 	            android:layout_marginBottom="60dp"
 	            android:background="@drawable/facebooklogin"
-	            android:visibility="invisible"
+	           
 	            />
 			
 			 
@@ -160,6 +160,7 @@
 			    android:layout_centerHorizontal="true"
 	            android:layout_alignParentBottom="true"
 	            android:layout_marginBottom="60dp"
+	            android:visibility="invisible"
 	            />
 			
 			<Button
