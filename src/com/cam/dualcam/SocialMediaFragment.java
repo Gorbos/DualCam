@@ -11,6 +11,10 @@ import com.cam.dualcam.twitter.TwitterUtil;
 import com.hintdesk.core.activities.AlertMessageBox;
 import com.hintdesk.core.util.OSUtil;
 import com.hintdesk.core.util.StringUtil;
+
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
 //Facebook
@@ -22,7 +26,12 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +42,11 @@ import android.widget.Toast;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -77,7 +90,7 @@ public class SocialMediaFragment extends Fragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-	    uiHelper = new UiLifecycleHelper(getActivity(), callback);
+	    uiHelper = new UiLifecycleHelper(getActivity(), ((MotherCrystal)getActivity()).callback);
 	    uiHelper.onCreate(savedInstanceState);
 	    Log.i(TAG, "from onCreate.");
 	    
@@ -137,6 +150,8 @@ public class SocialMediaFragment extends Fragment{
 //				Log.i(TAG, "fbLoginButton clicked");
 //			}
 //		});
+		
+		 //initControlTwitter();
 	  return view;
 	}
 
@@ -164,6 +179,17 @@ public class SocialMediaFragment extends Fragment{
         	else if(v.getId() == R.id.twitterButton){
         		//Log-in to Twitter
         		
+        		//
+				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+	            if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+	            {
+	                new TwitterAuthenticateTask().execute();
+	            } 
+	            else 
+	            	((MotherCrystal)getActivity()).showFragment(MotherCrystal.CAM, false);
+        		
+        		
+            
         	}
         	else if(v.getId() == R.id.cameraButton){
         		//Start Cam
@@ -225,60 +251,145 @@ public class SocialMediaFragment extends Fragment{
 			uiHelper.onStop();
 	    Log.i(TAG, "from onStop.");
 	}
-
-	private void makeMeRequest(final Session session) {
-	    // Make an API call to get user data and define a 
-	    // new callback to handle the response.
-	    Request request = Request.newMeRequest(session, 
-	            new Request.GraphUserCallback() {
-	        @Override
-	        public void onCompleted(GraphUser user, 
-	        		Response response) {
-	            // If the response is successful
-	            if (session == Session.getActiveSession()) {
-	                if (user != null) {
-	                    // Get values
-	                    
-	                }
-	            }
-	            if (response.getError() != null) {
-	                // Handle errors, will do so later.
-	            }
-	        }
-	    });
-	    request.executeAsync();
-	} 
-	
-	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
-		Log.i(TAG,"from onSessionStateChange.");
-	    if (session != null && session.isOpened()) {
-	        // Get the user's data.
-	        makeMeRequest(session);
-	    }
-	}
-	
-	private Session.StatusCallback callback = new Session.StatusCallback() {
-	    @Override
-	    public void call(final Session session, final SessionState state, final Exception exception) {
-	        onSessionStateChange(session, state, exception);
-	    }
-	};
-	
-	public void startCamera(){
-		//getActivity().finish();
-    	Intent i = new Intent(); 
-    	i.setClass(getActivity(), DualCamActivity.class);
-    	i.putExtra("showSplashScreen", false);
-    	i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivityForResult(i, -1);
-	}
 	
 	private void trial(){
-		//getActivity().getApplication().sh..
-		//((MotherCrystal)getActivity()).doMagic("HELO");
 		((MotherCrystal)getActivity()).showFragment(0, false);
-		
+	}
+	
+	
+	
+	
+	
+	
+/*	Net-Work detector	*/
+	@SuppressWarnings("deprecation")
+	private void checkNetworkConnection() {
+		int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+		if (currentapiVersion <= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
+		    // Do something for API 15 and below versions
+			Log.i(TAG,"Do something for API 15 and below versions");
+			ConnectivityManager connectivityManager = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+			if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || 
+		            connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+
+		         }
+		         else{
+		        	 
+		        	 AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+		        		alertDialog.setTitle("No Connection");
+				    	alertDialog.setMessage("This application requires internet connection to run, Cross check your connectivity and try again.");
+				    	// Setting OK Button
+				    		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+				    			public void onClick(DialogInterface dialog, int which) {
+		                	}
+				    	});
+		 
+				    		// Showing Alert Message
+				    	alertDialog.show();
+		         }
+			
+			
+		} else{
+			Log.i(TAG,"do something for phones running an SDK above API 15");
+		    // do something for phones running an SDK above API 15
+			///detect if there is an internet
+	        if (!OSUtil.IsNetworkAvailable(getActivity().getApplicationContext())) {
+	            AlertMessageBox.Show(getActivity(), "Internet connection", "A valid internet connection can't be established", AlertMessageBox.AlertMessageBoxIcon.Info);
+	            return;
+	        }
+	        
+	        //detect if constants has a null or whitespace
+	        if (StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_KEY) || StringUtil.isNullOrWhitespace(TwitterConstant.TWITTER_CONSUMER_SECRET)) {
+	            AlertMessageBox.Show(getActivity(), "Twitter oAuth infos", "Please set your twitter consumer key and consumer secret", AlertMessageBox.AlertMessageBoxIcon.Info);
+	            return; 
+	        }
+	          
+		}
 		
 	}
+	
+	
+/*	Act of the Great Blue Bird	*/
+	// Twitter initial Control for getting token Data
+	public void initControlTwitter() {
+        Uri uri = getActivity().getIntent().getData();
+        if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
+            String verifier = uri.getQueryParameter(TwitterConstant.URL_PARAMETER_TWITTER_OAUTH_VERIFIER);
+            Log.i(TAG,"Before everything else.");
+            Log.i(TAG,"Verifier = "+verifier);
+            new TwitterGetAccessTokenTask().execute(verifier);
+        } else
+            new TwitterGetAccessTokenTask().execute("");
+	}
+	
+	class TwitterAuthenticateTask extends AsyncTask<String, String, RequestToken> {
+
+        @Override
+        protected void onPostExecute(RequestToken requestToken) {
+        	Log.i(TAG,"from onPostExecute. TwitterAuthenticateTask");
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
+            getActivity().startActivity(intent);
+        } 
+
+        @Override
+        protected RequestToken doInBackground(String... params) {
+        	Log.i(TAG,"from doInBackground. TwitterAuthenticateTask");
+            return TwitterUtil.getInstance().getRequestToken();
+        }
+	}
+	
+	class TwitterGetAccessTokenTask extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onPostExecute(String userName) {
+        	Log.i(TAG,"from onPostExecute. TwitterGetAccessTokenTask");
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+        	Log.i(TAG,"from doInBackground. TwitterGetAccessTokenTask");
+            Twitter twitter = TwitterUtil.getInstance().getTwitter();
+            RequestToken requestToken = TwitterUtil.getInstance().getRequestToken();
+            if (!StringUtil.isNullOrWhitespace(params[0])) {
+                try {
+
+                    AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, params[0]);
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    Log.i(TAG,"nyan-pass 1");
+                    editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, accessToken.getToken());
+                    editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, accessToken.getTokenSecret());
+                    editor.putBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, true);
+                    Log.i(TAG,"nyan-pass 2");
+                    editor.commit();
+                    return twitter.showUser(accessToken.getUserId()).getName();
+                } catch (TwitterException e) {
+                	Log.i(TAG,"!!! ERROR !!! from doInBackground. TwitterGetAccessTokenTask");
+                	Log.i(TAG,"!!! ERROR !!! Cause : "+e.getCause());
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            } else {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                String accessTokenString = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+                String accessTokenSecret = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+                AccessToken accessToken = new AccessToken(accessTokenString, accessTokenSecret);
+                try {
+                	Log.i(TAG,"meow-ning 1");
+                    TwitterUtil.getInstance().setTwitterFactory(accessToken);
+                    Log.i(TAG,"meow-ning 2");
+                    return TwitterUtil.getInstance().getTwitter().showUser(accessToken.getUserId()).getName();
+                } catch (TwitterException e) {
+                	Log.i(TAG,"!!! ERROR !!! from doInBackground. TwitterGetAccessTokenTask");
+                	Log.i(TAG,"!!! ERROR !!! Cause : "+e.getCause());
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+    }
 	
 }

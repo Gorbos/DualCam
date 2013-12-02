@@ -36,21 +36,18 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                
+               
             </intent-filter>
-            <!-- <intent-filter>
+            
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:host="com.cam.dualcam"
                     android:scheme="oauth" />
-            </intent-filter> -->
-        </activity>
-        <activity
-            android:name="com.cam.dualcam.FBMainActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
+            </intent-filter> 
         </activity>
         <activity
             android:name="com.cam.dualcam.DualCamActivity"
@@ -63,7 +60,7 @@
             android:configChanges="keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
-            <intent-filter>
+            <!-- <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -71,6 +68,13 @@
                 <data android:scheme="oauth" android:host="com.cam.dualcam"  />
 
             </intent-filter>
+             -->
+        </activity>
+        <activity
+            android:name="com.cam.dualcam.FBMainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
         </activity>
         <activity
             android:name="com.cam.dualcam.GifActivity"

@@ -70,6 +70,7 @@ public class MotherCrystal extends FragmentActivity {
 	
 	private void linkStart(){
 		showFragment(SPLASH, false);
+		((SocialMediaFragment)pieces[SOCIALMEDIA]).initControlTwitter();
 		CountDownTimer splashTime = new CountDownTimer(2000,1000) {
 			
 			@Override
@@ -79,6 +80,7 @@ public class MotherCrystal extends FragmentActivity {
 			
 			@Override
 			public void onFinish() {
+				
 				showFragment(SOCIALMEDIA, false);
 			}
 		};
@@ -100,7 +102,7 @@ public class MotherCrystal extends FragmentActivity {
 			
 		case SOCIALMEDIA:
 			bundyDundy.putBoolean(Field.social+Field.isShown, true);
-			//((MotherCrystal).).setInteractions();
+
 			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
 			bundyDundy.putBoolean(Field.cam+Field.isShown, false);
 			break;
@@ -110,6 +112,8 @@ public class MotherCrystal extends FragmentActivity {
 			
 			bundyDundy.putBoolean(Field.social+Field.isShown, false);
 			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
+			
+			((CamFrag)pieces[CAM]).setInteractions();
 			break;
 			
 		case CAMERA:
@@ -126,7 +130,6 @@ public class MotherCrystal extends FragmentActivity {
 	    for (int i = 0; i < pieces.length; i++) {
 	        if (i == fragmentIndex) {
 	            transaction.show(pieces[i]);
-	            
 	        } else {
 	            transaction.hide(pieces[i]);
 	        }
