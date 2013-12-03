@@ -48,7 +48,6 @@ public Camera getCameraInstance(String side, int width, int height,String orient
     Camera c = null;
     try {
         c = Camera.open(findCamera(side)); // attempt to get a Camera instance
-        
 //        if(orientationType == "LANDSCAPE"){
 //        	tempValue = defaultWidth;
 //        	defaultWidth = defaultHeight;
@@ -158,6 +157,7 @@ public Camera getCameraInstance(String side, int width, int height,String orient
     }
     catch (Exception e){
         // Camera is not available (in use or does not exist)
+    	
     	Log.d(TAG, "Something shit happened: e @"+e.getCause());
     	Toast.makeText(context.getApplicationContext(),"Something is wrong with the camera setting : CAUSE = "+e.getMessage(),Field.SHOWTIME).show();
     	
@@ -216,7 +216,6 @@ public static int findCamera(String side) {
     for (int i = 0; i < numberOfCameras; i++) {
       CameraInfo info = new CameraInfo();
       Camera.getCameraInfo(i, info);
-      
       if(side == "FRONT"){
     	  if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
     		  Log.d(TAG, "Front Camera found: ID @"+i);

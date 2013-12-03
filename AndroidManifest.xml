@@ -28,7 +28,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.cam.dualcam.MotherCrystal"
-            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:configChanges="keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="behind"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"

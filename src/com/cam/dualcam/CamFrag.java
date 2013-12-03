@@ -3,7 +3,11 @@ package com.cam.dualcam;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import com.cam.dualcam.CameraFragment.TwitterAuthenticateTask;
+import com.cam.dualcam.CameraFragment.TwitterGetAccessTokenTask;
+import com.cam.dualcam.CameraFragment.TwitterUpdateStatusTask;
 import com.cam.dualcam.CameraFragment.setTouchMode;
+import com.cam.dualcam.twitter.TwitterConstant;
 import com.cam.dualcam.utility.CameraUtility;
 import com.cam.dualcam.utility.ColorPickerDialog;
 import com.cam.dualcam.utility.Field;
@@ -21,6 +25,7 @@ import com.facebook.widget.LoginButton;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,8 +34,10 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.ErrorCallback;
@@ -41,7 +48,10 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -49,12 +59,23 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+
+import com.cam.dualcam.utility.ColorPickerDialog.*;
 
 @SuppressLint("NewApi")
 public class CamFrag extends Fragment {
@@ -74,6 +95,9 @@ public class CamFrag extends Fragment {
 		
 	//Global variable
 		private View mainView;
+		private Bundle camFragBundy;
+		private LayoutInflater camFragLI;
+		private ViewGroup camFragVG;
 		
 	
 	@Override
@@ -88,10 +112,17 @@ public class CamFrag extends Fragment {
 		
 	    View view = inflater.inflate(R.layout.cam_fragment, container, false);
 	    Log.i(TAG, "from onCreateView.");
+	    
+	    
+
+	    camFragBundy = savedInstanceState;
+	    camFragLI = inflater;
+	    camFragVG = container;
 	    initiateJapWords();
 	    
 	    mainView = view;
 	    setWidgets(view);
+	    setWidgetListeners();
 	    initVar();
 	    //setInteractions();
 		
@@ -145,19 +176,20 @@ public class CamFrag extends Fragment {
 	 public void onConfigurationChanged(Configuration newConfig) {
 	 super.onConfigurationChanged(newConfig);
 	 Log.i(TAG, "from onConfigurationChanged.");
-	 setTransistion();
 	 // Checks the orientation of the screen
-//		 if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//			 killMe = true;
-//			 //Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
-//			 //setContentView(R.layout.dualcam);
-//			 //linkRESTART();
-//		 } 
-//		 else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-//			 killMe = true;
-//			 //Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
-//			 //linkRESTART();
-//		 }
+	 if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+		 Log.i(TAG, "from onConfigurationChanged - orientation : Landscape");
+		 
+//		 View view = inflater.inflate(R.layout.cam_fragment, container, false);
+//		 View view = camFragLI.inflate(R.layout.cam_fragment, camFragVG, false);
+//		 mainView = view;
+//		 setWidgets(view);
+//		 initVar();		 
+	 } 
+	 else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+		 Log.i(TAG, "from onConfigurationChanged - orientation : Portrait");
+	 }
+	 setTransistion(newConfig.orientation);
 	 }
 	
 /*		ACTS OF THE PAST		*/	
@@ -294,6 +326,10 @@ public class CamFrag extends Fragment {
 		toSaveLayout = (RelativeLayout) view.findViewById(R.id.overAllLayout);
 		
 		
+	}
+	
+	private void setWidgetListeners(){
+
 		
 		//Set the listeners
 		captureButton.setOnClickListener(superButton);
@@ -376,7 +412,7 @@ public class CamFrag extends Fragment {
 		bgMusicUtility("initialize");
 	}
 	
-	public void setTransistion(){
+	public void setTransistion(int newOrientation){
 		Log.i(TAG, "from setTransistion().");
 //		Log.i(TAG, "isTakingPicture : "+isTakingPicture);
 		/*
@@ -426,6 +462,10 @@ public class CamFrag extends Fragment {
 		setOrientation();
 		touchAction = Field.ActionStateClickable;
 		cameraSide = thisside;
+		if(mCamera != null){
+			Log.i(TAG, "from setSide : mCamera is not null");
+			releaseCamera();
+		}
 		seePreview(cameraSide);
 	}
 	
@@ -437,6 +477,8 @@ public class CamFrag extends Fragment {
 		} else {
 			orientationScreen = "UNKNOWN";
 		}
+		
+		Log.i(TAG, "from setOreintation : "+orientationScreen);
 	}
 	
 	public ImageView getPressedPreview(String cameraSide) {
@@ -1419,16 +1461,16 @@ public class CamFrag extends Fragment {
 
     			else if (view.getId() == R.id.textButton) {
     				viewName = "textButton";
-//    				// if(isSavable)
-//    				try {
-//    					if (isTextEditable)
-//    						setEditText();
-//    				} catch (Exception e) {
-//    					Toast.makeText(getagetApplicationContext(), errorMessage,
-//    							Field.SHOWTIME).show();
-//    				}
-//    				// else
-//    				// Toast.makeText(getApplicationContext(),"You don't want a pic of yourself?",Field.SHOWTIME).show();
+    				// if(isSavable)
+    				try {
+    					if (isTextEditable)
+    						setEditText();
+    				} catch (Exception e) {
+    					Toast.makeText(getActivity().getApplicationContext(), errorMessage,
+    							Field.SHOWTIME).show();
+    				}
+    				// else
+    				// Toast.makeText(getApplicationContext(),"You don't want a pic of yourself?",Field.SHOWTIME).show();
 
     			}
 
@@ -1438,7 +1480,7 @@ public class CamFrag extends Fragment {
     					try {
     						loading.show();
     						toSaveLayout.buildDrawingCache();
-    						//saveImage(toSaveLayout.getDrawingCache());
+    						saveImage(toSaveLayout.getDrawingCache());
     						toSaveLayout.destroyDrawingCache();
     						// saveImage();
     					} catch (Exception e) {
@@ -1456,9 +1498,6 @@ public class CamFrag extends Fragment {
 
     					AlertDialog.Builder retryDialog = new AlertDialog.Builder(
     							getActivity());
-
-    					// set title
-    					// retryDialog.setTitle("");
 
     					// set dialog message
     					retryDialog
@@ -1809,7 +1848,529 @@ public class CamFrag extends Fragment {
 		
 	}
 	
-	//Freedom Methods
+/*	Edit methods	*/
+	public void setEditText() {
+
+//		isTextAdded = false;
+//		isTextEditable = true;
+//		setButton(textButton);
+		//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
+		// createTextFrameLayout.removeAllViews();
+		// customAlertdialog();
+		// textButton.setImageResource(R.drawable.text2);
+		// Do the Text
+		AlertDialog.Builder alertDialogBuilderCreateText = new AlertDialog.Builder(
+				getActivity());
+
+		// set title
+		// alertDialogBuilderCreateText.setTitle("Create Text");
+
+		// set dialog message
+		alertDialogBuilderCreateText.setMessage(addALabelText)
+				.setCancelable(false)
+				.setPositiveButton(yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						createTextFrameLayout.removeAllViews();
+						customAlertdialog();
+
+					}
+				}).setNegativeButton(no, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+
+//						isTextAdded = false;
+//						isTextEditable = true;
+//						setButton(textButton);
+						//setButtons(isSharable, isSavable, isTextEditable,isRetryable);
+					}
+				});
+
+		// create alert dialog
+		AlertDialog alert = alertDialogBuilderCreateText.create();
+		alert.show();
+	}
+	
+
+	// For additional Features
+	// Add text
+	public static int fontSize = 1;
+	public static String textToShow;
+	public TextView addedText;
+	public static int charCount;
+	public RelativeLayout.LayoutParams textFrameLayoutParams;
+	public static int fontColor; // aid
+	private static final String COLOR_PREFERENCE_KEY = "color"; // aid
+	private static int initialColor;
+	private int addedTextX = 0;
+	private int addedTextY = 0;
+	private int defaultTextSize = 40;
+	private int minimumTextSize = 31;
+	private int maximumTextSize = 79;
+	private int frameLayoutX = 0;
+	private int frameLayoutY = 0;
+	private int frameLayoutW = 0;
+	private int frameLayoutH = 0;
+	public void createAText() {
+
+		// this is the method to create text on the picture
+		// RelativeLayout rlv = (RelativeLayout)findViewById(R.id.buttonLayout);
+
+		textFrameLayoutParams = (RelativeLayout.LayoutParams) createTextFrameLayout
+				.getLayoutParams();
+		final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+				new FrameLayout.MarginLayoutParams(
+						FrameLayout.LayoutParams.WRAP_CONTENT,
+						FrameLayout.LayoutParams.WRAP_CONTENT));
+
+		// layoutParams.addRule(RelativeLayout.ABOVE);
+		addedText = new TextView(getActivity().getApplicationContext());
+		// addedText.setTextSize(50);
+		// addedText.setGravity(Gravity.END);
+		// addedText.setGravity(Gravity.BOTTOM);
+		// addedText.setGravity(Gravity.RIGHT);
+		addedText.setText("");
+		addedText.setTextSize(40);
+		addedText.setTextColor(Color.RED);
+		addedText.setGravity(Gravity.TOP);
+		addedText.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getActionMasked()) {
+				case MotionEvent.ACTION_DOWN:
+					addedTextX = (int) event.getX();
+					addedTextY = (int) event.getY();
+					// selected_item = v;
+					
+					
+					break;
+				default:
+					break;
+				}
+
+				return false;
+			}
+		});
+
+		createTextFrameLayout.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getActionMasked()) {
+				// case MotionEvent.ACTION_DOWN:
+				// addedTextX -= (int)event.getX();
+				// addedTextY -= (int)event.getY();
+				// //
+				// break;
+
+				case MotionEvent.ACTION_MOVE:
+					frameLayoutX = (int) event.getX() - addedTextX;
+					frameLayoutY = (int) event.getY() - addedTextY;
+
+					frameLayoutW = getActivity().getWindowManager().getDefaultDisplay()
+							.getWidth() - 100;
+					frameLayoutH = getActivity().getWindowManager().getDefaultDisplay()
+							.getHeight() - 100;
+
+					if (frameLayoutX > frameLayoutW)
+						frameLayoutX = frameLayoutW;
+					if (frameLayoutY > frameLayoutH)
+						frameLayoutY = frameLayoutH;
+
+					lp.setMargins(frameLayoutX, frameLayoutY, 0, 0);
+					lp.gravity = Gravity.TOP;
+					addedText.setLayoutParams(lp);
+					break;
+
+				default:
+					break;
+				}
+				return true;
+			}
+		});
+
+		// layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, 1);
+		// layoutParams.setMargins(screenWidth - (textToShow.length() *
+		// fontSize),0, 0,0);
+		// layoutParams.setMargins(0, (screenHeight - (saveButton.getHeight())),
+		// 0,0);
+		// layoutParams.setMargins(screenWidth - (textToShow.length() *
+		// fontSize), (screenHeight - (fontSize *2)), 0,0);
+
+		// layoutParams.setMargins(screenWidth - (80), (screenHeight -
+		// (saveButton.getHeight() * 2)), 0,0);
+		textFrameLayoutParams.setMargins(10, 10, 0, 0);
+		textFrameLayoutParams.addRule(RelativeLayout.ABOVE);
+		addedText.setLayoutParams(textFrameLayoutParams);
+
+//		isTextAdded = true;
+//		isTextEditable = true;
+//		setButton(textButton);
+		//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
+		createTextFrameLayout.addView(addedText, textFrameLayoutParams);
+		createTextFrameLayout.bringToFront();
+		// Log.i(TAG, ":D = "addedText.isShown());
+		// rlv.bringToFront();
+	}
+	
+/*	Dialogs		*/
+	public void customAlertdialog() {
+
+		final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity().getApplicationContext());
+		final int progressBarCompensation = 30;
+		LinearLayout linear = new LinearLayout(getActivity().getApplicationContext());
+
+		linear.setOrientation(1);
+		createAText();
+		// utilityLayout.setVisibility(LinearLayout.GONE);
+
+		// The EditText
+		final EditText toBeText = new EditText(getActivity());
+		toBeText.setHint(typeTextHereText);
+		toBeText.addTextChangedListener(new TextWatcher() {
+			public void afterTextChanged(Editable s) {
+
+			}
+
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+
+			}
+
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				charCount++;
+				Log.i(TAG, "charCount = " + charCount);
+				addedText.setText(toBeText.getText().toString());
+				// addedText.setText(addedText.getText().toString());
+				// tv.setText(String.valueOf(i) + " / " +
+				// String.valueOf(charCounts));
+
+			}
+		});
+
+		// The TextView
+		final TextView textfontSize = new TextView(getActivity());
+		textfontSize.setText(fontSizeText + " = " + (fontSize + 40));
+		textfontSize.setPadding(10, 10, 10, 10);
+
+		// The SickBar
+		SeekBar seek = new SeekBar(getActivity());
+		// seek.setProgress(50);
+
+		seek.setProgress(defaultTextSize - progressBarCompensation);
+		seek.setMax(maximumTextSize - progressBarCompensation);
+		// seek.setProgress(fontSize);
+
+		// The Color Pallete
+		Button bt = new Button(getActivity());
+		bt.setText(fontColorText);
+		bt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+		bt.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+
+				// addedText
+
+				// Changes by Aid
+				initialColor = PreferenceManager.getDefaultSharedPreferences(
+						getActivity()).getInt(COLOR_PREFERENCE_KEY,
+						Color.WHITE);
+				colorPickerDialog = new ColorPickerDialog(getActivity(),
+						coloChangedListener, initialColor, addedText);
+				// Changes by Aid
+				colorPickerDialog.show();
+			}
+		});
+		
+		linear.addView(toBeText);
+		linear.addView(seek);
+		linear.addView(textfontSize);
+		linear.addView(bt);
+
+		alert.setView(linear);
+
+		seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				textfontSize.setText(fontSizeText + " = " + fontSize);
+				fontSize = progress + progressBarCompensation;
+				addedText.setTextSize(fontSize);
+			}
+
+			public void onStartTrackingTouch(SeekBar arg0) {
+
+			}
+
+			public void onStopTrackingTouch(SeekBar seekBar) {
+
+			}
+		});
+
+		alert.setPositiveButton(ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				isTextBeingEdited = false;
+				
+				textFeatureUtility("show");
+			
+				
+			}
+		});
+
+		alert.setNegativeButton(cancel, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				// Toast.makeText(getApplicationContext(),
+				// "Cancel Pressed",Toast.LENGTH_LONG).show();
+				createTextFrameLayout.removeAllViews();
+				isTextAdded = false;
+				isTextEditable = true;
+				isTextBeingEdited = false;
+				setButton(textButton);
+				//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
+
+				// utilityLayout.setVisibility(LinearLayout.VISIBLE);
+				return;
+			}
+		});
+		alert.show();
+
+	}
+	
+	private OnColorChangedListener coloChangedListener = new OnColorChangedListener() {
+		
+		@Override
+		public void colorChanged(int color) {
+			PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit()
+					.putInt(COLOR_PREFERENCE_KEY, color).commit();
+			fontColor = color;
+		}
+	};
+	
+	
+	public void textFeatureUtility(String action){
+		
+//		if(action == "hide"){
+//			hideAct.hideThisView(okButton, Field.hideToTop);
+//			hideAct.hideThisView(noButton, Field.hideToTop);
+//			okButton.setVisibility(View.GONE);
+//			noButton.setVisibility(View.GONE);
+//			
+//			hideAct.showThisView(saveButton, Field.showToBottom);
+//			hideAct.showThisView(textButton, Field.showToBottom);
+//			hideAct.showThisView(retryButton, Field.showToBottom);
+//			
+//		}
+//		else if(action == "show"){
+//
+//			hideAct.showThisView(okButton, Field.showToTop);
+//			hideAct.showThisView(noButton, Field.showToTop);
+//			
+//			hideAct.hideThisView(saveButton, Field.hideToBottom);
+//			hideAct.hideThisView(textButton, Field.hideToBottom);
+//			hideAct.hideThisView(retryButton, Field.hideToBottom);
+//		}
+		
+	}
+	
+	public void shareFunction() {
+//		
+//		initControlTwitter();
+////		publishStory();
+////		sharePho();
+////		shareMe();
+////		shareFacebook();
+////		Uri uri = Uri.parse("file://" + fileName);
+////		String shareBody = "Here is the share content body";
+////		sharingIntent = new Intent(Intent.ACTION_SEND);
+////		//sharingIntent.setClassName("com.facebook.katana","com.facebook.katana.ShareLinkActivity");
+////		sharingIntent.setType("image/png");
+////		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+////		finish();
+////		startActivity(Intent.createChooser(sharingIntent, "Share via"));
+////		
+//		final Dialog dialog = new Dialog(CameraFragment.this);
+//		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+//        dialog.setContentView(R.layout.sharing_menu);
+//        dialog.setCancelable(true);
+//        EditText sharemessage=(EditText)dialog.findViewById(R.id.shareMessage);
+//        
+//        final CheckBox fbCB = (CheckBox)dialog.findViewById(R.id.checkBoxFacebook);
+//        final CheckBox tCB = (CheckBox)dialog.findViewById(R.id.checkBoxTwitter);
+//        
+//        final EditText shareMessage = (EditText)dialog.findViewById(R.id.shareMessage);
+//        final TextView messageCounter = (TextView)dialog.findViewById(R.id.messageCounter);
+//        messageCounter.setText("0/120");
+//        Button cancel = (Button) dialog.findViewById(R.id.shareCancelBtn);
+//        Button ok = (Button) dialog.findViewById(R.id.shareOkBtn);
+//        shareMessage.addTextChangedListener(new TextWatcher() {
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//            	String charCount=""+shareMessage.getText();
+//            	messageCounter.setText(""+charCount.length()+"/120");
+//            }
+//
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//            	Log.i("a","a2");
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            	Log.i("a","a3");
+//
+//
+//            } 
+//
+//        });
+//        
+//        tCB.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				if (((CheckBox) v).isChecked()) {
+//					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//						if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+//							{
+//					        	new TwitterAuthenticateTask().execute();
+//					            Toast.makeText(getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
+//					                  }else {
+//					                	  new TwitterGetAccessTokenTask().execute("");
+//					                	  //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
+//					                  }
+//					                  
+//					              }else{
+//					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
+//					              }
+//			}
+//        	
+//        });
+//        
+//        
+//        cancel.setOnTouchListener(new OnTouchListener() {
+//			
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				if(event.getAction()==MotionEvent.ACTION_DOWN){
+////					if(v.getId()==R.id.shareCancelBtn)
+////						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+//					
+////					pushFBRequest(shareMessage.getText().toString());
+//				}
+//				if(event.getAction()==MotionEvent.ACTION_UP){
+//					if(v.getId()==R.id.shareCancelBtn)
+//						dialog.dismiss();
+//				}
+//				return true;
+//			}
+//		});
+//        
+//        ok.setOnTouchListener(new OnTouchListener() {
+//			
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				if(event.getAction()==MotionEvent.ACTION_DOWN){
+////					if(v.getId()==R.id.shareOkBtn)
+////						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+//					
+////					pushFBRequest(shareMessage.getText().toString());
+//				}
+//				if(event.getAction()==MotionEvent.ACTION_UP){
+//					if(v.getId()==R.id.shareOkBtn){
+//						if(fbCB.isChecked()){
+//							pushFBRequest(shareMessage.getText().toString());
+//							dialog.dismiss();
+//							loading.show();
+//						}
+//						else if(!fbCB.isChecked())
+//							Toast.makeText(getApplicationContext(), "Please choose at least 1 media.", Field.SHOWTIME).show();
+//							dialog.dismiss();
+//							
+//							dialog.dismiss();
+//	 						
+//							if(tCB.isChecked()) {
+//								fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString();
+//								String TwitText = shareMessage.getText().toString();
+//								String TwitStatus = TwitText + " via #DualCam";
+//								//Toast.makeText(getApplicationContext(), "TwitStatus" + TwitStatus, Field.SHOWTIME).show();  
+//								new TwitterUpdateStatusTask().execute(TwitStatus);
+//														  
+//							}else if(!tCB.isChecked()) {
+//						       					
+//							}
+//
+//					}
+//				}
+//				return true;
+//			}
+//		});
+//        
+//        fbCB.setOnClickListener(new View.OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+////				if(mySession == null)
+////					mySession = new SetMyFBSession(getApplicationContext(), DualCamActivity.this, globalBundle).startMySession();
+//			}
+//		});
+//        
+//        
+//        dialog.show();
+//        
+////		
+////		final SharingDialog shareDialog = new SharingDialog(DualCamActivity.this);
+////		final SharingDialog shareDialog = new SharingDialog(DualCamActivity.this);
+////        Button cancel = (Button) shareDialog.findViewById(R.id.shareCancelBtn);
+////
+////        Button ok = (Button) shareDialog.findViewById(R.id.shareOkBtn);
+////        final EditText shareMessage = (EditText)shareDialog.findViewById(R.id.shareMessage);
+////        cancel.setOnTouchListener(new OnTouchListener() {
+////			
+////			@Override
+////			public boolean onTouch(View v, MotionEvent event) {
+////				if(event.getAction()==MotionEvent.ACTION_DOWN){
+////					if(v.getId()==R.id.shareCancelBtn)
+////						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+////					
+//////					pushFBRequest(shareMessage.getText().toString());
+////				}
+////				if(event.getAction()==MotionEvent.ACTION_UP){
+////					if(v.getId()==R.id.shareCancelBtn)
+////						shareDialog.dismiss();
+////				}
+////				return true;
+////			}
+////		});
+////        
+////        ok.setOnTouchListener(new OnTouchListener() {
+////			
+////			@Override
+////			public boolean onTouch(View v, MotionEvent event) {
+////				if(event.getAction()==MotionEvent.ACTION_DOWN){
+////					if(v.getId()==R.id.shareOkBtn)
+////						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+////					
+//////					pushFBRequest(shareMessage.getText().toString());
+////				}
+////				if(event.getAction()==MotionEvent.ACTION_UP){
+////					if(v.getId()==R.id.shareOkBtn){
+////						pushFBRequest(shareMessage.getText().toString());
+////						shareDialog.dismiss();
+////					}
+////				}
+////				return true;
+////			}
+////		});
+////        
+////        shareDialog.show();
+//        
+//        
+//		
+	}
+	
+	
+	
+/*	Freedom Methods		*/
 	public void releaseCamera() {
 		if (mCamera != null) {
 			mCamera.release(); // release the camera for other applications

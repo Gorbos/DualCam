@@ -6,6 +6,7 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 public class MotherCrystal extends FragmentActivity {
@@ -39,8 +41,10 @@ public class MotherCrystal extends FragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-	    setBundyDundy(savedInstanceState);
-	    if(getBundyDundy() == null)
+	    
+	    if(savedInstanceState != null)
+		    setBundyDundy(savedInstanceState);
+	    else if(getBundyDundy() == null)
 	    	setBundyDundy(new Bundle());
 	    
 	    uiHelper = new UiLifecycleHelper(this, callback);
@@ -65,7 +69,14 @@ public class MotherCrystal extends FragmentActivity {
 	    }
 	    
 	    transaction.commit();
-	    linkStart();
+	    
+//	    if(savedInstanceState != null)
+//	    	Log.i(TAG,"bundyDundy = "+bundyDundy.getInt("fragmentShown"));
+	    	
+	    if(bundyDundy.getInt("fragmentShown") > 0 )
+	    	showFragment(bundyDundy.getInt("fragmentShown"), false);
+	    else
+	    	linkStart();
 	    
 	} 
 	
@@ -93,6 +104,7 @@ public class MotherCrystal extends FragmentActivity {
 	public void showFragment(int fragmentIndex, boolean addToBackStack) {
 		Log.i(TAG, "from showFragment("+fragmentIndex+","+addToBackStack+")");
 		fragmentShown = fragmentIndex;
+		
 		switch(fragmentIndex){
 		case SPLASH:
 			bundyDundy.putBoolean(Field.splash+Field.isShown, true);
@@ -102,6 +114,7 @@ public class MotherCrystal extends FragmentActivity {
 			break;
 			
 		case SOCIALMEDIA:
+			bundyDundy.putInt("fragmentShown", fragmentShown);
 			bundyDundy.putBoolean(Field.social+Field.isShown, true);
 
 			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
@@ -109,6 +122,7 @@ public class MotherCrystal extends FragmentActivity {
 			break;
 			
 		case CAM:
+			bundyDundy.putInt("fragmentShown", fragmentShown);
 			bundyDundy.putBoolean(Field.cam+Field.isShown, true);
 			
 			bundyDundy.putBoolean(Field.social+Field.isShown, false);
@@ -262,6 +276,11 @@ public class MotherCrystal extends FragmentActivity {
 		if(uiHelper != null)
 			uiHelper.onStop();
 	    Log.i(TAG, "from onStop.");
+	    
+	    if(((CamFrag)pieces[CAM]).mCamera != null){
+	    	Log.i(TAG, "from onStop : Releasing mCamera");
+	    	((CamFrag)pieces[CAM]).releaseCamera();
+	    }
 	}
 
 	@Override
@@ -270,6 +289,13 @@ public class MotherCrystal extends FragmentActivity {
 	    uiHelper.onSaveInstanceState(outState);
 	    Log.i(TAG, "from onSaveInstanceState.");
 	}
+	
+	@Override
+	 public void onConfigurationChanged(Configuration newConfig) {
+		 super.onConfigurationChanged(newConfig);
+		 Log.i(TAG, "from onConfigurationChanged.");
+		 //linkRESTART();
+	 }
 	
 	public void doMagic(String magic){
 		Toast.makeText(getApplicationContext(), magic, Field.SHOWTIME).show();
@@ -288,6 +314,15 @@ public class MotherCrystal extends FragmentActivity {
 		Log.i(TAG, "from worstCaseScenario. Fragment shown : "+fragmentShown);
 		showFragment(SOCIALMEDIA, false);
 	}
-
-
+	
+	public void linkRESTART() {
+		
+		Intent toSave = getBaseContext().getPackageManager()
+				.getLaunchIntentForPackage(getBaseContext().getPackageName());
+		toSave.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		toSave.putExtra("bundyDundy", bundyDundy);
+		finish();
+		startActivity(toSave);
+	}
+	
 }

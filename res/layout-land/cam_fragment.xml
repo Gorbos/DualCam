@@ -14,8 +14,8 @@
 	       android:id="@+id/cumshot"
 	       android:layout_width="match_parent"
 	       android:layout_height="match_parent"
-	       android:layout_weight="1"
-	        >
+	       android:layout_weight="1" >
+
    		</FrameLayout>
    		<ImageView
            android:id="@+id/previewImage"
@@ -29,66 +29,60 @@
 	<RelativeLayout
 		android:id="@+id/buttonLayout"
 	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    >
-   		
-	    <RelativeLayout
-    	android:id="@+id/overAllLayout"
-      	android:layout_width="match_parent"
-      	android:layout_height="match_parent">
-      	
-        <FrameLayout
-         android:id="@+id/createTextFrame"
-         android:layout_width="match_parent"
-         android:layout_height="match_parent"
-         android:layout_weight="1"/>
-      	<ImageView
-                 android:id="@+id/test"
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent"
-            	 android:visibility="gone"
-                 android:background="#ffffff" 
-                 android:adjustViewBounds="false"/>
-      	
-      	<LinearLayout 
-			android:id="@+id/picLayout"
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:padding="0dp"
-		    android:orientation="vertical"
-		    >
-		    <LinearLayout
-				android:id="@+id/top"
+	    android:layout_height="match_parent">
+   		<RelativeLayout
+	    	android:id="@+id/overAllLayout"
+	      	android:layout_width="match_parent"
+	      	android:layout_height="match_parent">
+	      	
+	        <FrameLayout
+	         android:id="@+id/createTextFrame"
+	         android:layout_width="match_parent"
+	         android:layout_height="match_parent"
+	         android:layout_weight="1"/>
+	      	<ImageView
+	                 android:id="@+id/test"
+	                 android:layout_width="match_parent"
+	                 android:layout_height="match_parent"
+	            	 android:visibility="gone"
+	                 android:background="#ffffff" 
+	                 android:adjustViewBounds="false"/>
+	      	
+		    <LinearLayout 
+				android:id="@+id/picLayout"
 			    android:layout_width="match_parent"
 			    android:layout_height="match_parent"
-			    android:layout_weight="1"
-			    >
-				    <ImageView
-			           android:id="@+id/cumPreviewBack"
+			    android:padding="0dp"
+			    android:orientation="horizontal">
+			    <LinearLayout
+					android:id="@+id/top"
+				    android:layout_width="match_parent"
+				    android:layout_height="match_parent"
+				    android:layout_weight="1">
+					    <ImageView
+				           android:id="@+id/cumPreviewBack"
+				           android:layout_width="match_parent"
+				           android:layout_height="match_parent"
+				           android:src="@drawable/previewback"
+				           android:background="#ffffff" 
+				           android:adjustViewBounds="false"/>
+			    </LinearLayout>
+				<LinearLayout
+					android:id="@+id/bottom"
+				    android:layout_width="match_parent"
+				    android:layout_height="match_parent"
+				    android:layout_weight="1">
+					<ImageView
+			           android:id="@+id/cumPreviewFront"
 			           android:layout_width="match_parent"
 			           android:layout_height="match_parent"
-			           android:src="@drawable/previewback"
-			           android:background="#ffffff" 
-			           android:adjustViewBounds="false"/>
-		    </LinearLayout>
-			<LinearLayout
-				android:id="@+id/bottom"
-			    android:layout_width="match_parent"
-			    android:layout_height="match_parent"
-			    android:layout_weight="1">
-				<ImageView
-		           android:id="@+id/cumPreviewFront"
-		           android:layout_width="match_parent"
-		           android:layout_height="match_parent"
-		           android:src="@drawable/previewfront" 
-		           android:background="#ffffff"
-		           android:adjustViewBounds="false"
-		           />  
-	        </LinearLayout>
-		</LinearLayout>
-      	
+			           android:src="@drawable/previewfront" 
+			           android:background="#ffffff"
+			           android:adjustViewBounds="false"
+			           />  
+		        </LinearLayout>
+			</LinearLayout>
 		</RelativeLayout>
-	    
 		
 		<ImageView
            android:id="@+id/captureButton"
@@ -99,13 +93,12 @@
            android:src="@drawable/shoot"
            />
 		
-		
 		<LinearLayout 
 		    android:id="@+id/utilityButtonLayout"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_alignParentBottom="true">
-
+		
 		    <ImageView
 		        android:id="@+id/shareButton"
 		        android:layout_width="50dp"
@@ -114,7 +107,6 @@
 		        android:layout_marginRight="10dp"
 		        android:src="@drawable/share2" 
 		        android:clickable="false"/>
-		
 		    <ImageView
 		        android:id="@+id/saveButton"
 		        android:layout_width="50dp"
@@ -131,17 +123,14 @@
 		        android:layout_marginRight="10dp"
 		        android:src="@drawable/text2" 
 		        android:clickable="false"/>
-		    
 		    <ImageView
 		        android:id="@+id/retryButton"
 		        android:layout_width="50dp"
 		        android:layout_height="50dp"
 		        android:layout_marginLeft="10dp"
 		        android:layout_marginRight="10dp"
-		        android:src="@drawable/retry2" 
+		        android:src="@drawable/retry1" 
 		        android:clickable="false"/>
-
-
 		</LinearLayout>
 		
 		<LinearLayout 
