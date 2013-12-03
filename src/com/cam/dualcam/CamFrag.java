@@ -140,6 +140,26 @@ public class CamFrag extends Fragment {
 	    Log.i(TAG, "from onStop.");
 	}
 	
+	
+	@Override
+	 public void onConfigurationChanged(Configuration newConfig) {
+	 super.onConfigurationChanged(newConfig);
+	 Log.i(TAG, "from onConfigurationChanged.");
+	 setTransistion();
+	 // Checks the orientation of the screen
+//		 if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//			 killMe = true;
+//			 //Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
+//			 //setContentView(R.layout.dualcam);
+//			 //linkRESTART();
+//		 } 
+//		 else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+//			 killMe = true;
+//			 //Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+//			 //linkRESTART();
+//		 }
+	 }
+	
 /*		ACTS OF THE PAST		*/	
 	//state checkers
 	private boolean isBackTaken = false;
@@ -163,12 +183,15 @@ public class CamFrag extends Fragment {
 	private boolean isReadyToShoot = false;
 	private boolean isCameraFocused = false;
 	private boolean isRetaking = false;
+	private boolean isSetupDone = false;
+	private boolean isTakingPicture = false;
 	private boolean hasCameraFocus = false;
 	private boolean killMe = false;
 	
 	//Phone settings
-	private String orientationScreen = null;
 	public MediaPlayer mMediaPlayer;
+	private String orientationScreen = null;
+	private String cameraSide = null;
 	
 	//For the image
 	private Bitmap fileBitmap = null;
@@ -177,6 +200,7 @@ public class CamFrag extends Fragment {
 	private Bitmap tempPic = null;
 	private Bitmap frontPic = null;
 	private Bitmap backPic = null;
+	private Bitmap originalPic = null;
 	public BitmapFactory.Options options = null;
 	
 	//Camera objects
@@ -340,7 +364,7 @@ public class CamFrag extends Fragment {
 		no = getResources().getString(R.string.no_text);
 	}
 	
-	private String cameraSide = null;
+	
 	public void setInteractions(){
 		setSide("BACK");
 		
@@ -348,6 +372,36 @@ public class CamFrag extends Fragment {
 		setButton(saveButton);
 		setButton(textButton);
 		setButton(retryButton);
+		
+		bgMusicUtility("initialize");
+	}
+	
+	public void setTransistion(){
+		Log.i(TAG, "from setTransistion().");
+//		Log.i(TAG, "isTakingPicture : "+isTakingPicture);
+		/*
+		 * This method is used to recreate all objects and adjust 
+		 * their values depending on the oreintation of the phone.
+		 * 
+		 * It is used to set all the objects when this fragment is
+		 * shown. (Bitmap sizes and settings, Camera attributes, etc.).
+		 */
+		
+		//Redraw images if any
+		
+		
+		//Reset the camera values
+		if(isTakingPicture){
+			Log.i(TAG, "isTakingPicture : "+isTakingPicture);
+			Log.i(TAG, "cameraSide : "+cameraSide);
+			setSide(cameraSide);
+		}
+		else{
+			Log.i(TAG, "isTakingPicture : "+isTakingPicture);
+			//None as of now
+		}
+			
+		
 	}
 	
 	public void setUntake(String cameraSide) {
@@ -368,9 +422,21 @@ public class CamFrag extends Fragment {
 	}
 	
 	public void setSide(String thisside) {
+		isTakingPicture = true;
+		setOrientation();
 		touchAction = Field.ActionStateClickable;
 		cameraSide = thisside;
 		seePreview(cameraSide);
+	}
+	
+	public void setOrientation(){
+		if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
+			orientationScreen = "PORTRAIT";
+		} else if (orientationOfPhone == Configuration.ORIENTATION_LANDSCAPE) {
+			orientationScreen = "LANDSCAPE";
+		} else {
+			orientationScreen = "UNKNOWN";
+		}
 	}
 	
 	public ImageView getPressedPreview(String cameraSide) {
@@ -454,10 +520,9 @@ public class CamFrag extends Fragment {
 			setButton(shareButton);
 			setButton(textButton);
 			setButton(retryButton);
-			//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
+
 			createTextFrameLayout.setVisibility(FrameLayout.VISIBLE);
-			// saveButton.setImageResource(R.drawable.save2);
-			releaseCamera();
+			//releaseCamera();
 			setUntake(cameraSide);
 			ImageView buttonView = getPressedPreview(cameraSide);
 			cameraUtility = new CameraUtility(getActivity().getApplicationContext());
@@ -563,22 +628,19 @@ public class CamFrag extends Fragment {
 				touchAction = Field.ActionStateClickable;
 				
 			}
-
-			// if(touchAction == Field.ActionNothing){
-			// touchAction = Field.ActionAutoFocus;
-			//
-			// }
-
-			// cameraOnFocus().start();
-			// setFocusMarker("FOCUS",null,null,null);
 		} catch (Exception e) {
-			Log.e(TAG, "Di ko na alam to wtf ftw");
+			Log.e(TAG,"ERROR : seePreview - cameraside = "+cameraSide+" orientationScreen = "+orientationScreen);
+			if(mCamera == null)
+				Log.e(TAG, "mCamera is null." );
+			
 			Log.e(TAG, "e = " + e.getCause());
-
+			
 			// Toast.makeText(getApplicationContext(),"OOPS!! Error = "+e.getMessage(),Field.SHOWTIME).show();
 			Toast.makeText(getActivity().getApplicationContext(), errorMessage,
 					Field.SHOWTIME).show();
-			// linkSTART();
+			releaseCamera();
+			((MotherCrystal)getActivity()).worstCaseScenario();
+			
 		}
 	}
 	
@@ -899,6 +961,8 @@ public class CamFrag extends Fragment {
 		if (mCamera != null && cameraAction != Field.CameraCannotCapture) {
 			try {
 				//added by gelo
+				if(mCamera == null)
+					Log.i(TAG, "mCamera is null");
 	    		bgMusicUtility("pause");
 				mCamera.setErrorCallback(ec);
 				
@@ -1228,11 +1292,14 @@ public class CamFrag extends Fragment {
 				touchAction = Field.ActionStateClickable;
 				jutsuAction = Field.standbyToCaptureJutsu;
 
+				isTakingPicture = false;
+				
 				Log.i(TAG, "From getPic... "
 						+"performedAction = " + performedAction
 						+" :cameraAction = "+cameraAction
 						+" :touchAction = " + touchAction
 						+" :cameraSide = "+cameraSide);
+				
 			} catch (Exception e) {
 				Log.i(TAG, "not isSharable");
 				Log.e(TAG, "Error accessing file: " + e.getMessage());
@@ -1689,43 +1756,56 @@ public class CamFrag extends Fragment {
     
 	public void bgMusicUtility(String action){
 //		
-		if(action == "initialize"){
-			mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.loopingmelody);
-			mMediaPlayer.setLooping(true);
-			
-			if(melodyStatus == Field.MODE_Melody_ON)
-				mMediaPlayer.start();
-		}
-		else if(action == "pause"){
-			mMediaPlayer.pause();
-		}
-		else if(action == "stop"){
-			mMediaPlayer.stop();
-		}
-		
-		if(melodyStatus == Field.MODE_Melody_ON){
-
-			if(action == "start"){
-				mMediaPlayer.start();
+		try{
+		if(mMediaPlayer != null){
+				
+			if(action == "initialize"){
+				mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.loopingmelody);
+				mMediaPlayer.setLooping(true);
+				
+				if(melodyStatus == Field.MODE_Melody_ON)
+					mMediaPlayer.start();
+			}
+			else if(action == "pause"){
+				mMediaPlayer.pause();
+			}
+			else if(action == "stop"){
+				mMediaPlayer.stop();
 			}
 			
-			else if(action == "release"){
-				releaseSound();
-			}
-			else if(action == "captureresume"){
-				new CountDownTimer(500,250) {
-					
-					public void onTick(long millisUntilFinished) {
+			if(melodyStatus == Field.MODE_Melody_ON){
+	
+				if(action == "start"){
+					mMediaPlayer.start();
+				}
+				
+				else if(action == "release"){
+					releaseSound();
+				}
+				else if(action == "captureresume"){
+					new CountDownTimer(500,250) {
 						
-					}
-					
-					public void onFinish() {
-						mMediaPlayer.start();
-					}
-				}.start();
+						public void onTick(long millisUntilFinished) {
+							
+						}
+						
+						public void onFinish() {
+							mMediaPlayer.start();
+						}
+					}.start();
+				}
 			}
-		}
 		
+
+		
+		}
+		else
+			Log.i(TAG, "mMediaPlayer is null.");
+		
+		}
+		catch(Exception e){
+			Log.i(TAG, "error at bgMusicUtility.");
+		}
 		
 	}
 	

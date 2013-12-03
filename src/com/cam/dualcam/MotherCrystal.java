@@ -24,6 +24,7 @@ public class MotherCrystal extends FragmentActivity {
 	public static final int SOCIALMEDIA = 1;
 	public static final int CAM = 2;
 	public static final int CAMERA = 3;
+	public static int fragmentShown = -1;
 	
 	private boolean isResumed = false;
 
@@ -91,7 +92,7 @@ public class MotherCrystal extends FragmentActivity {
 
 	public void showFragment(int fragmentIndex, boolean addToBackStack) {
 		Log.i(TAG, "from showFragment("+fragmentIndex+","+addToBackStack+")");
-		
+		fragmentShown = fragmentIndex;
 		switch(fragmentIndex){
 		case SPLASH:
 			bundyDundy.putBoolean(Field.splash+Field.isShown, true);
@@ -281,5 +282,12 @@ public class MotherCrystal extends FragmentActivity {
 	public void setBundyDundy(Bundle bundydundy){
 		bundyDundy = bundydundy;
 	}
+	
+	public void worstCaseScenario(){
+
+		Log.i(TAG, "from worstCaseScenario. Fragment shown : "+fragmentShown);
+		showFragment(SOCIALMEDIA, false);
+	}
+
 
 }
