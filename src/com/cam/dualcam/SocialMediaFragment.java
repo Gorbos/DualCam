@@ -1,5 +1,8 @@
 package com.cam.dualcam;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import com.cam.dualcam.utility.Field;
 import com.cam.dualcam.utility.SetMyFBSession;
 import com.cam.dualcam.widget.GifWebView;
@@ -12,6 +15,7 @@ import com.hintdesk.core.activities.AlertMessageBox;
 import com.hintdesk.core.util.OSUtil;
 import com.hintdesk.core.util.StringUtil;
 
+import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
@@ -250,6 +254,9 @@ public class SocialMediaFragment extends Fragment{
 		if(uiHelper != null)
 			uiHelper.onStop();
 	    Log.i(TAG, "from onStop.");
+	    
+//	    ((MotherCrystal)getActivity()).bundyDundy.putString("Ai", "Love");
+//	    setArguments(((MotherCrystal)getActivity()).bundyDundy);
 	}
 	
 	private void trial(){
@@ -322,6 +329,7 @@ public class SocialMediaFragment extends Fragment{
             new TwitterGetAccessTokenTask().execute("");
 	}
 	
+	//The task to log into twitter
 	class TwitterAuthenticateTask extends AsyncTask<String, String, RequestToken> {
 
         @Override
@@ -331,12 +339,21 @@ public class SocialMediaFragment extends Fragment{
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
-            getActivity().startActivity(intent);
+//            getActivity().startActivity(intent);
+            ((MotherCrystal)getActivity()).finish();
+            ((MotherCrystal)getActivity()).startActivity(intent);
         } 
 
         @Override
         protected RequestToken doInBackground(String... params) {
         	Log.i(TAG,"from doInBackground. TwitterAuthenticateTask");
+        	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Field.social+Field.isFromTwitter, true);
+            editor.commit();
+            
+            SharedPreferences sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+            Log.i(TAG,"from doInBackground. TwitterAuthenticateTask isTwitterResume : "+sharedPreferences2.getBoolean(Field.social+Field.isFromTwitter,false));
             return TwitterUtil.getInstance().getRequestToken();
         }
 	}
@@ -391,5 +408,89 @@ public class SocialMediaFragment extends Fragment{
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
     }
+	
+	// Background task on Posting Tweet on Twitter 
+    class TwitterUpdateStatusTask extends AsyncTask<String, String, Boolean> {
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result)
+                Toast.makeText(getActivity().getApplicationContext(), "Tweet successfully", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(getActivity().getApplicationContext(), "Tweet failed", Toast.LENGTH_SHORT).show();
+        }
+        
+        @Override
+        protected Boolean doInBackground(String... params) {
+            try {
+//                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//                String accessTokenString = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+//                String accessTokenSecret = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+//
+//                if (!StringUtil.isNullOrWhitespace(accessTokenString) && !StringUtil.isNullOrWhitespace(accessTokenSecret)) {
+//                    AccessToken accessToken = new AccessToken(accessTokenString, accessTokenSecret);
+//                    
+//                   // working original
+//                   // twitter4j.Status status = TwitterUtil.getInstance().getTwitterFactory().getInstance(accessToken).updateStatus(params[0]);
+//                    
+//                    /*File finalFile = new File("file:///sdcard/Pictures/temp.jpg");
+//                    Twitter twitter = null;
+//                    StatusUpdate stat = new StatusUpdate("awwww");
+//                    stat.setMedia(finalFile);
+//                    twitter.updateStatus(stat);*/
+//                    
+//                    Twitter twitter =  TwitterUtil.getInstance().getTwitterFactory().getInstance(accessToken);
+//
+//                    // Update status
+//
+//                    StatusUpdate ad=new StatusUpdate(params[0]);
+//
+//                    
+//                    // The InputStream opens the resourceId and sends it to the buffer
+//                   
+//                    //InputStream is = getResources().openRawResource(R.drawable.ic_launcher);
+//                    
+//                    
+//                    //String path = file.getAbsolutePath();
+//                    FileInputStream xs = new FileInputStream(filePath);
+//                    
+//                    
+//                    
+//                    ad.setMedia(params[0],xs);
+//                    
+//                    twitter4j.Status response = twitter.updateStatus(ad);
+//                    
+//                    return true;
+//                }
+            } catch (Exception e) {
+				e.printStackTrace();
+			}
+//            } catch (TwitterException e) {
+//                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//            } catch (FileNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+            return false;  //To change body of implemented methods use File | Settings | File Templates.
+            
+        }
+    }
+    
+
+	private boolean detectIfUserLogInTwitter() {
+		
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        
+		return sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false);
+	} 
+	
+	public boolean isResumeFromTwitter() {
+		
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        
+		return sharedPreferences.getBoolean(Field.social+Field.isFromTwitter,false);
+	} 
+	
+
 	
 }

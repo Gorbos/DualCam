@@ -72,12 +72,17 @@ public class MotherCrystal extends FragmentActivity {
 	    
 //	    if(savedInstanceState != null)
 //	    	Log.i(TAG,"bundyDundy = "+bundyDundy.getInt("fragmentShown"));
-	    	
-	    if(bundyDundy.getInt("fragmentShown") > 0 )
-	    	showFragment(bundyDundy.getInt("fragmentShown"), false);
-	    else
+	    Log.i(TAG,"twitter = "+((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter());
+	    if(((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter())	
+	    	showFragment(CAM, false);
+	    else 
 	    	linkStart();
 	    
+//	    if(bundyDundy.getInt("fragmentShown") > 0 )
+//	    	showFragment(bundyDundy.getInt("fragmentShown"), false);
+//	    else
+//	    	linkStart();
+
 	} 
 	
 	private void linkStart(){
@@ -223,7 +228,8 @@ public class MotherCrystal extends FragmentActivity {
 	    uiHelper.onResume();
 	    isResumed = true;
 	    Log.i(TAG, "from onResume.");
-	    
+	    if(bundyDundy.containsKey("Ai"))
+	    	Log.i(TAG, bundyDundy.getString("Ai")+"Live");
 //	    FragmentManager fm = getSupportFragmentManager();
 //	    pieces[SPLASH] = fm.findFragmentById(R.id.splash_fragment);
 //	    pieces[SOCIALMEDIA] = fm.findFragmentById(R.id.socialmedia_fragment);
@@ -268,6 +274,7 @@ public class MotherCrystal extends FragmentActivity {
 	    super.onDestroy();
 	    uiHelper.onDestroy();
 	    Log.i(TAG, "from onDestroy.");
+	    
 	}
 	
 	@Override
@@ -276,6 +283,8 @@ public class MotherCrystal extends FragmentActivity {
 		if(uiHelper != null)
 			uiHelper.onStop();
 	    Log.i(TAG, "from onStop.");
+
+	    bundyDundy.putString("Ai", "Love");
 	    
 	    if(((CamFrag)pieces[CAM]).mCamera != null){
 	    	Log.i(TAG, "from onStop : Releasing mCamera");

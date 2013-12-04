@@ -2,7 +2,12 @@ package com.cam.dualcam;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.channels.GatheringByteChannel;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
+import com.cam.dualcam.CameraFragment.PhotoReqCallback;
 import com.cam.dualcam.CameraFragment.TwitterAuthenticateTask;
 import com.cam.dualcam.CameraFragment.TwitterGetAccessTokenTask;
 import com.cam.dualcam.CameraFragment.TwitterUpdateStatusTask;
@@ -14,10 +19,13 @@ import com.cam.dualcam.utility.Field;
 import com.cam.dualcam.utility.MediaUtility;
 import com.cam.dualcam.utility.PackageCheck;
 import com.cam.dualcam.utility.PhoneChecker;
+import com.cam.dualcam.utility.SetMyFBSession;
 import com.cam.dualcam.view.CameraPreview;
 import com.cam.dualcam.view.HideAct;
 import com.cam.dualcam.widget.GifWebView;
 import com.cam.dualcam.widget.LoadingDialog;
+import com.facebook.Request;
+import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
@@ -46,11 +54,13 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
@@ -1529,8 +1539,8 @@ public class CamFrag extends Fragment {
     				viewName = "shareButton";
     				try {
     					Log.i(TAG, "isSharable = " + isSharable);
-//    					if (isSharable)
-//    						shareFunction();share the pic
+    					if (isSharable)
+    						shareFunction();//share the pic
 
     				} catch (Exception e) {
     					Log.i(TAG, "isSharable = " + isSharable);
@@ -1556,15 +1566,7 @@ public class CamFrag extends Fragment {
     					if (cameraSide == "BACK")
     						takeAShot();
     				}
-    				// else{
-    				// mCamera.autoFocus(new AutoFocusCallback(){
-    				// @Override
-    				// public void onAutoFocus(boolean arg0, Camera arg1) {
-    				// //camera.takePicture(shutterCallback, rawCallback,
-    				// jpegCallback);
-    				// }
-    				// });
-    				// }
+
     			}
 
     			else if (view.getId() == R.id.cumPreviewFront) {
@@ -1576,30 +1578,6 @@ public class CamFrag extends Fragment {
     					if (cameraSide == "FRONT")
     						takeAShot();
     				}
-    				// else{
-    				// mCamera.autoFocus(new AutoFocusCallback(){
-    				// @Override
-    				// public void onAutoFocus(boolean arg0, Camera arg1) {
-    				// //camera.takePicture(shutterCallback, rawCallback,
-    				// jpegCallback);
-    				// }
-    				// });
-    				// }
-    				//
-    				// if(cameraSide == "BACK")
-    				// {
-    				// try{
-    				// //mCamera.takePicture(null, null, s3FixIloveS3);
-    				// mCamera.setErrorCallback(ec);
-    				// mCamera.takePicture(null, null, mPicture);
-    				// //Toast.makeText(getApplicationContext(),"Nice shot!",Field.SHOWTIME).show();
-    				//
-    				// }catch(Exception e){
-    				// //mCamera.takePicture(null, null, s3FixIloveS3);
-    				// Toast.makeText(getApplicationContext(),errorMessage,Field.SHOWTIME).show();
-    				//
-    				// }
-    				// }
     			}
 
     			else if (view.getId() == R.id.cumshot) {
@@ -1615,15 +1593,15 @@ public class CamFrag extends Fragment {
     			
     			else if (view.getId() == R.id.okButton) {
     				viewName = "okButton";
-    				//textFeatureUtility("hide");
+    				textFeatureUtility("hide");
     			}
 
     			else if (view.getId() == R.id.noButton) {
     				viewName = "noButton";
     				createTextFrameLayout.removeAllViews();
-    				
-    				//textFeatureUtility("hide");
+    				textFeatureUtility("hide");
     			}
+
     			
     			Log.i(TAG, viewName+" is clicked.");
     			
@@ -2170,96 +2148,169 @@ public class CamFrag extends Fragment {
 	}
 	
 	public void shareFunction() {
-//		
-//		initControlTwitter();
-////		publishStory();
-////		sharePho();
-////		shareMe();
-////		shareFacebook();
-////		Uri uri = Uri.parse("file://" + fileName);
-////		String shareBody = "Here is the share content body";
-////		sharingIntent = new Intent(Intent.ACTION_SEND);
-////		//sharingIntent.setClassName("com.facebook.katana","com.facebook.katana.ShareLinkActivity");
-////		sharingIntent.setType("image/png");
-////		sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-////		finish();
-////		startActivity(Intent.createChooser(sharingIntent, "Share via"));
-////		
-//		final Dialog dialog = new Dialog(CameraFragment.this);
-//		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-//		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-//        dialog.setContentView(R.layout.sharing_menu);
-//        dialog.setCancelable(true);
-//        EditText sharemessage=(EditText)dialog.findViewById(R.id.shareMessage);
-//        
-//        final CheckBox fbCB = (CheckBox)dialog.findViewById(R.id.checkBoxFacebook);
-//        final CheckBox tCB = (CheckBox)dialog.findViewById(R.id.checkBoxTwitter);
-//        
-//        final EditText shareMessage = (EditText)dialog.findViewById(R.id.shareMessage);
-//        final TextView messageCounter = (TextView)dialog.findViewById(R.id.messageCounter);
-//        messageCounter.setText("0/120");
-//        Button cancel = (Button) dialog.findViewById(R.id.shareCancelBtn);
-//        Button ok = (Button) dialog.findViewById(R.id.shareOkBtn);
-//        shareMessage.addTextChangedListener(new TextWatcher() {
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//            	String charCount=""+shareMessage.getText();
-//            	messageCounter.setText(""+charCount.length()+"/120");
-//            }
-//
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//            	Log.i("a","a2");
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            	Log.i("a","a3");
-//
-//
-//            } 
-//
-//        });
-//        
-//        tCB.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				if (((CheckBox) v).isChecked()) {
-//					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//						if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
-//							{
+		
+		//initControlTwitter();
+//		publishStory();
+//		sharePho();
+//		shareMe();
+//		shareFacebook();
+		
+		final Dialog dialog = new Dialog(getActivity());
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.setContentView(R.layout.sharing_menu);
+        dialog.setCancelable(true);
+        EditText sharemessage=(EditText)dialog.findViewById(R.id.shareMessage);
+        
+        final CheckBox fbCB = (CheckBox)dialog.findViewById(R.id.checkBoxFacebook);
+        final CheckBox tCB = (CheckBox)dialog.findViewById(R.id.checkBoxTwitter);
+        
+        final EditText shareMessage = (EditText)dialog.findViewById(R.id.shareMessage);
+        final TextView messageCounter = (TextView)dialog.findViewById(R.id.messageCounter);
+        messageCounter.setText("0/120");
+        Button cancel = (Button) dialog.findViewById(R.id.shareCancelBtn);
+        Button ok = (Button) dialog.findViewById(R.id.shareOkBtn);
+        shareMessage.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            	String charCount=""+shareMessage.getText();
+            	messageCounter.setText(""+charCount.length()+"/120");
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            	Log.i("a","a2");
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            	Log.i("a","a3");
+
+
+            } 
+
+        });
+        
+       
+        cancel.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getAction()==MotionEvent.ACTION_DOWN){
+//					if(v.getId()==R.id.shareCancelBtn)
+//						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+					
+//					pushFBRequest(shareMessage.getText().toString());
+				}
+				if(event.getAction()==MotionEvent.ACTION_UP){
+					if(v.getId()==R.id.shareCancelBtn)
+						dialog.dismiss();
+				}
+				return true;
+			}
+		});
+        
+        ok.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getAction()==MotionEvent.ACTION_DOWN){
+//					if(v.getId()==R.id.shareOkBtn)
+//						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+					
+//					pushFBRequest(shareMessage.getText().toString());
+				}
+				if(event.getAction()==MotionEvent.ACTION_UP){
+					if(v.getId()==R.id.shareOkBtn){
+						if(fbCB.isChecked()){
+							pushFBRequest(shareMessage.getText().toString());
+							dialog.dismiss();
+							loading.show();
+						}
+						
+						if(tCB.isChecked()) {
+							pushTwRequest(shareMessage.getText().toString());
+							dialog.dismiss();
+							loading.show();
+							
+						}
+						dialog.dismiss();
+
+
+					}
+				}
+				return true;
+			}
+		});
+        
+        fbCB.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Session ses = Session.getActiveSession();
+        		if(ses != null && ses.isOpened()){
+        			Log.i(TAG, "There is an active session.");
+        		}
+        		else{
+        			Log.i(TAG, "There is no active session.");
+        			
+        			ses.openActiveSession(getActivity()	, 
+        					CamFrag.this, 
+        					true, 
+        					((MotherCrystal)getActivity()).callback);
+        		}
+			}
+		});
+        
+        tCB.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (((CheckBox) v).isChecked()) {
+					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+						if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+							{
 //					        	new TwitterAuthenticateTask().execute();
-//					            Toast.makeText(getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
-//					                  }else {
+					            Toast.makeText(getActivity().getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
+					                  }else {
 //					                	  new TwitterGetAccessTokenTask().execute("");
-//					                	  //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
-//					                  }
-//					                  
-//					              }else{
-//					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
-//					              }
-//			}
-//        	
-//        });
-//        
-//        
+					                	  //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
+					                  }
+					                  
+					              }else{
+					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
+					              }
+			}
+        	
+        });
+        
+        
+        
+        dialog.show();
+        
+//		
+//		final SharingDialog shareDialog = new SharingDialog(DualCamActivity.this);
+//		final SharingDialog shareDialog = new SharingDialog(DualCamActivity.this);
+//        Button cancel = (Button) shareDialog.findViewById(R.id.shareCancelBtn);
+//
+//        Button ok = (Button) shareDialog.findViewById(R.id.shareOkBtn);
+//        final EditText shareMessage = (EditText)shareDialog.findViewById(R.id.shareMessage);
 //        cancel.setOnTouchListener(new OnTouchListener() {
 //			
 //			@Override
 //			public boolean onTouch(View v, MotionEvent event) {
 //				if(event.getAction()==MotionEvent.ACTION_DOWN){
-////					if(v.getId()==R.id.shareCancelBtn)
-////						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+//					if(v.getId()==R.id.shareCancelBtn)
+//						v.setBackgroundResource(R.drawable.sharebuttonpressed);
 //					
 ////					pushFBRequest(shareMessage.getText().toString());
 //				}
 //				if(event.getAction()==MotionEvent.ACTION_UP){
 //					if(v.getId()==R.id.shareCancelBtn)
-//						dialog.dismiss();
+//						shareDialog.dismiss();
 //				}
 //				return true;
 //			}
@@ -2270,105 +2321,137 @@ public class CamFrag extends Fragment {
 //			@Override
 //			public boolean onTouch(View v, MotionEvent event) {
 //				if(event.getAction()==MotionEvent.ACTION_DOWN){
-////					if(v.getId()==R.id.shareOkBtn)
-////						v.setBackgroundResource(R.drawable.sharebuttonpressed);
+//					if(v.getId()==R.id.shareOkBtn)
+//						v.setBackgroundResource(R.drawable.sharebuttonpressed);
 //					
 ////					pushFBRequest(shareMessage.getText().toString());
 //				}
 //				if(event.getAction()==MotionEvent.ACTION_UP){
 //					if(v.getId()==R.id.shareOkBtn){
-//						if(fbCB.isChecked()){
-//							pushFBRequest(shareMessage.getText().toString());
-//							dialog.dismiss();
-//							loading.show();
-//						}
-//						else if(!fbCB.isChecked())
-//							Toast.makeText(getApplicationContext(), "Please choose at least 1 media.", Field.SHOWTIME).show();
-//							dialog.dismiss();
-//							
-//							dialog.dismiss();
-//	 						
-//							if(tCB.isChecked()) {
-//								fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString();
-//								String TwitText = shareMessage.getText().toString();
-//								String TwitStatus = TwitText + " via #DualCam";
-//								//Toast.makeText(getApplicationContext(), "TwitStatus" + TwitStatus, Field.SHOWTIME).show();  
-//								new TwitterUpdateStatusTask().execute(TwitStatus);
-//														  
-//							}else if(!tCB.isChecked()) {
-//						       					
-//							}
-//
+//						pushFBRequest(shareMessage.getText().toString());
+//						shareDialog.dismiss();
 //					}
 //				}
 //				return true;
 //			}
 //		});
 //        
-//        fbCB.setOnClickListener(new View.OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-////				if(mySession == null)
-////					mySession = new SetMyFBSession(getApplicationContext(), DualCamActivity.this, globalBundle).startMySession();
-//			}
-//		});
-//        
-//        
-//        dialog.show();
-//        
-////		
-////		final SharingDialog shareDialog = new SharingDialog(DualCamActivity.this);
-////		final SharingDialog shareDialog = new SharingDialog(DualCamActivity.this);
-////        Button cancel = (Button) shareDialog.findViewById(R.id.shareCancelBtn);
-////
-////        Button ok = (Button) shareDialog.findViewById(R.id.shareOkBtn);
-////        final EditText shareMessage = (EditText)shareDialog.findViewById(R.id.shareMessage);
-////        cancel.setOnTouchListener(new OnTouchListener() {
-////			
-////			@Override
-////			public boolean onTouch(View v, MotionEvent event) {
-////				if(event.getAction()==MotionEvent.ACTION_DOWN){
-////					if(v.getId()==R.id.shareCancelBtn)
-////						v.setBackgroundResource(R.drawable.sharebuttonpressed);
-////					
-//////					pushFBRequest(shareMessage.getText().toString());
-////				}
-////				if(event.getAction()==MotionEvent.ACTION_UP){
-////					if(v.getId()==R.id.shareCancelBtn)
-////						shareDialog.dismiss();
-////				}
-////				return true;
-////			}
-////		});
-////        
-////        ok.setOnTouchListener(new OnTouchListener() {
-////			
-////			@Override
-////			public boolean onTouch(View v, MotionEvent event) {
-////				if(event.getAction()==MotionEvent.ACTION_DOWN){
-////					if(v.getId()==R.id.shareOkBtn)
-////						v.setBackgroundResource(R.drawable.sharebuttonpressed);
-////					
-//////					pushFBRequest(shareMessage.getText().toString());
-////				}
-////				if(event.getAction()==MotionEvent.ACTION_UP){
-////					if(v.getId()==R.id.shareOkBtn){
-////						pushFBRequest(shareMessage.getText().toString());
-////						shareDialog.dismiss();
-////					}
-////				}
-////				return true;
-////			}
-////		});
-////        
-////        shareDialog.show();
-//        
-//        
-//		
+//        shareDialog.show();
+        
+        
+		
 	}
 	
+/*	Net-Work Share	*/
+	//Facebook
+	private void pushFBRequest(String message){
+		killMe = true;
+		Uri uri = Uri.parse("file://" + fileName);
+		Session mySession = Session.getActiveSession();
+		
+		Request.Callback req = new PhotoReqCallback();
+		try{
+		List<String> permissions = mySession.getPermissions();
+        if (!isSubsetOf(PERMISSIONS, permissions)) {
+            pendingPublishReauthorization = true;
+            Session.NewPermissionsRequest newPermissionsRequest = new Session
+                    .NewPermissionsRequest(getActivity(), PERMISSIONS);
+            mySession.requestNewPublishPermissions(newPermissionsRequest);
+
+    		Log.i(TAG, "bwahahahahha");
+            //return;
+        }
+	        
+		File f = filePath;
+		Log.i(TAG, "The File "+f.toString());
+		Request postRequest = Request.newStatusUpdateRequest(mySession,f.toString(),req);
+		Request photoRequest = Request.newUploadPhotoRequest(mySession,f/*ileBitmap*/,req);
+		Log.i(TAG,"Session permission count = "+mySession.getPermissions().size());
+		for(int y = 0; y < mySession.getPermissions().size(); y++){
+			Log.i(TAG,"Permission "+y+" = "+mySession.getPermissions().get(y));
+		}
+		
+//		Bundle paramsPost = postRequest.getParameters();
+//		//params.putString("message", "description  goes here");
+//		postRequest.setParameters(paramsPost);
+//		postRequest.executeAsync();
+		
+		Bundle paramsPhoto = photoRequest.getParameters();
+		paramsPhoto.putString("message", message);
+		photoRequest.setParameters(paramsPhoto);
+		photoRequest.executeAsync();
+		
+		}
+		catch(Exception e ){
+			e.printStackTrace();
+			Toast.makeText(getActivity().getApplicationContext(), "ERROR in Posting!!!", Field.SHOWTIME).show();
+		}
+	}
 	
+	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
+	private static final String PENDING_PUBLISH_KEY = "pendingPublishReauthorization";
+	private boolean pendingPublishReauthorization = false;
+	private boolean isSubsetOf(Collection<String> subset, Collection<String> superset) {
+	    for (String string : subset) {
+	        if (!superset.contains(string)) {
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+	
+
+	public class PhotoReqCallback implements Request.Callback {
+        @Override
+        public void onCompleted(Response response) {
+        	String fbPhotoAddress = null;
+        	if(loading != null)
+            	loading.dismiss();
+        	killMe = false;
+            //showPublishResult(getString(R.string.photo_post), response.getGraphObject(), response.getError());
+        	if(response != null){
+
+        		Log.i(TAG, "Response is not null");
+        		if(response.getError() == null){
+        			Object graphResponse = response.getGraphObject().getProperty("id");
+        			if (graphResponse == null || !(graphResponse instanceof String) || 
+        					TextUtils.isEmpty((String) graphResponse)) { // [IF Failed upload/no results]
+        				Log.d(TAG,"failed photo upload/no response");
+        			} else {  // [ELSEIF successful upload]
+        				fbPhotoAddress = "https://www.facebook.com/photo.php?fbid=" +graphResponse;     
+        				//Toast.makeText(getApplicationContext(), "Posting SUCCESS!!! : "+fbPhotoAddress, Field.SHOWTIME).show();
+        				Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.success_upload), Field.SHOWTIME).show();
+            			Log.i(TAG, "SUCCESS in posting");
+        			}  
+        			
+        		}
+        		else{
+        			Log.i(TAG, "Response Error = "+response.getError().getErrorMessage());
+        			Toast.makeText(getActivity().getApplicationContext(), "Posting FAILED!!! : "+response.getError().getErrorMessage(), Field.SHOWTIME).show();
+        		}
+    			
+        	}
+        	
+        	else {
+        		Log.i(TAG, "Response is null");
+    			Toast.makeText(getActivity().getApplicationContext(), "FAILED in Posting!!!", Field.SHOWTIME).show();
+    		}
+        	
+            
+        	//linkRESTART();
+        }
+    }
+	
+	//Twitter 
+	private void pushTwRequest(String message){
+
+		fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString();
+		String TwitText = message;
+		String TwitStatus = TwitText + " via #DualCam";
+		//Toast.makeText(getApplicationContext(), "TwitStatus" + TwitStatus, Field.SHOWTIME).show();  
+//		new TwitterUpdateStatusTask().execute(TwitStatus);
+								  
+	}
 	
 /*	Freedom Methods		*/
 	public void releaseCamera() {
@@ -2384,6 +2467,61 @@ public class CamFrag extends Fragment {
 			mMediaPlayer.release();
 			mMediaPlayer = null;
 		}
+	}
+	
+	public void groundZero(){
+		//Reset the whole CamFrag
+		
+		//state checkers
+		isBackTaken = false;
+		isFrontTaken = false;
+		isSharable = false;
+		isSavable = false;
+		isTextEditable = false;
+		isTextAdded = false;
+		isTextBeingEdited = false;
+		isRetryable = false;
+		isSavePathset = false;
+		isZoomSupported = false;
+		isSmoothZoomSupported = false;
+		
+		isAlreadySharable 	= true;
+		isAlreadySavable 	= true;
+		isAlreadyTextable	= true;
+		isAlreadyRetryable  = true;
+		
+		isDoubleTapAction = false;
+		isReadyToShoot = false;
+		isCameraFocused = false;
+		isRetaking = false;
+		isSetupDone = false;
+		isTakingPicture = false;
+		hasCameraFocus = false;
+		killMe = false;
+		
+		
+		//For the image
+		fileBitmap = null;
+		filePath	= null;
+		fileName = null;
+		tempPic = null;
+		frontPic = null;
+		backPic = null;
+		originalPic = null;
+		options = null;
+		
+		//Camera objects
+		// Camera Settings
+			
+			result = 0;
+			degrees = 0;
+		
+		
+		//Touch Actions
+			// Touch and click events
+			bottomTapCount = 0;
+			topTapCount = 0;
+			tapCount = 0;
 	}
 
 	
