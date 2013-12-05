@@ -1,6 +1,7 @@
 package com.cam.dualcam;
 
 import com.cam.dualcam.utility.Field;
+import com.cam.dualcam.widget.LoadingDialog;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
@@ -29,6 +30,7 @@ public class MotherCrystal extends FragmentActivity {
 	public static int fragmentShown = -1;
 	
 	private boolean isResumed = false;
+	private boolean resumeMe = false;
 
 	private UiLifecycleHelper uiHelper;
 	private MenuItem settings;
@@ -38,6 +40,8 @@ public class MotherCrystal extends FragmentActivity {
 	private Fragment[] pieces = new Fragment[CHILD_FRAGMENT];
 		
 	public Bundle bundyDundy;
+	
+	public LoadingDialog loading;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
@@ -51,7 +55,8 @@ public class MotherCrystal extends FragmentActivity {
 	    uiHelper.onCreate(savedInstanceState);
 	    Log.i(TAG, "from onCreate");
 	    setContentView(R.layout.mother_crystal);
-
+	    
+	    loading = new LoadingDialog(MotherCrystal.this);
 //	    Session session = Session.getActiveSession();
 //	    Log.i(TAG, "Session status = "+session.getState());
 //	    if(session!=null && !session.isClosed())
@@ -70,13 +75,29 @@ public class MotherCrystal extends FragmentActivity {
 	    
 	    transaction.commit();
 	    
+	    if(bundyDundy != null){
+    		if(bundyDundy.getBoolean("resumeMe"));
+    			Log.i(TAG,bundyDundy.getBoolean("resumeMe")+"");
+	    }
 //	    if(savedInstanceState != null)
 //	    	Log.i(TAG,"bundyDundy = "+bundyDundy.getInt("fragmentShown"));
 	    Log.i(TAG,"twitter = "+((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter());
-	    if(((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter())	
+	    if(((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter()){
 	    	showFragment(CAM, false);
-	    else 
-	    	linkStart();
+	    	((SocialMediaFragment)pieces[SOCIALMEDIA]).editTwitterisResume();
+	    }	
+	    else {
+	    	if(bundyDundy != null){
+	    		if(bundyDundy.getBoolean("resumeMe"))
+	    			showFragment(bundyDundy.getInt("fragmentShown"), false);
+	    		else 
+	    			showFragment(CAM, false);
+	    	}
+	    	else{
+	    		Log.i(TAG,"bundyDundy is null.");
+	    		linkStart();
+	    	}
+	    }
 	    
 //	    if(bundyDundy.getInt("fragmentShown") > 0 )
 //	    	showFragment(bundyDundy.getInt("fragmentShown"), false);
@@ -109,7 +130,7 @@ public class MotherCrystal extends FragmentActivity {
 	public void showFragment(int fragmentIndex, boolean addToBackStack) {
 		Log.i(TAG, "from showFragment("+fragmentIndex+","+addToBackStack+")");
 		fragmentShown = fragmentIndex;
-		
+		bundyDundy.putInt("fragmentShown", fragmentShown);
 		switch(fragmentIndex){
 		case SPLASH:
 			bundyDundy.putBoolean(Field.splash+Field.isShown, true);
@@ -127,6 +148,7 @@ public class MotherCrystal extends FragmentActivity {
 			break;
 			
 		case CAM:
+			
 			bundyDundy.putInt("fragmentShown", fragmentShown);
 			bundyDundy.putBoolean(Field.cam+Field.isShown, true);
 			
@@ -149,7 +171,12 @@ public class MotherCrystal extends FragmentActivity {
 	    FragmentTransaction transaction = fm.beginTransaction();
 	    for (int i = 0; i < pieces.length; i++) {
 	        if (i == fragmentIndex) {
+	        	if(loading != null)
+	        		loading.dismiss();
+	        	
 	            transaction.show(pieces[i]);
+	            
+	            
 	        } else {
 	            transaction.hide(pieces[i]);
 	        }
@@ -284,7 +311,7 @@ public class MotherCrystal extends FragmentActivity {
 			uiHelper.onStop();
 	    Log.i(TAG, "from onStop.");
 
-	    bundyDundy.putString("Ai", "Love");
+	    
 	    
 	    if(((CamFrag)pieces[CAM]).mCamera != null){
 	    	Log.i(TAG, "from onStop : Releasing mCamera");
@@ -294,6 +321,7 @@ public class MotherCrystal extends FragmentActivity {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+		bundyDundy.putString("Ai", "Love");
 	    super.onSaveInstanceState(outState);
 	    uiHelper.onSaveInstanceState(outState);
 	    Log.i(TAG, "from onSaveInstanceState.");

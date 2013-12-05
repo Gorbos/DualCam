@@ -185,7 +185,7 @@ public class SocialMediaFragment extends Fragment{
         		
         		//
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-	            if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+	            if (sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
 	            {
 	                new TwitterAuthenticateTask().execute();
 	            } 
@@ -490,6 +490,13 @@ public class SocialMediaFragment extends Fragment{
         
 		return sharedPreferences.getBoolean(Field.social+Field.isFromTwitter,false);
 	} 
+	
+	public void editTwitterisResume(){
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Field.social+Field.isFromTwitter, false);
+        editor.commit();
+	}
 	
 
 	
