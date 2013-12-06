@@ -129,5 +129,7 @@ public class Field {
 	public static String cam 	= "CamFragment";
 	
 	public static String isShown = "isShown";
+	public static boolean isFromTwitter = false;
+	public static boolean isFromFacebook = false;
 }
 
