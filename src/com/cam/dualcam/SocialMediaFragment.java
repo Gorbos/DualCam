@@ -17,6 +17,7 @@ import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
+
 //Facebook
 import com.facebook.Request;
 import com.facebook.Response;
@@ -206,6 +207,8 @@ public class SocialMediaFragment extends Fragment{
 	    super.onActivityResult(requestCode, resultCode, data);
 	    uiHelper.onActivityResult(requestCode, resultCode, data);
 	    Log.i(TAG, "from onActivityResult.");
+	    
+	    detectIfUserLogInTwitter();
 	}
 	
 	@Override
@@ -213,6 +216,8 @@ public class SocialMediaFragment extends Fragment{
 	    super.onResume();
 	    uiHelper.onResume();
 	    Log.i(TAG, "from onResume.");
+	    
+	    detectIfUserLogInTwitter();
 	}
 
 	@Override
@@ -257,7 +262,18 @@ public class SocialMediaFragment extends Fragment{
 	}
 	
 	
-	
+	private void detectIfUserLogInTwitter() {
+		
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false)) {
+        	System.out.println("Not Log in ");
+        } else {
+        	System.out.println("Log in ");
+
+            
+        }
+		
+	}
 	
 	
 	

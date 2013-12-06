@@ -1,14 +1,17 @@
 package com.cam.dualcam;
 
+import com.cam.dualcam.twitter.TwitterConstant;
 import com.cam.dualcam.utility.Field;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -24,7 +27,7 @@ public class MotherCrystal extends FragmentActivity {
 	
 	public static final int SPLASH = 0;
 	public static final int SOCIALMEDIA = 1;
-	public static final int CAM = 2;
+	public static final int CAM = 2; 
 	public static final int CAMERA = 3;
 	public static int fragmentShown = -1;
 	
@@ -325,4 +328,15 @@ public class MotherCrystal extends FragmentActivity {
 		startActivity(toSave);
 	}
 	
+	private void detectIfUserLogInTwitter() {
+		
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false)) {
+        	System.out.println("Not Log in ");
+        } else {
+        	System.out.println("Log in ");
+
+        }
+		
+	}
 }
