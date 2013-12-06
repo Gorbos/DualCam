@@ -33,7 +33,7 @@ public class TwitterWebview extends Activity {
 					Uri uri = Uri.parse( url );
 					String oauthVerifier = uri.getQueryParameter( "oauth_verifier" );
 					mIntent.putExtra( "oauth_verifier", oauthVerifier );
-					setResult( RESULT_OK, mIntent );
+					setResult( RESULT_OK, mIntent ); 
 					finish();
 					System.out.println("oauthVerifier -->" + oauthVerifier);
 					return true;
