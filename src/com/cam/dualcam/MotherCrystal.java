@@ -35,9 +35,10 @@ public class MotherCrystal extends FragmentActivity {
 	
 	private static final String TAG = "MotherCrystal";
 	
-	public static final int SPLASH = 0;
-	public static final int SOCIALMEDIA = 1;
-	public static final int CAM = 2; 
+	public static int STATE = Field.MOTHER_STATE;
+	public static final int SPLASH = Field.MOTHER_SPLASH;
+	public static final int SOCIALMEDIA = Field.MOTHER_SOCIALMEDIA;
+	public static final int CAM = Field.MOTHER_CAM; 
 	public static final int CAMERA = 3;
 	public static int fragmentShown = -1;
 	
@@ -55,13 +56,21 @@ public class MotherCrystal extends FragmentActivity {
 	
 	public LoadingDialog loading;
 	
+	/*	Great Blue Bird's	*/
 	private int TWITTER_AUTH;
+	
+	/*	Azure Scribe's	*/
+	
+	/*	Overseer's	*/
+	private boolean isBlueBirdIN = false;
+	private boolean isAzureScribeIN = false;
+	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    
-	    detectIfUserLogInTwitter();
+	    //detectIfUserLogInTwitter();
 	    
 	    if(savedInstanceState != null)
 		    setBundyDundy(savedInstanceState);
@@ -74,11 +83,7 @@ public class MotherCrystal extends FragmentActivity {
 	    setContentView(R.layout.mother_crystal);
 	    
 	    loading = new LoadingDialog(MotherCrystal.this);
-//	    Session session = Session.getActiveSession();
-//	    Log.i(TAG, "Session status = "+session.getState());
-//	    if(session!=null && !session.isClosed())
-//	    	session.close();
-	    
+
 	    FragmentManager fm = getSupportFragmentManager();
 	    pieces[SPLASH] = fm.findFragmentById(R.id.splash_fragment);
 	    pieces[SOCIALMEDIA] = fm.findFragmentById(R.id.socialmedia_fragment);
@@ -92,37 +97,184 @@ public class MotherCrystal extends FragmentActivity {
 	    
 	    transaction.commit();
 	    
-	    if(bundyDundy != null){
-    		if(bundyDundy.getBoolean("resumeMe"));
-    			Log.i(TAG,bundyDundy.getBoolean("resumeMe")+"");
-	    }
-//	    if(savedInstanceState != null)
-//	    	Log.i(TAG,"bundyDundy = "+bundyDundy.getInt("fragmentShown"));
-	   /* Log.i(TAG,"twitter = "+((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter());
-	    if(((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter()){
-	    	showFragment(CAM, false);
-	    	((SocialMediaFragment)pieces[SOCIALMEDIA]).editTwitterisResume();
-	    }	
-	    else {*/
-	    	/*if(bundyDundy != null){
-	    		if(bundyDundy.getBoolean("resumeMe"))
-	    			showFragment(bundyDundy.getInt("fragmentShown"), false);
-	    		else 
-	    			showFragment(CAM, false);
-	    	}
-	    	else{*/
-	    		Log.i(TAG,"bundyDundy is null.");
-	    		linkStart();
-	    	/*}*/
-	   /* }*/
-	    
-//	    if(bundyDundy.getInt("fragmentShown") > 0 )
-//	    	showFragment(bundyDundy.getInt("fragmentShown"), false);
-//	    else
-//	    	linkStart();
-
 	} 
 	
+	@Override
+	protected void onResumeFragments() {
+	    super.onResumeFragments();
+	    Log.i(TAG, "from onResumeFragments.");
+	    checkbundyDundy("onResumeFragments");
+	    
+	    //Load persistent value for views
+	    ancestralRecall();
+	    Log.i(TAG, "from onResumeFragments. ancestralRecall : "+fragmentShown);
+	    switch(fragmentShown){
+	    case Field.MOTHER_SPLASH:
+	    	linkStart();
+	    	break;
+	    	
+	    case Field.MOTHER_SOCIALMEDIA:
+	    	showFragment(SOCIALMEDIA, false);
+	    	break;
+	    	
+	    case Field.MOTHER_CAM:
+	    	showFragment(CAM, false);
+	    	break;	
+	    	
+	    default:
+	    	Log.i(TAG, "fragmentShown has failed : "+fragmentShown+". linkStart()ing.");
+	    	linkStart();
+//	    	Log.i(TAG, "fragmentShown has failed : "+fragmentShown+". Restarting.");
+//	    	linkRESTART();
+	    	break;
+	    }
+	    
+//	    Session session = Session.getActiveSession();
+//
+//	    if (session != null && session.isOpened()) {
+//	        // if the session is already open,
+//	        // try to show the selection fragment
+//	        showFragment(SOCIALMEDIA, false);
+//	    } else {
+//	        // otherwise present the splash screen
+//	        // and ask the person to login.
+//	        showFragment(SPLASH, false);
+//	    }
+	    
+	}
+	
+	
+	
+	@Override
+	public void onResume() {
+	    super.onResume();
+	    uiHelper.onResume();
+	    isResumed = true;
+	    Log.i(TAG, "from onResume.");
+	    if(bundyDundy.containsKey("Ai"))
+	    	Log.i(TAG, bundyDundy.getString("Ai")+"Live");
+//	    FragmentManager fm = getSupportFragmentManager();
+//	    pieces[SPLASH] = fm.findFragmentById(R.id.splash_fragment);
+//	    pieces[SOCIALMEDIA] = fm.findFragmentById(R.id.socialmedia_fragment);
+//	    pieces[CAM] = fm.findFragmentById(R.id.loading_fragment);
+//	    //pieces[SETTINGS] = fm.findFragmentById(R.id.userSettingsFragment);
+//	    FragmentTransaction transaction = fm.beginTransaction();
+//	    
+//	    for(int i = 0; i < pieces.length; i++) {
+//	        transaction.hide(pieces[i]);
+//	    }
+//	    
+//	    transaction.commit();
+	}
+
+	@Override
+	public void onPause() {
+	    super.onPause();
+	    uiHelper.onPause();
+	    isResumed = false;
+	    Log.i(TAG, "from onPause.");
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    super.onActivityResult(requestCode, resultCode, data);
+	    uiHelper.onActivityResult(requestCode, resultCode, data);
+	    Log.i(TAG, "from onActivityResult.");
+	    
+	    	
+	    if (requestCode == TWITTER_AUTH)
+	  		{
+	      		
+	  			if (resultCode == Activity.RESULT_OK)
+	  			{
+	  				System.out.println("RESULT_OK");
+	  				String oauthVerifier = (String) data.getExtras().get("oauth_verifier");
+	  				try {
+	  					new TwitterGetAccessTokenTask().execute(oauthVerifier);
+	  				} catch (Exception e) {
+	  					//Error contingency plan
+	  					worstCaseScenario();
+	  				}
+	  			}
+	  			 
+	  		
+	  		}
+	    
+	}
+
+	@Override
+	public void onDestroy() {
+	    super.onDestroy();
+	    uiHelper.onDestroy();
+	    Log.i(TAG, "from onDestroy.");
+	    
+	}
+	
+	@Override
+	public void onStop(){
+		super.onStop();
+		if(uiHelper != null)
+			uiHelper.onStop();
+	    Log.i(TAG, "from onStop.");
+
+	    
+	    
+	    if(((CamFrag)pieces[CAM]).mCamera != null){
+	    	Log.i(TAG, "from onStop : Releasing mCamera");
+	    	((CamFrag)pieces[CAM]).releaseCamera();
+	    }
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		bundyDundy.putString("Ai", "Love");
+	    super.onSaveInstanceState(outState);
+	    uiHelper.onSaveInstanceState(outState);
+	    Log.i(TAG, "from onSaveInstanceState.");
+	    ancestralVision();
+	}
+	
+	@Override
+	 public void onConfigurationChanged(Configuration newConfig) {
+		 super.onConfigurationChanged(newConfig);
+		 Log.i(TAG, "from onConfigurationChanged.");
+		 //linkRESTART();
+	 }
+
+	
+/**		ACTS	**/	
+	
+/*	Act of the Magician	*/		
+
+	public void doMagic(String magic){
+		Toast.makeText(getApplicationContext(), magic, Field.SHOWTIME).show();
+	}
+	
+	public Bundle getBundyDundy(){
+		return bundyDundy;
+	}
+	
+	public void setBundyDundy(Bundle bundydundy){
+		bundyDundy = bundydundy;
+	}
+	
+	public void worstCaseScenario(){
+
+		Log.i(TAG, "from worstCaseScenario. Fragment shown : "+fragmentShown);
+		showFragment(SOCIALMEDIA, false);
+	}
+	
+	public void linkRESTART() {
+		
+		Intent toSave = getBaseContext().getPackageManager()
+				.getLaunchIntentForPackage(getBaseContext().getPackageName());
+		toSave.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		toSave.putExtra("bundyDundy", bundyDundy);
+		finish();
+		startActivity(toSave);
+	}
+	
+
 	private void linkStart(){
 		showFragment(SPLASH, false);
 		//((SocialMediaFragment)pieces[SOCIALMEDIA]).initControlTwitter();
@@ -147,7 +299,7 @@ public class MotherCrystal extends FragmentActivity {
 	public void showFragment(int fragmentIndex, boolean addToBackStack) {
 		Log.i(TAG, "from showFragment("+fragmentIndex+","+addToBackStack+")");
 		fragmentShown = fragmentIndex;
-		bundyDundy.putInt("fragmentShown", fragmentShown);
+		
 		switch(fragmentIndex){
 		case SPLASH:
 			bundyDundy.putBoolean(Field.splash+Field.isShown, true);
@@ -206,6 +358,35 @@ public class MotherCrystal extends FragmentActivity {
 	    
 	}
 	
+	public void ancestralVision(){
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("fragmentShown", fragmentShown);
+        editor.putInt("STATE", STATE);
+        editor.commit();
+	}
+	
+	public void ancestralRecall(){
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        fragmentShown = sp.getInt("fragmentShown", Field.defaultState);
+        STATE = sp.getInt("STATE", Field.defaultState);
+	}
+	
+	
+	
+/*	Act of the Overseer	*/	
+	public void checkbundyDundy(String from){
+		Log.i(TAG, "from "+from+"  bundyDundy Social : "+bundyDundy.getBoolean(Field.social+Field.isShown));
+		Log.i(TAG, "from "+from+"  bundyDundy Cam : "+bundyDundy.getBoolean(Field.cam+Field.isShown));
+		Log.i(TAG, "from "+from+"  bundyDundy Splash : "+bundyDundy.getBoolean(Field.splash+Field.isShown));
+		Log.i(TAG, "from "+from+"  bundyDundy fragmentShown : "+bundyDundy.getInt("fragmentShown"));
+		Log.i(TAG, "from "+from+"  bundyDundy Ai : "+bundyDundy.getString("Ai"));
+	}
+	
+
+	
+/*	Act of the Azure Scribe		*/	
+	
 	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
 		Log.i(TAG,"from onSessionStateChange.");
 	    // Only make changes if the activity is visible
@@ -247,163 +428,22 @@ public class MotherCrystal extends FragmentActivity {
 		}
 	};
 	
-	@Override
-	protected void onResumeFragments() {
-	    super.onResumeFragments();
-	    Log.i(TAG, "from onResumeFragments.");
-//	    Session session = Session.getActiveSession();
-//
-//	    if (session != null && session.isOpened()) {
-//	        // if the session is already open,
-//	        // try to show the selection fragment
-//	        showFragment(SOCIALMEDIA, false);
-//	    } else {
-//	        // otherwise present the splash screen
-//	        // and ask the person to login.
-//	        showFragment(SPLASH, false);
-//	    }
-	}
-	
-	
-	
-	@Override
-	public void onResume() {
-	    super.onResume();
-	    uiHelper.onResume();
-	    isResumed = true;
-	    Log.i(TAG, "from onResume.");
-	    if(bundyDundy.containsKey("Ai"))
-	    	Log.i(TAG, bundyDundy.getString("Ai")+"Live");
-//	    FragmentManager fm = getSupportFragmentManager();
-//	    pieces[SPLASH] = fm.findFragmentById(R.id.splash_fragment);
-//	    pieces[SOCIALMEDIA] = fm.findFragmentById(R.id.socialmedia_fragment);
-//	    pieces[CAM] = fm.findFragmentById(R.id.loading_fragment);
-//	    //pieces[SETTINGS] = fm.findFragmentById(R.id.userSettingsFragment);
-//	    FragmentTransaction transaction = fm.beginTransaction();
-//	    
-//	    for(int i = 0; i < pieces.length; i++) {
-//	        transaction.hide(pieces[i]);
-//	    }
-//	    
-//	    transaction.commit();
-	}
 
-	@Override
-	public void onPause() {
-	    super.onPause();
-	    uiHelper.onPause();
-	    isResumed = false;
-	    Log.i(TAG, "from onPause.");
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    super.onActivityResult(requestCode, resultCode, data);
-	    uiHelper.onActivityResult(requestCode, resultCode, data);
-	    Log.i(TAG, "from onActivityResult.");
-	    
-//	    Session session = Session.getActiveSession();
-//	    if(session != null && session.isOpened()){
-//	    	showFragment(CAM, false);
-//	    }
-//	    else{
-//	    	showFragment(SPLASH, false);
-//	    }
-	    	
-	    if (requestCode == TWITTER_AUTH)
-	  		{
-	      		
-	  			if (resultCode == Activity.RESULT_OK)
-	  			{
-	  				System.out.println("RESULT_OK");
-	  				String oauthVerifier = (String) data.getExtras().get("oauth_verifier");
-	  				try {
-	  					new TwitterGetAccessTokenTask().execute(oauthVerifier);
-	  				} catch (Exception e) {
-	  					// TODO: handle exception
-	  				}
-	  			}
-	  			 
-	  		
-	  		}
-	    
-	    detectIfUserLogInTwitter();
-	}
-
-	@Override
-	public void onDestroy() {
-	    super.onDestroy();
-	    uiHelper.onDestroy();
-	    Log.i(TAG, "from onDestroy.");
-	    
-	}
 	
-	@Override
-	public void onStop(){
-		super.onStop();
-		if(uiHelper != null)
-			uiHelper.onStop();
-	    Log.i(TAG, "from onStop.");
-
-	    
-	    
-	    if(((CamFrag)pieces[CAM]).mCamera != null){
-	    	Log.i(TAG, "from onStop : Releasing mCamera");
-	    	((CamFrag)pieces[CAM]).releaseCamera();
-	    }
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		bundyDundy.putString("Ai", "Love");
-	    super.onSaveInstanceState(outState);
-	    uiHelper.onSaveInstanceState(outState);
-	    Log.i(TAG, "from onSaveInstanceState.");
-	}
 	
-	@Override
-	 public void onConfigurationChanged(Configuration newConfig) {
-		 super.onConfigurationChanged(newConfig);
-		 Log.i(TAG, "from onConfigurationChanged.");
-		 //linkRESTART();
-	 }
-	
-	public void doMagic(String magic){
-		Toast.makeText(getApplicationContext(), magic, Field.SHOWTIME).show();
-	}
-	
-	public Bundle getBundyDundy(){
-		return bundyDundy;
-	}
-	
-	public void setBundyDundy(Bundle bundydundy){
-		bundyDundy = bundydundy;
-	}
-	
-	public void worstCaseScenario(){
-
-		Log.i(TAG, "from worstCaseScenario. Fragment shown : "+fragmentShown);
-		showFragment(SOCIALMEDIA, false);
-	}
-	
-	public void linkRESTART() {
-		
-		Intent toSave = getBaseContext().getPackageManager()
-				.getLaunchIntentForPackage(getBaseContext().getPackageName());
-		toSave.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		toSave.putExtra("bundyDundy", bundyDundy);
-		finish();
-		startActivity(toSave);
-	}
+/*	Act of the Great Blue Bird	*/	
 	
 	private void detectIfUserLogInTwitter() {
 		
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false)) {
-        	System.out.println("Not Log in ");
+        if (sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false)) {
+        	
+        	//is Blue Bird logged in
+        	isBlueBirdIN = true;
         } else {
         	
-        	showFragment(MotherCrystal.CAM, false);
+        	//is Blue Bird logged out
+        	isBlueBirdIN = false;
         }
 		
 	}

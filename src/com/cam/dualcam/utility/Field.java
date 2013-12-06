@@ -131,5 +131,19 @@ public class Field {
 	public static String isShown = "isShown";
 	public static boolean isFromTwitter = false;
 	public static boolean isFromFacebook = false;
+	
+	public static final int MOTHER_STATE = -1;
+	public static final int MOTHER_SPLASH = 0;
+	public static final int MOTHER_SOCIALMEDIA = 1;
+	public static final int MOTHER_CAM = 2; 
+	
+	public static int defaultState 	= -1;
+	public static int state 	= -1;
+	public static int dead		= 0;
+	public static int ready		= 1;
+	public static int resume	= 10;
+	public static int loading 	= 2;
+	public static int logging	= 3;
+	public static int showing	= 4;
 }
 
