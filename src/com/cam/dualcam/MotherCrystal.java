@@ -1,15 +1,24 @@
 package com.cam.dualcam;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+
 import com.cam.dualcam.twitter.TwitterConstant;
+import com.cam.dualcam.twitter.TwitterUtil;
 import com.cam.dualcam.utility.Field;
 import com.cam.dualcam.widget.LoadingDialog;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.hintdesk.core.util.StringUtil;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
@@ -45,9 +54,14 @@ public class MotherCrystal extends FragmentActivity {
 	public Bundle bundyDundy;
 	
 	public LoadingDialog loading;
+	
+	private int TWITTER_AUTH;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
+	    
+	    detectIfUserLogInTwitter();
 	    
 	    if(savedInstanceState != null)
 		    setBundyDundy(savedInstanceState);
@@ -84,23 +98,23 @@ public class MotherCrystal extends FragmentActivity {
 	    }
 //	    if(savedInstanceState != null)
 //	    	Log.i(TAG,"bundyDundy = "+bundyDundy.getInt("fragmentShown"));
-	    Log.i(TAG,"twitter = "+((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter());
+	   /* Log.i(TAG,"twitter = "+((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter());
 	    if(((SocialMediaFragment)pieces[SOCIALMEDIA]).isResumeFromTwitter()){
 	    	showFragment(CAM, false);
 	    	((SocialMediaFragment)pieces[SOCIALMEDIA]).editTwitterisResume();
 	    }	
-	    else {
-	    	if(bundyDundy != null){
+	    else {*/
+	    	/*if(bundyDundy != null){
 	    		if(bundyDundy.getBoolean("resumeMe"))
 	    			showFragment(bundyDundy.getInt("fragmentShown"), false);
 	    		else 
 	    			showFragment(CAM, false);
 	    	}
-	    	else{
+	    	else{*/
 	    		Log.i(TAG,"bundyDundy is null.");
 	    		linkStart();
-	    	}
-	    }
+	    	/*}*/
+	   /* }*/
 	    
 //	    if(bundyDundy.getInt("fragmentShown") > 0 )
 //	    	showFragment(bundyDundy.getInt("fragmentShown"), false);
@@ -111,7 +125,7 @@ public class MotherCrystal extends FragmentActivity {
 	
 	private void linkStart(){
 		showFragment(SPLASH, false);
-		((SocialMediaFragment)pieces[SOCIALMEDIA]).initControlTwitter();
+		//((SocialMediaFragment)pieces[SOCIALMEDIA]).initControlTwitter();
 		CountDownTimer splashTime = new CountDownTimer(2000,1000) {
 			
 			@Override
@@ -296,7 +310,24 @@ public class MotherCrystal extends FragmentActivity {
 //	    	showFragment(SPLASH, false);
 //	    }
 	    	
+	    if (requestCode == TWITTER_AUTH)
+	  		{
+	      		
+	  			if (resultCode == Activity.RESULT_OK)
+	  			{
+	  				System.out.println("RESULT_OK");
+	  				String oauthVerifier = (String) data.getExtras().get("oauth_verifier");
+	  				try {
+	  					new TwitterGetAccessTokenTask().execute(oauthVerifier);
+	  				} catch (Exception e) {
+	  					// TODO: handle exception
+	  				}
+	  			}
+	  			 
+	  		
+	  		}
 	    
+	    detectIfUserLogInTwitter();
 	}
 
 	@Override
@@ -371,9 +402,55 @@ public class MotherCrystal extends FragmentActivity {
         if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false)) {
         	System.out.println("Not Log in ");
         } else {
-        	System.out.println("Log in ");
-
+        	
+        	showFragment(MotherCrystal.CAM, false);
         }
 		
 	}
+	
+	
+	class TwitterGetAccessTokenTask extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onPostExecute(String userName) {
+            //textViewUserName.setText(Html.fromHtml("<b> Welcome " + userName + "</b>"));
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            Twitter twitter = TwitterUtil.getInstance().getTwitter();
+            RequestToken requestToken = TwitterUtil.getInstance().getRequestToken();
+            if (!StringUtil.isNullOrWhitespace(params[0])) {
+                try {
+                	System.out.println("requestToken -->" + requestToken); 
+                	System.out.println("params[0]  -->" + params[0]); 
+                    AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, params[0]);
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, accessToken.getToken());
+                    editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, accessToken.getTokenSecret());
+                    editor.putBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, true);
+                    editor.commit();
+                    return twitter.showUser(accessToken.getUserId()).getName();
+                } catch (TwitterException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            } else {
+            	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                String accessTokenString = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+                String accessTokenSecret = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+                AccessToken accessToken = new AccessToken(accessTokenString, accessTokenSecret);
+                try {
+                    TwitterUtil.getInstance().setTwitterFactory(accessToken);
+                    return TwitterUtil.getInstance().getTwitter().showUser(accessToken.getUserId()).getName();
+                } catch (TwitterException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+    }
+
 }

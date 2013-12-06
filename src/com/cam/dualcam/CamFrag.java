@@ -1,11 +1,18 @@
 package com.cam.dualcam;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.channels.GatheringByteChannel;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import twitter4j.StatusUpdate;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.auth.AccessToken;
 
 import com.cam.dualcam.CameraFragment.PhotoReqCallback;
 import com.cam.dualcam.CameraFragment.TwitterAuthenticateTask;
@@ -13,6 +20,7 @@ import com.cam.dualcam.CameraFragment.TwitterGetAccessTokenTask;
 import com.cam.dualcam.CameraFragment.TwitterUpdateStatusTask;
 import com.cam.dualcam.CameraFragment.setTouchMode;
 import com.cam.dualcam.twitter.TwitterConstant;
+import com.cam.dualcam.twitter.TwitterUtil;
 import com.cam.dualcam.utility.CameraUtility;
 import com.cam.dualcam.utility.ColorPickerDialog;
 import com.cam.dualcam.utility.Field;
@@ -29,6 +37,7 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
+import com.hintdesk.core.util.StringUtil;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -55,6 +64,7 @@ import android.hardware.Camera.ShutterCallback;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
@@ -83,6 +93,7 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 
 import com.cam.dualcam.utility.ColorPickerDialog.*;
@@ -2227,13 +2238,13 @@ public class CamFrag extends Fragment {
 					if(v.getId()==R.id.shareOkBtn){
 						if(fbCB.isChecked()){
 							pushFBRequest(shareMessage.getText().toString());
-							dialog.dismiss();
+							
 							loading.show();
 						}
 						
 						if(tCB.isChecked()) {
 							pushTwRequest(shareMessage.getText().toString());
-							dialog.dismiss();
+							
 							loading.show();
 							
 						}
@@ -2275,14 +2286,14 @@ public class CamFrag extends Fragment {
 							{
 //					        	new TwitterAuthenticateTask().execute();
 					            Toast.makeText(getActivity().getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
-					                  }else {
+					    }else {
 //					                	  new TwitterGetAccessTokenTask().execute("");
-					                	  //Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
-					                  }
+					            Toast.makeText(getActivity().getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
+					        }
 					                  
-					              }else{
-					            	  //Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
-					              }
+				}else{
+					            	  	//Toast.makeText(getApplicationContext(), "No Twitter.", Field.SHOWTIME).show(); 
+				}
 			}
         	
         });
@@ -2449,7 +2460,7 @@ public class CamFrag extends Fragment {
 		String TwitText = message;
 		String TwitStatus = TwitText + " via #DualCam";
 		//Toast.makeText(getApplicationContext(), "TwitStatus" + TwitStatus, Field.SHOWTIME).show();  
-//		new TwitterUpdateStatusTask().execute(TwitStatus);
+		new TwitterUpdateStatusTask().execute(TwitStatus);
 								  
 	}
 	
@@ -2524,5 +2535,70 @@ public class CamFrag extends Fragment {
 			tapCount = 0;
 	}
 
-	
+	// Background task on Posting Tweet on Twitter 
+    class TwitterUpdateStatusTask extends AsyncTask<String, String, Boolean> {
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result)
+                Toast.makeText(getActivity().getApplicationContext(), "Tweet successfully", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(getActivity().getApplicationContext(), "Tweet failed", Toast.LENGTH_SHORT).show();
+        }
+        
+        @Override
+        protected Boolean doInBackground(String... params) {
+            try {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                String accessTokenString = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+                String accessTokenSecret = sharedPreferences.getString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+
+                if (!StringUtil.isNullOrWhitespace(accessTokenString) && !StringUtil.isNullOrWhitespace(accessTokenSecret)) {
+                    AccessToken accessToken = new AccessToken(accessTokenString, accessTokenSecret);
+                    
+                   // working original
+                   // twitter4j.Status status = TwitterUtil.getInstance().getTwitterFactory().getInstance(accessToken).updateStatus(params[0]);
+                    
+                    /*File finalFile = new File("file:///sdcard/Pictures/temp.jpg");
+                    Twitter twitter = null;
+                    StatusUpdate stat = new StatusUpdate("awwww");
+                    stat.setMedia(finalFile);
+                    twitter.updateStatus(stat);*/
+                    
+                    Twitter twitter =  TwitterUtil.getInstance().getTwitterFactory().getInstance(accessToken);
+
+                    // Update status
+
+                    StatusUpdate ad=new StatusUpdate(params[0]);
+
+                    
+                    // The InputStream opens the resourceId and sends it to the buffer
+                   
+                    //InputStream is = getResources().openRawResource(R.drawable.ic_launcher);
+                    
+                    
+                    //String path = file.getAbsolutePath();
+                    FileInputStream xs = new FileInputStream(filePath);
+                    
+                    
+                    
+                    ad.setMedia(params[0],xs);
+                    
+                    twitter4j.Status response = twitter.updateStatus(ad);
+                    
+                    return true;
+                }
+                
+            } catch (TwitterException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            return false;  //To change body of implemented methods use File | Settings | File Templates.
+            
+        }
+    }
+    
+    
 }

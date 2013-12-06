@@ -3,7 +3,6 @@
 
     <string name="app_name">メリーズメモリーズ</string>
     <string name="app_fb_id">749078545106477</string>
-    
     <string name="action_settings">Choose Save Path</string>
     <string name="hello_world">Hello world!</string>
     <string name="mainctitle">Main Options</string>
@@ -20,49 +19,47 @@
     <string name="melodytitle">Melody</string>
     <string name="melody1">Melody On</string>
     <string name="melody2">Melody Off</string>
-    
     <string name="orientationtitle">Orientation</string>
     <string name="orientation0">Auto</string>
     <string name="orientation1">Portrait</string>
     <string name="orientation2">Landscape</string>
     <string name="title_activity_gif">GifActivity</string>
-
     <string name="log_with_facebook">Pic with Facebook!!!</string>
     <string name="single_user_selected">%1$s</string>
-	<string name="two_users_selected">%1$s and %2$s</string>
-	<string name="multiple_users_selected">%1$s and %2$s others</string>
+    <string name="two_users_selected">%1$s and %2$s</string>
+    <string name="multiple_users_selected">%1$s and %2$s others</string>
     <string name="action_people">With whom?</string>
-	<string name="action_people_default">Select friends</string>
-	<string name="error_dialog_title">Error</string>
-	<string name="error_dialog_button_text">OK</string>
-	<string name="action_location">Where are you?</string>
-	<string name="action_location_default">Select one</string>
-	<string name="no_location_error">Could not obtain your current location</string>
-	<string name="share">Share</string>
-    
+    <string name="action_people_default">Select friends</string>
+    <string name="error_dialog_title">Error</string>
+    <string name="error_dialog_button_text">OK</string>
+    <string name="action_location">Where are you?</string>
+    <string name="action_location_default">Select one</string>
+    <string name="no_location_error">Could not obtain your current location</string>
+    <string name="share">Share</string>
     <string name="error_message">申し訳ありませんが、何かがカメラで間違っていた</string>
     <string name="retake_message">写真を撮りなおしますか？</string>
     <string name="restart_message">再起動?</string>
-	<string name="save_message">写真の保存が完了しました。 </string>
+    <string name="save_message">写真の保存が完了しました。 </string>
     <string name="add_a_label_text">ラベルを追加?</string>
     <string name="typehere_text">ここにテキストを入力..</string>
     <string name="fontsize_text">フォントサイズ</string>
     <string name="fontcolor_text">フォントの色</string>
-	<string name="ok_text">オーケー</string>
-	<string name="cancel_text">キャンセル</string>
-	<string name="yes_text">はい </string>
-	<string name="no_text">いいえ </string>
-	<string name="enter_camera_text">カメラ </string>
-	<string name="logged_in_to_fb">ログインは既にします。 </string>
-	<string name="success_upload">アップロードは成功です。 </string>
-	<string name="save_to_folder_name">メリーズメモリーズ</string>
-	<string name="sharing_menu">オプション</string>
-	<string name="image_description">写真  説明</string>
-	<string name="cancel_text_in_sharing">キャンセル</string>
+    <string name="ok_text">オーケー</string>
+    <string name="cancel_text">キャンセル</string>
+    <string name="yes_text">はい </string>
+    <string name="no_text">いいえ </string>
+    <string name="enter_camera_text">カメラ </string>
+    <string name="logged_in_to_fb">ログインは既にします。 </string>
+    <string name="success_upload">アップロードは成功です。 </string>
+    <string name="save_to_folder_name">メリーズメモリーズ</string>
+    <string name="sharing_menu">オプション</string>
+    <string name="image_description">写真  説明</string>
+    <string name="cancel_text_in_sharing">キャンセル</string>
+    <string name="socialmedia">Account settings</string>
+    <string name="fblogin">Log in <!-- to Facebook -->
+    </string>
+    <string name="fblogout">Logout</string>
+    <string name="title_activity_sharing">Logout</string>
+    <string name="title_activity_twitter_webview">TwitterWebview</string>
 
-	<string name="socialmedia">Account settings</string>
-	<string name="fblogin">Log in<!--  to Facebook --></string>
-	<string name="fblogout">Logout</string>
-	
-	<string name="title_activity_sharing">Logout</string>
 </resources>
