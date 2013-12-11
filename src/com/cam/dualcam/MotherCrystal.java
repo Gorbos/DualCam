@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -121,6 +122,7 @@ public class MotherCrystal extends FragmentActivity {
 	    	break;
 	    	
 	    case Field.MOTHER_CAM:
+	    	
 	    	showFragment(CAM, false);
 	    	break;	
 	    	
@@ -154,8 +156,6 @@ public class MotherCrystal extends FragmentActivity {
 	    uiHelper.onResume();
 	    isResumed = true;
 	    Log.i(TAG, "from onResume.");
-	    if(bundyDundy.containsKey("Ai"))
-	    	Log.i(TAG, bundyDundy.getString("Ai")+"Live");
 //	    FragmentManager fm = getSupportFragmentManager();
 //	    pieces[SPLASH] = fm.findFragmentById(R.id.splash_fragment);
 //	    pieces[SOCIALMEDIA] = fm.findFragmentById(R.id.socialmedia_fragment);
@@ -366,14 +366,19 @@ public class MotherCrystal extends FragmentActivity {
 			break;
 			
 		case CAM:
-			
+
 			bundyDundy.putInt("fragmentShown", fragmentShown);
 			bundyDundy.putBoolean(Field.cam+Field.isShown, true);
 			
 			bundyDundy.putBoolean(Field.social+Field.isShown, false);
 			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
 			
-			((CamFrag)pieces[CAM]).setInteractions();
+			if(resumeMe){
+				((CamFrag)pieces[CAM]).setResumeInteractions();
+			}
+			else
+				((CamFrag)pieces[CAM]).setInteractions();
+			
 			if(((CamFrag)pieces[CAM]).mMediaPlayer == null)
 				((CamFrag)pieces[CAM]).bgMusicUtility("initialize");
 			else
@@ -420,6 +425,7 @@ public class MotherCrystal extends FragmentActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("fragmentShown", fragmentShown);
         editor.putInt("STATE", STATE);
+        editor.putBoolean("resumeMe", resumeMe);
         editor.commit();
 	}
 	
@@ -427,6 +433,7 @@ public class MotherCrystal extends FragmentActivity {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         fragmentShown = sp.getInt("fragmentShown", Field.defaultState);
         STATE = sp.getInt("STATE", Field.defaultState);
+        resumeMe = sp.getBoolean("resumeMe", resumeMe);
 	}
 	
 	
@@ -552,5 +559,29 @@ public class MotherCrystal extends FragmentActivity {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
     }
+	
+	public void setOrientation(){
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		int orient = sp.getInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Orientation_DEFAULT);
+		switch(orient)
+		{
+		case Field.MODE_Portrait:
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			break;
+			
+		case Field.MODE_Landscape:
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			break;
+			
+		case Field.MODE_Auto:
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			break;
+			
+		default:
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			break;
+			
+		}
+	}
 
 }
