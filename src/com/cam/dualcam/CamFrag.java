@@ -14,11 +14,6 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 
-import com.cam.dualcam.CameraFragment.PhotoReqCallback;
-import com.cam.dualcam.CameraFragment.TwitterAuthenticateTask;
-import com.cam.dualcam.CameraFragment.TwitterGetAccessTokenTask;
-import com.cam.dualcam.CameraFragment.TwitterUpdateStatusTask;
-import com.cam.dualcam.CameraFragment.setTouchMode;
 import com.cam.dualcam.twitter.TwitterConstant;
 import com.cam.dualcam.twitter.TwitterUtil;
 import com.cam.dualcam.utility.CameraUtility;
@@ -27,7 +22,6 @@ import com.cam.dualcam.utility.Field;
 import com.cam.dualcam.utility.MediaUtility;
 import com.cam.dualcam.utility.PackageCheck;
 import com.cam.dualcam.utility.PhoneChecker;
-import com.cam.dualcam.utility.SetMyFBSession;
 import com.cam.dualcam.view.CameraPreview;
 import com.cam.dualcam.view.HideAct;
 import com.cam.dualcam.widget.GifWebView;
@@ -36,7 +30,6 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.UiLifecycleHelper;
-import com.facebook.widget.LoginButton;
 import com.hintdesk.core.util.StringUtil;
 
 import android.annotation.SuppressLint;
@@ -47,6 +40,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -75,6 +69,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
@@ -90,6 +85,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -125,6 +121,61 @@ public class CamFrag extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    Log.i(TAG, "from onCreate.");
+	    camFragBundy = savedInstanceState;
+	    if(savedInstanceState != null){
+	    	Log.i(TAG, "from onCreate : restoring data");
+//			isBackTaken = savedInstanceState.getBoolean("isBackTaken",isBackTaken);
+//			isFrontTaken = savedInstanceState.getBoolean("isFrontTaken",isFrontTaken);
+			isSavable = savedInstanceState.getBoolean("isSavable",
+					isSavable);
+			isSharable = savedInstanceState.getBoolean("isSharable", isSharable);
+			isTextEditable = savedInstanceState.getBoolean(
+					"isTextEditable", isTextEditable);
+			isTextAdded = savedInstanceState.getBoolean("isTextAdded",
+					isTextAdded);
+			isRetryable = savedInstanceState.getBoolean("isRetryable",
+					isRetryable);
+			cameraSide = savedInstanceState.getString("cameraSide");
+			fontSize = savedInstanceState.getInt("fontSize");
+			killMe = false;
+
+			topTapCount = 0;
+			bottomTapCount = 0;
+
+//			if (isBackTaken) {
+//				getPressedPreview("BACK").setVisibility(ImageView.VISIBLE);
+//				getPressedPreview("BACK").setBackgroundDrawable(null);
+//				getPressedPreview("BACK").setImageBitmap(null);
+//				backPic = savedInstanceState.getParcelable("backPic");
+//				settoBackground(getPressedPreview("BACK"), backPic);
+//			}
+//
+//			if (isFrontTaken) {
+//				getPressedPreview("FRONT").setVisibility(ImageView.VISIBLE);
+//				getPressedPreview("FRONT").setBackgroundDrawable(null);
+//				getPressedPreview("FRONT").setImageBitmap(null);
+//				frontPic = savedInstanceState.getParcelable("frontPic");
+//				settoBackground(getPressedPreview("FRONT"), frontPic);
+//			}
+//
+//			if (isTextAdded) {
+//				// Log.i(TAG,
+//				// "The epic Text = "+isTextAdded+" and the textToShow is ="+textToShow);
+//				textToShow = savedInstanceState.getString("textToShow")
+//						.toString();
+//				createTextFrameLayout.removeAllViews();
+//				createAText();
+//			}
+//
+//			if (isBackTaken && !isFrontTaken) {
+//				setSide("FRONT");
+//			} else if (!isBackTaken && isFrontTaken) {
+//				setSide("BACK");
+//			} else if (!isBackTaken && !isFrontTaken) {
+//				setSide("BACK");
+//			}
+
+	    }	
 	}
 	
 	@Override
@@ -163,9 +214,41 @@ public class CamFrag extends Fragment {
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle bundle) {
-	    super.onSaveInstanceState(bundle);
+	public void onSaveInstanceState(Bundle toSave) {
+	    super.onSaveInstanceState(toSave);
 	    Log.i(TAG, "from onSaveInstanceState.");
+
+
+		toSave.putBoolean("isBackTaken", isBackTaken);
+		toSave.putBoolean("isFrontTaken", isFrontTaken);
+		toSave.putBoolean("isSavable", isSavable);
+		toSave.putBoolean("isSharable", isSharable);
+		toSave.putBoolean("isSavePathset", isSavePathset);
+		toSave.putBoolean("isTextEditable", isTextEditable);
+		toSave.putBoolean("isTextAdded", isTextAdded);
+		toSave.putBoolean("isRetryable", isRetryable);
+		// toSave.putBoolean("killMe", killMe);
+		toSave.putInt("fontSize", fontSize);
+
+		if (frontPic != null)
+			toSave.putParcelable("frontPic", frontPic);
+
+		if (backPic != null)
+			toSave.putParcelable("backPic", backPic);
+
+		if (cameraSide != null)
+			toSave.putString("cameraSide", cameraSide);
+
+		if (fileName != null)
+			toSave.putString("fileName", fileName);
+
+		if (textToShow != null)
+			toSave.putString("textToShow", textToShow);
+
+		// if(mCamera != null)
+		// toSave.put
+
+//	    ((MotherCrystal)getActivity()).fragmentShown = 2;
 	}
 
 	@Override
@@ -197,7 +280,8 @@ public class CamFrag extends Fragment {
 	 public void onConfigurationChanged(Configuration newConfig) {
 	 super.onConfigurationChanged(newConfig);
 	 Log.i(TAG, "from onConfigurationChanged.");
-	 // Checks the orientation of the screen
+	 /**	This Area is dead since orientation change is being handled by android itself.	**/
+	 /*// Checks the orientation of the screen
 	 if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 		 Log.i(TAG, "from onConfigurationChanged - orientation : Landscape");
 		 
@@ -210,8 +294,10 @@ public class CamFrag extends Fragment {
 	 else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
 		 Log.i(TAG, "from onConfigurationChanged - orientation : Portrait");
 	 }
-	 setTransistion(newConfig.orientation);
+	 	setTransistion(newConfig.orientation);*/
 	 }
+	
+	
 	
 /*		ACTS OF THE PAST		*/	
 	//state checkers
@@ -259,7 +345,7 @@ public class CamFrag extends Fragment {
 	//Camera objects
 	// Camera Settings
 		public Parameters param;
-		public Camera mCamera;
+		public Camera mCamera;	//The CAMERA OBSCURA
 		public Integer maxCameraZoom;
 		public Integer currentCameraZoom;
 		public Integer cameraAction;
@@ -323,6 +409,7 @@ public class CamFrag extends Fragment {
 		
 		//Menu Dialog, pero baka palitan ko nalang instead na costum pop up
 		popUpDialog = null;//customPopUpMenu();
+		
 		
 		//Main ImageViews that serves as Buttons 
 		captureButton = (ImageView) view.findViewById(R.id.captureButton);
@@ -394,7 +481,8 @@ public class CamFrag extends Fragment {
 		SharedPreferences settings = getActivity().getSharedPreferences(Field.PREFS_DUALCAM, 0);
 		movingJutsu = settings.getInt(Field.PREFS_SET_AUTOFOCUS, Field.MODE_DefaultAF_and_Capture);
 		flashStatus = settings.getInt(Field.PREFS_SET_FLASH, Field.MODE_Flash_Default);
-		melodyStatus = settings.getInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_DEFAULT);
+//		melodyStatus = settings.getInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_DEFAULT);
+		melodyStatus = Field.MODE_Melody_ON;
 		orStatus = settings.getInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Orientation_DEFAULT);
 		
 		touchAction = Field.ActionStateClickable;
@@ -1633,150 +1721,150 @@ public class CamFrag extends Fragment {
 			// Toast.makeText(getApplicationContext(),
 			// "Number of points = "+event.getPointerCount(),
 			// Field.SHOWTIME).show();
-//			Log.i(TAG, "touchAction = " + touchAction + " : performedAction = " + performedAction);
-//			longClickTimer = cameraFocus();
-//			touchCount = event.getPointerCount();
-//			
-//			if (touchAction != Field.ActionStateNotClickable)
-//				switch (event.getActionMasked()) {
-//				case MotionEvent.ACTION_POINTER_DOWN:
-//					// Listen zoom event
-//					Log.i(TAG, "MotionEvent = ACTION_POINTER_DOWN");
-//					topTapCount = 0;
-//					bottomTapCount = 0;
-//
-//					performedAction = Field.ActionZoom;
-//					touchAction = Field.ActionZoom;
-//
-//					setFocus("UNFOCUS", performedAction, null, null, null);
-//
-//					// Cancel all Timer
-////					if (cameraFocusTimer != null)
-////						cameraFocusTimer.cancel();
-//
-//					if (longClickTimer != null)
-//						longClickTimer.cancel();
-//
-//					firstPointer = event.getPointerId(0);
-//					secondPointer = event.getPointerId(1);
-//					firstPointerIndex = event.findPointerIndex(firstPointer);
-//					secondPointerIndex = event.findPointerIndex(secondPointer);
-//
-//					// pointerDistance =
-//					// Math.abs(event.getX(firstPointerIndex)/event.getY(firstPointerIndex)
-//					// -
-//					// event.getX(secondPointerIndex)/event.getY(secondPointerIndex));
-//					Float pointX = Math.abs(event.getX(firstPointerIndex)
-//							- event.getX(secondPointerIndex));
-//					Float pointY = Math.abs(event.getY(firstPointerIndex)
-//							- event.getY(secondPointerIndex));
-//					// + Math.abs(event.getY(firstPointerIndex) -
-//					// event.getY(secondPointerIndex))^2
-//					pointerDistance = (float) Math.sqrt((pointX * pointX)
-//							+ (pointY * pointY));
-//					// Log.i(TAG,
-//					// "firstPointerIndex = "+firstPointerIndex+" : secondPointerIndex = "+secondPointerIndex);
-//					break;
-//
-//				case MotionEvent.ACTION_DOWN:
-//					
-//					//Single tap capture
-//					ninjaMoves(view,event,movingJutsu);
-//					
-//					//Double tap capture
-//					//ninjaMoves(view,event,Field.doubleTapCaptureJutsu);
-//					
-//					//Double tap capture
-//					//ninjaMoves(view,event,Field.noTapCaptureJutsu);
-//					
-//					//Double tap capture
-//					//ninjaMoves(view,event,Field.longTapCaptureJutsu);
-//					
-//					
-//					break;
-//
-//				case MotionEvent.ACTION_UP:
-//					//Single tap capture
-//					ninjaMoves(view,event,movingJutsu);
-//					
-//					//Double tap capture
-//					//ninjaMoves(view,event,Field.doubleTapCaptureJutsu);
-//					
-//					//Double tap capture
-//					//ninjaMoves(view,event,Field.noTapCaptureJutsu);
-//					
-//					//Double tap capture
-//					//ninjaMoves(view,event,Field.longTapCaptureJutsu);
-//					
-//					break;
-//
-//				case MotionEvent.ACTION_POINTER_UP:
-//					// Drop zoom event
-//					Log.i(TAG, "MotionEvent = ACTION_POINTER_UP");
-//					if (touchAction == Field.ActionZoom
-//							|| touchAction == Field.ActionZooming) {
-//						performedAction = Field.ActionZoomEnd;
-//						touchAction = Field.ActionZoomEnd;
-//					}
-//					// End event of zoom
-//					// Cancel the action, there's nothing more to do
-//					break;
-//
-//				case MotionEvent.ACTION_MOVE:
-//					// Execute zoom event
-//					Log.i(TAG, "MotionEvent = ACTION_MOVE");
-//					// setFocusMarker("UNFOCUS");
-//					if (performedAction == Field.ActionZoom
-//							|| performedAction == Field.ActionZooming) {
-//						performedAction = Field.ActionZooming;
-//						touchAction = Field.ActionZooming;
-//
-//						if (event.getPointerCount() > 1) {
-//
-//							// Log.i(TAG,
-//							// "Finger 1 = "+event.getX(firstPointerIndex));
-//							// Log.i(TAG,
-//							// "Finger 2 = "+event.getX(secondPointerIndex));
-//							// pointerDistance =
-//							// Math.abs(event.getX(firstPointerIndex)/event.getY(firstPointerIndex)
-//							// -
-//							// event.getX(secondPointerIndex)/event.getY(secondPointerIndex));
-//							Float pointXC = Math.abs(event
-//									.getX(firstPointerIndex)
-//									- event.getX(secondPointerIndex));
-//							Float pointYC = Math.abs(event
-//									.getY(firstPointerIndex)
-//									- event.getY(secondPointerIndex));
-//							// + Math.abs(event.getY(firstPointerIndex) -
-//							// event.getY(secondPointerIndex))^2
-//							changedPointerDistance = (float) Math
-//									.sqrt((pointXC * pointXC)
-//											+ (pointYC * pointYC));
-//							// changedPointerDistance =
-//							// Math.abs(event.getX(firstPointerIndex)/event.getY(firstPointerIndex)
-//							// -
-//							// event.getX(secondPointerIndex)/event.getY(secondPointerIndex));
-//							Log.i(TAG, "Distance of both fingers = "
-//									+ pointerDistance + " : "
-//									+ changedPointerDistance);
-//							if (pointerDistance > changedPointerDistance) {
-//								// Do zoom in
-//								doZoom(pointerDistance, changedPointerDistance);
-//								pointerDistance = changedPointerDistance;
-//							} else if (pointerDistance < changedPointerDistance) {
-//								// Do zoom out
-//								doZoom(pointerDistance, changedPointerDistance);
-//								pointerDistance = changedPointerDistance;
-//							}
-//						}
-//
-//					}
-//					break;
-//
-//				}
-//
-//			Log.i(TAG, "Number of points = " + event.getPointerCount()
-//					+ " : Event = " + event.getAction());
+			Log.i(TAG, "touchAction = " + touchAction + " : performedAction = " + performedAction);
+			longClickTimer = cameraFocus();
+			touchCount = event.getPointerCount();
+			
+			if (touchAction != Field.ActionStateNotClickable)
+				switch (event.getActionMasked()) {
+				case MotionEvent.ACTION_POINTER_DOWN:
+					// Listen zoom event
+					Log.i(TAG, "MotionEvent = ACTION_POINTER_DOWN");
+					topTapCount = 0;
+					bottomTapCount = 0;
+
+					performedAction = Field.ActionZoom;
+					touchAction = Field.ActionZoom;
+
+					setFocus("UNFOCUS", performedAction, null, null, null);
+
+					// Cancel all Timer
+//					if (cameraFocusTimer != null)
+//						cameraFocusTimer.cancel();
+
+					if (longClickTimer != null)
+						longClickTimer.cancel();
+
+					firstPointer = event.getPointerId(0);
+					secondPointer = event.getPointerId(1);
+					firstPointerIndex = event.findPointerIndex(firstPointer);
+					secondPointerIndex = event.findPointerIndex(secondPointer);
+
+					// pointerDistance =
+					// Math.abs(event.getX(firstPointerIndex)/event.getY(firstPointerIndex)
+					// -
+					// event.getX(secondPointerIndex)/event.getY(secondPointerIndex));
+					Float pointX = Math.abs(event.getX(firstPointerIndex)
+							- event.getX(secondPointerIndex));
+					Float pointY = Math.abs(event.getY(firstPointerIndex)
+							- event.getY(secondPointerIndex));
+					// + Math.abs(event.getY(firstPointerIndex) -
+					// event.getY(secondPointerIndex))^2
+					pointerDistance = (float) Math.sqrt((pointX * pointX)
+							+ (pointY * pointY));
+					// Log.i(TAG,
+					// "firstPointerIndex = "+firstPointerIndex+" : secondPointerIndex = "+secondPointerIndex);
+					break;
+
+				case MotionEvent.ACTION_DOWN:
+					
+					//Single tap capture
+					ninjaMoves(view,event,movingJutsu);
+					
+					//Double tap capture
+					//ninjaMoves(view,event,Field.doubleTapCaptureJutsu);
+					
+					//Double tap capture
+					//ninjaMoves(view,event,Field.noTapCaptureJutsu);
+					
+					//Double tap capture
+					//ninjaMoves(view,event,Field.longTapCaptureJutsu);
+					
+					
+					break;
+
+				case MotionEvent.ACTION_UP:
+					//Single tap capture
+					ninjaMoves(view,event,movingJutsu);
+					
+					//Double tap capture
+					//ninjaMoves(view,event,Field.doubleTapCaptureJutsu);
+					
+					//Double tap capture
+					//ninjaMoves(view,event,Field.noTapCaptureJutsu);
+					
+					//Double tap capture
+					//ninjaMoves(view,event,Field.longTapCaptureJutsu);
+					
+					break;
+
+				case MotionEvent.ACTION_POINTER_UP:
+					// Drop zoom event
+					Log.i(TAG, "MotionEvent = ACTION_POINTER_UP");
+					if (touchAction == Field.ActionZoom
+							|| touchAction == Field.ActionZooming) {
+						performedAction = Field.ActionZoomEnd;
+						touchAction = Field.ActionZoomEnd;
+					}
+					// End event of zoom
+					// Cancel the action, there's nothing more to do
+					break;
+
+				case MotionEvent.ACTION_MOVE:
+					// Execute zoom event
+					Log.i(TAG, "MotionEvent = ACTION_MOVE");
+					// setFocusMarker("UNFOCUS");
+					if (performedAction == Field.ActionZoom
+							|| performedAction == Field.ActionZooming) {
+						performedAction = Field.ActionZooming;
+						touchAction = Field.ActionZooming;
+
+						if (event.getPointerCount() > 1) {
+
+							// Log.i(TAG,
+							// "Finger 1 = "+event.getX(firstPointerIndex));
+							// Log.i(TAG,
+							// "Finger 2 = "+event.getX(secondPointerIndex));
+							// pointerDistance =
+							// Math.abs(event.getX(firstPointerIndex)/event.getY(firstPointerIndex)
+							// -
+							// event.getX(secondPointerIndex)/event.getY(secondPointerIndex));
+							Float pointXC = Math.abs(event
+									.getX(firstPointerIndex)
+									- event.getX(secondPointerIndex));
+							Float pointYC = Math.abs(event
+									.getY(firstPointerIndex)
+									- event.getY(secondPointerIndex));
+							// + Math.abs(event.getY(firstPointerIndex) -
+							// event.getY(secondPointerIndex))^2
+							changedPointerDistance = (float) Math
+									.sqrt((pointXC * pointXC)
+											+ (pointYC * pointYC));
+							// changedPointerDistance =
+							// Math.abs(event.getX(firstPointerIndex)/event.getY(firstPointerIndex)
+							// -
+							// event.getX(secondPointerIndex)/event.getY(secondPointerIndex));
+							Log.i(TAG, "Distance of both fingers = "
+									+ pointerDistance + " : "
+									+ changedPointerDistance);
+							if (pointerDistance > changedPointerDistance) {
+								// Do zoom in
+								doZoom(pointerDistance, changedPointerDistance);
+								pointerDistance = changedPointerDistance;
+							} else if (pointerDistance < changedPointerDistance) {
+								// Do zoom out
+								doZoom(pointerDistance, changedPointerDistance);
+								pointerDistance = changedPointerDistance;
+							}
+						}
+
+					}
+					break;
+
+				}
+
+			Log.i(TAG, "Number of points = " + event.getPointerCount()
+					+ " : Event = " + event.getAction());
 			return true;
 		}
 
@@ -1787,19 +1875,14 @@ public class CamFrag extends Fragment {
 		try{
 		if(mMediaPlayer != null){
 				
-			if(action == "initialize"){
-				mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.loopingmelody);
-				mMediaPlayer.setLooping(true);
-				
-				if(melodyStatus == Field.MODE_Melody_ON)
-					mMediaPlayer.start();
-			}
-			else if(action == "pause"){
+			
+			if(action == "pause"){
 				mMediaPlayer.pause();
 			}
 			else if(action == "stop"){
 				mMediaPlayer.stop();
 			}
+			
 			
 			if(melodyStatus == Field.MODE_Melody_ON){
 	
@@ -1824,11 +1907,22 @@ public class CamFrag extends Fragment {
 				}
 			}
 		
-
-		
 		}
-		else
-			Log.i(TAG, "mMediaPlayer is null.");
+		else{
+			Log.i(TAG, "mMediaPlayer is null. Initializing Sound");
+			if(action == "initialize"){
+				mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.loopingmelody);
+				mMediaPlayer.setLooping(true);
+				
+				if(melodyStatus == Field.MODE_Melody_ON)
+					mMediaPlayer.start();
+			}
+			else if(action == "initNotPlay"){
+				mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.loopingmelody);
+				mMediaPlayer.setLooping(true);
+			}
+			
+		}
 		
 		}
 		catch(Exception e){
@@ -2002,7 +2096,7 @@ public class CamFrag extends Fragment {
 /*	Dialogs		*/
 	public void customAlertdialog() {
 
-		final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity().getApplicationContext());
+		final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 		final int progressBarCompensation = 30;
 		LinearLayout linear = new LinearLayout(getActivity().getApplicationContext());
 
@@ -2011,7 +2105,7 @@ public class CamFrag extends Fragment {
 		// utilityLayout.setVisibility(LinearLayout.GONE);
 
 		// The EditText
-		final EditText toBeText = new EditText(getActivity());
+		final EditText toBeText = new EditText(getActivity().getApplicationContext());
 		toBeText.setHint(typeTextHereText);
 		toBeText.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable s) {
@@ -2036,12 +2130,12 @@ public class CamFrag extends Fragment {
 		});
 
 		// The TextView
-		final TextView textfontSize = new TextView(getActivity());
+		final TextView textfontSize = new TextView(getActivity().getApplicationContext());
 		textfontSize.setText(fontSizeText + " = " + (fontSize + 40));
 		textfontSize.setPadding(10, 10, 10, 10);
 
 		// The SickBar
-		SeekBar seek = new SeekBar(getActivity());
+		SeekBar seek = new SeekBar(getActivity().getApplicationContext());
 		// seek.setProgress(50);
 
 		seek.setProgress(defaultTextSize - progressBarCompensation);
@@ -2049,7 +2143,7 @@ public class CamFrag extends Fragment {
 		// seek.setProgress(fontSize);
 
 		// The Color Pallete
-		Button bt = new Button(getActivity());
+		Button bt = new Button(getActivity().getApplicationContext());
 		bt.setText(fontColorText);
 		bt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT));
@@ -2126,7 +2220,8 @@ public class CamFrag extends Fragment {
 		
 		@Override
 		public void colorChanged(int color) {
-			PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit()
+			PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext())
+					.edit()
 					.putInt(COLOR_PREFERENCE_KEY, color).commit();
 			fontColor = color;
 		}
@@ -2464,77 +2559,9 @@ public class CamFrag extends Fragment {
 								  
 	}
 	
-/*	Freedom Methods		*/
-	public void releaseCamera() {
-		if (mCamera != null) {
-			mCamera.release(); // release the camera for other applications
-			mCamera = null;
-		}
-	}
-	
-	public void releaseSound(){
-		if(mMediaPlayer != null){
-			mMediaPlayer.stop();
-			mMediaPlayer.release();
-			mMediaPlayer = null;
-		}
-	}
-	
-	public void groundZero(){
-		//Reset the whole CamFrag
-		
-		//state checkers
-		isBackTaken = false;
-		isFrontTaken = false;
-		isSharable = false;
-		isSavable = false;
-		isTextEditable = false;
-		isTextAdded = false;
-		isTextBeingEdited = false;
-		isRetryable = false;
-		isSavePathset = false;
-		isZoomSupported = false;
-		isSmoothZoomSupported = false;
-		
-		isAlreadySharable 	= true;
-		isAlreadySavable 	= true;
-		isAlreadyTextable	= true;
-		isAlreadyRetryable  = true;
-		
-		isDoubleTapAction = false;
-		isReadyToShoot = false;
-		isCameraFocused = false;
-		isRetaking = false;
-		isSetupDone = false;
-		isTakingPicture = false;
-		hasCameraFocus = false;
-		killMe = false;
-		
-		
-		//For the image
-		fileBitmap = null;
-		filePath	= null;
-		fileName = null;
-		tempPic = null;
-		frontPic = null;
-		backPic = null;
-		originalPic = null;
-		options = null;
-		
-		//Camera objects
-		// Camera Settings
-			
-			result = 0;
-			degrees = 0;
-		
-		
-		//Touch Actions
-			// Touch and click events
-			bottomTapCount = 0;
-			topTapCount = 0;
-			tapCount = 0;
-	}
 
+	
+	
 	// Background task on Posting Tweet on Twitter 
     class TwitterUpdateStatusTask extends AsyncTask<String, String, Boolean> {
 
@@ -2600,5 +2627,1272 @@ public class CamFrag extends Fragment {
         }
     }
     
+ // Twitter Log out function
+ 	private void twitterLogout() {
+ 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+         SharedPreferences.Editor editor = sharedPreferences.edit();
+         editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN, "");
+         editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, "");
+         editor.putBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, false);
+         editor.commit();
+         Toast.makeText(getActivity().getApplicationContext(),  "Logging Out on Twitter", Toast.LENGTH_LONG).show();
+ 	}
     
+
+/**		ACTS	**/	
+
+/*	Act of the Magician		*/	
+    
+    
+    public void groundZero(){
+		//Reset the whole CamFrag
+		
+		//state checkers
+		isBackTaken = false;
+		isFrontTaken = false;
+		isSharable = false;
+		isSavable = false;
+		isTextEditable = false;
+		isTextAdded = false;
+		isTextBeingEdited = false;
+		isRetryable = false;
+		isSavePathset = false;
+		isZoomSupported = false;
+		isSmoothZoomSupported = false;
+		
+		isAlreadySharable 	= true;
+		isAlreadySavable 	= true;
+		isAlreadyTextable	= true;
+		isAlreadyRetryable  = true;
+		
+		isDoubleTapAction = false;
+		isReadyToShoot = false;
+		isCameraFocused = false;
+		isRetaking = false;
+		isSetupDone = false;
+		isTakingPicture = false;
+		hasCameraFocus = false;
+		killMe = false;
+		
+		
+		//For the image
+		fileBitmap = null;
+		filePath	= null;
+		fileName = null;
+		tempPic = null;
+		frontPic = null;
+		backPic = null;
+		originalPic = null;
+		options = null;
+		
+		//Camera objects
+		// Camera Settings
+			
+			result = 0;
+			degrees = 0;
+		
+		
+		//Touch Actions
+			// Touch and click events
+			bottomTapCount = 0;
+			topTapCount = 0;
+			tapCount = 0;
+	}
+    
+    /*	Freedom Methods		*/
+	public void releaseCamera() {
+		if (mCamera != null) {
+			mCamera.release(); // release the camera for other applications
+			mCamera = null;
+		}
+	}
+	
+	public void releaseSound(){
+		if(mMediaPlayer != null){
+			mMediaPlayer.stop();
+			mMediaPlayer.release();
+			mMediaPlayer = null;
+		}
+	}
+
+    
+    /** -------------	Camera Obscura						-----------	**/
+    /* -------------	Camera Obscura Control Actions    -----------	*/
+    public void ninjaMoves(View view, MotionEvent event, Integer jutsu){
+		
+		int ninjaMoves = jutsu;
+		jutsuAction = jutsu;
+		
+		switch(ninjaMoves){
+		
+		case Field.singleTapCaptureJutsu:
+			
+			if(event.getAction() == MotionEvent.ACTION_DOWN)
+				{
+					// //Listen for events
+					Log.i(TAG, "MotionEvent = ACTION_DOWN");
+					performedAction = Field.ActionClick;
+					touchAction = Field.ActionClick;
+					// Initiate First point of contact
+					firstPointer = event.getPointerId(0);
+					firstPointerIndex = event.findPointerIndex(firstPointer);
+	
+	
+					setFocus("UNFOCUS", performedAction, null, null, null);
+					setFocus("FOCUS", performedAction,
+							event.getX(firstPointerIndex),
+							event.getY(firstPointerIndex), 
+							view);
+					
+	
+					if (view.getId() == R.id.cumPreviewBack) {
+						topTapCount++;
+						if (!isBackTaken) {
+							// cameraFocusTimer.cancel();
+							longClickTimer.start();
+						}
+					}
+	
+					else if (view.getId() == R.id.cumPreviewFront) {
+						bottomTapCount++;
+						if (!isFrontTaken) {
+							// cameraFocusTimer.cancel();
+							longClickTimer.start();
+						}
+					}
+
+				}
+			else if(event.getAction() == MotionEvent.ACTION_UP)
+			{
+				// Drop all events and execute if there is one
+				Log.i(TAG, "MotionEvent = ACTION_UP");
+	
+				if (performedAction == Field.ActionClick
+						|| performedAction == Field.ActionLongClick) {
+					performedAction = Field.ActionClickEnd;
+					touchAction = Field.ActionClickEnd;
+					
+					
+					if (longClickTimer != null)
+						longClickTimer.cancel();
+	
+					if (view.getId() == R.id.cumPreviewBack) {
+						if (isSavable && isBackTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							retakeImage("BACK");
+						}
+	
+					} 
+					else if (view.getId() == R.id.cumPreviewFront) {
+						if (isSavable && isFrontTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							retakeImage("FRONT");
+						}
+	
+						else if (!isFrontTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							takeAShot();
+						}
+					}
+				}
+			}
+				
+			
+		
+		break;
+		
+		case Field.doubleTapCaptureJutsu:
+			if(event.getAction() == MotionEvent.ACTION_DOWN)
+			{
+				//Listen for events
+				Log.i(TAG, "MotionEvent = ACTION_DOWN");
+				performedAction = Field.ActionClick;
+				touchAction = Field.ActionClick;
+				
+				firstPointer = event.getPointerId(0);
+				firstPointerIndex = event.findPointerIndex(firstPointer);
+
+				if (topTapCount < 1 && bottomTapCount < 1) {
+					touchAction = performedAction;
+
+//					if (cameraFocusTimer != null)
+//						cameraFocusTimer.cancel();
+
+					setFocus("UNFOCUS", performedAction, null, null, null);
+					setFocus("FOCUS", performedAction,
+							event.getX(firstPointerIndex),
+							event.getY(firstPointerIndex), 
+							view);
+				}
+
+				if (view.getId() == R.id.cumPreviewBack) {
+					topTapCount++;
+					if (!isBackTaken) {
+						// cameraFocusTimer.cancel();
+						longClickTimer.start();
+					}
+				}
+
+				else if (view.getId() == R.id.cumPreviewFront) {
+					bottomTapCount++;
+					if (!isFrontTaken) {
+						// cameraFocusTimer.cancel();
+						longClickTimer.start();
+					}
+				}
+
+			}
+			else if(event.getAction() == MotionEvent.ACTION_UP)
+			{
+				// Drop all events and execute if there is one
+				Log.i(TAG, "MotionEvent = ACTION_UP");
+	
+				if (performedAction == Field.ActionClick
+						|| performedAction == Field.ActionLongClick) {
+					performedAction = Field.ActionClickEnd;
+					touchAction = Field.ActionClickEnd;
+					if (longClickTimer != null)
+						longClickTimer.cancel();
+	
+					if (view.getId() == R.id.cumPreviewBack) {
+						if (isSavable && isBackTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							retakeImage("BACK");
+						} else if (topTapCount == 2 && !isBackTaken ) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							takeAShot();
+						}
+	
+					} 
+					else if (view.getId() == R.id.cumPreviewFront) {
+						if (isSavable && isFrontTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							retakeImage("FRONT");
+						}
+	
+						else if (!isFrontTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							
+							takeAShot();
+						}
+					}
+				}
+			}
+		break;
+		
+		case Field.noTapCaptureJutsu:
+			if(event.getAction() == MotionEvent.ACTION_DOWN)
+			{
+				//Listen for events
+				Log.i(TAG, "MotionEvent = ACTION_DOWN");
+				performedAction = Field.ActionClick;
+				touchAction = Field.ActionClick;
+				
+				firstPointer = event.getPointerId(0);
+				firstPointerIndex = event.findPointerIndex(firstPointer);
+
+				setFocus("UNFOCUS", performedAction, null, null, null);
+				
+				if(view.getId() != R.id.cumPreviewFront)
+				setFocus("FOCUS", performedAction,
+						event.getX(firstPointerIndex),
+						event.getY(firstPointerIndex), 
+						view);
+
+//				if (view.getId() == R.id.cumPreviewBack) {
+//					topTapCount++;
+//					if (!isBackTaken) {
+//						// cameraFocusTimer.cancel();
+//						longClickTimer.start();
+//					}
+//				}
+//
+//				else if (view.getId() == R.id.cumPreviewFront) {
+//					
+//					bottomTapCount++;
+//					if (!isFrontTaken) {
+//						
+//						// cameraFocusTimer.cancel();
+//						longClickTimer.start();
+//					}
+//				}
+
+			}
+			else if(event.getAction() == MotionEvent.ACTION_UP)
+			{
+				// Drop all events and execute if there is one
+				Log.i(TAG, "MotionEvent = ACTION_UP");
+	
+				if (performedAction == Field.ActionClick
+						|| performedAction == Field.ActionLongClick) {
+					performedAction = Field.ActionClickEnd;
+					touchAction = Field.ActionClickEnd;
+					if (longClickTimer != null)
+						longClickTimer.cancel();
+	
+					if (view.getId() == R.id.cumPreviewBack) {
+						if (isSavable && isBackTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							retakeImage("BACK");
+						} 
+					} 
+					
+					else if (view.getId() == R.id.cumPreviewFront) {
+						if (isSavable && isFrontTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							retakeImage("FRONT");
+						}
+					}
+				}
+			}
+		break;
+		
+		case Field.longTapCaptureJutsu:
+			if(event.getAction() == MotionEvent.ACTION_DOWN)
+			{
+				//Listen for events
+				Log.i(TAG, "MotionEvent = ACTION_DOWN");
+				performedAction = Field.ActionClick;
+				touchAction = Field.ActionClick;
+				
+				firstPointer = event.getPointerId(0);
+				firstPointerIndex = event.findPointerIndex(firstPointer);
+
+				setFocus("UNFOCUS", performedAction, null, null, null);
+				setFocus("FOCUS", performedAction,
+						event.getX(firstPointerIndex),
+						event.getY(firstPointerIndex), 
+						view);
+
+				if (view.getId() == R.id.cumPreviewBack) {
+					topTapCount++;
+					if (!isBackTaken) {
+						// cameraFocusTimer.cancel();
+						longClickTimer.start();
+					}
+				}
+
+				else if (view.getId() == R.id.cumPreviewFront) {
+					bottomTapCount++;
+					if (!isFrontTaken) {
+						// cameraFocusTimer.cancel();
+						longClickTimer.start();
+					}
+				}
+
+			}
+			else if(event.getAction() == MotionEvent.ACTION_UP)
+			{
+
+				// Drop all events and execute if there is one
+				Log.i(TAG, "MotionEvent = ACTION_UP");
+	
+				if (performedAction == Field.ActionClick
+						|| performedAction == Field.ActionLongClick) {
+					performedAction = Field.ActionClickEnd;
+					touchAction = Field.ActionClickEnd;
+					
+					if (longClickTimer != null)
+						longClickTimer.cancel();
+					
+					
+	
+					if (view.getId() == R.id.cumPreviewBack) {
+						if (isSavable && isBackTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							retakeImage("BACK");
+						} 
+					} 
+					
+					else if (view.getId() == R.id.cumPreviewFront) {
+						if (isSavable && isFrontTaken) {
+							bottomTapCount = 0;
+							topTapCount = 0;
+							retakeImage("FRONT");
+						}
+					}
+				}
+			}
+		break;
+		
+		default:
+			Log.i(TAG, "Unknown Jutsu");
+		break;
+		
+		}
+			
+	}
+    
+    /* -------------	Camera Obscura Control Actions    -----------	*/
+    
+    /* -------------	Camera Obscura Methods    -----------	*/
+    public void doZoom(Float firstDistance, Float secondDistance) {
+		if (firstDistance < secondDistance) {
+			// Do zoom in
+			Log.i(TAG, "Zoom in");
+			// if(isSmoothZoomSupported){
+			//
+			// }
+			// else
+			if (isZoomSupported) {
+				if (currentCameraZoom < maxCameraZoom) {
+
+					int zoomLevel = currentCameraZoom + 1;
+					param.setZoom(zoomLevel);
+					mCamera.setParameters(param);
+					currentCameraZoom = param.getZoom();
+				}
+			} else {
+				// Zoom not supported
+				// Toast.makeText(getApplicationContext(),"Sorry, your phone don't have zoom features",Field.SHOWTIME).show();
+			}
+
+		} else if (firstDistance > secondDistance) {
+			// Do zoom out
+			Log.i(TAG, "Zoom out");
+			// if(isSmoothZoomSupported){
+			//
+			// }
+			// else
+			if (isZoomSupported) {
+				if (currentCameraZoom > 0) {
+					int zoomLevel = currentCameraZoom - 1;
+					param.setZoom(zoomLevel);
+					mCamera.setParameters(param);
+					currentCameraZoom = param.getZoom();
+				}
+			} else {
+				// Zoom not supported
+			}
+		}
+	}
+    /* -------------	Camera Obscura Methods    -----------	*/
+
+    
+	/**	-------	Parceled Methods (Methods inside an object)------ **/    
+	/*	Magician's Artifacts	*/	    
+	public CountDownTimer cameraFocus() {
+		CountDownTimer longClick = new CountDownTimer(2000, 1000) {
+
+			public void onTick(long millisUntilFinished) {
+				if (performedAction == Field.ActionClick)
+					performedAction = Field.ActionLongClick;
+			}
+
+			public void onFinish() {
+
+				if (mCamera != null && performedAction == Field.ActionLongClick) {
+					mCamera.autoFocus(new AutoFocusCallback() {
+						@Override
+						public void onAutoFocus(boolean arg0, Camera arg1) {
+							performedAction = Field.ActionLongClickEnd;
+							// setFocusMarker("SHOOT",null, null,null);
+							if (mCamera != null) {
+								takeAShot();
+							}
+						}
+					});
+
+				}
+
+			}
+		};
+
+		return longClick;
+	}
+	
+	
+	
+	//Pop up items
+		public CheckBox  afc1Box, afc2Box, afc3Box;
+		public CheckBox  flash1Box, flash2Box, flash3Box;
+		public CheckBox  melody1Box, melody2Box;
+		public CheckBox  or0Box,or1Box, or2Box;
+		public TextView  optionafc1, optionafc2, optionafc3;
+		public TextView  optionflash1, optionflash2, optionflash3;
+		public TextView  optionmelody1, optionmelody2;
+		public TextView  optionor0,optionor1, optionor2;
+		public LinearLayout afc1Linear,afc2Linear,afc3Linear,
+							flash1Linear,flash2Linear,flash3Linear,
+							melody1Linear,melody2Linear,or0Linear,or1Linear,or2Linear;
+		
+	public AlertDialog customPopUpMenu(){
+		AlertDialog.Builder popUpMenu = new AlertDialog.Builder(getActivity());
+		ScrollView sv = new ScrollView(getActivity().getApplicationContext());
+		
+		LinearLayout menuLinear = new LinearLayout(getActivity().getApplicationContext());
+		menuLinear.setOrientation(1);
+		
+		menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
+		
+		Button btnHome = new Button(getActivity().getApplicationContext());
+		//btnHome.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		btnHome.setText("Home");  
+		btnHome.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(getActivity().getApplicationContext(), SocialMediaActivity.class); 
+				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				i.putExtra("showSplashScreen", false);
+				startActivity(i);
+			}
+		});
+	    menuLinear.addView(btnHome);
+	    
+	    com.facebook.widget.LoginButton lb = new com.facebook.widget.LoginButton(getActivity().getApplicationContext());
+		
+	    Button btnFacebookLogout = new Button(getActivity().getApplicationContext());
+	    //btnFacebookLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+	    btnFacebookLogout.setText("Facebook Log Out");  
+	    btnFacebookLogout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+			}
+		});
+	    menuLinear.addView(lb);
+	    
+	    Button btnTwitterLogout = new Button(getActivity().getApplicationContext());
+	    //btnTwitterLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+	    btnTwitterLogout.setText("Twitter Log Out"); 
+	    btnTwitterLogout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				twitterLogout();
+			}
+		});
+	    menuLinear.addView(btnTwitterLogout);
+	    
+	    
+		menuLinear.addView(newLine(getResources().getString(R.string.afctitle),"TITLE"));
+		menuLinear.addView(newLine(getResources().getString(R.string.afc1),"OPTION"));
+		menuLinear.addView(newLine(getResources().getString(R.string.afc2),"OPTION"));
+		menuLinear.addView(newLine(getResources().getString(R.string.afc3),"OPTION"));
+		
+		menuLinear.addView(newLine(getResources().getString(R.string.flashtitle),"TITLE"));
+		menuLinear.addView(newLine(getResources().getString(R.string.flash1),"OPTION"));
+		menuLinear.addView(newLine(getResources().getString(R.string.flash2),"OPTION"));
+		menuLinear.addView(newLine(getResources().getString(R.string.flash3),"OPTION"));
+		
+		menuLinear.addView(newLine(getResources().getString(R.string.melodytitle),"TITLE"));
+		menuLinear.addView(newLine(getResources().getString(R.string.melody1),"OPTION"));
+		menuLinear.addView(newLine(getResources().getString(R.string.melody2),"OPTION"));
+		
+		menuLinear.addView(newLine(getResources().getString(R.string.orientationtitle),"TITLE"));
+		menuLinear.addView(newLine(getResources().getString(R.string.orientation0),"OPTION"));
+		menuLinear.addView(newLine(getResources().getString(R.string.orientation1),"OPTION"));
+		menuLinear.addView(newLine(getResources().getString(R.string.orientation2),"OPTION"));
+		
+//		menuLinear.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				Log.i(TAG, "View ID = "+v.getTag().toString());
+//			}
+//		});afterSoundStatus
+		
+		//Set the checked value for AutoFocus
+		switch(movingJutsu){
+		case Field.noTapCaptureJutsu:
+			
+				afc1Box.setChecked(true);
+				afc2Box.setChecked(false);
+				afc3Box.setChecked(false);
+				changeSettings(Field.SET_AutoFocus,movingJutsu);
+			break;
+			
+		case Field.singleTapCaptureJutsu:
+			
+			afc1Box.setChecked(false);
+			afc2Box.setChecked(true);
+			afc3Box.setChecked(false);
+			changeSettings(Field.SET_AutoFocus,movingJutsu);
+		break;
+		
+		case Field.doubleTapCaptureJutsu:
+			
+			afc1Box.setChecked(false);
+			afc2Box.setChecked(false);
+			afc3Box.setChecked(true);
+			changeSettings(Field.SET_AutoFocus,movingJutsu);
+		break;
+		
+		default:
+			changeSettings(Field.SET_AutoFocus,Field.noTapCaptureJutsu);
+			break;
+		}
+
+		//Set the checked value for Flash
+		switch(flashStatus){
+		case Field.MODE_Flash_Auto:
+				
+			flash1Box.setChecked(true);
+			flash2Box.setChecked(false);
+			flash3Box.setChecked(false);
+			changeSettings(Field.SET_Flash,flashStatus);
+		break;
+			
+		case Field.MODE_Flash_ON:
+			
+			flash1Box.setChecked(false);
+			flash2Box.setChecked(true);
+			flash3Box.setChecked(false);
+			changeSettings(Field.SET_Flash,flashStatus);
+		break;
+		
+		case Field.MODE_Flash_OFF:
+			
+			flash1Box.setChecked(false);
+			flash2Box.setChecked(false);
+			flash3Box.setChecked(true);
+			changeSettings(Field.SET_Flash,flashStatus);
+		break;
+		
+		default:
+			changeSettings(Field.SET_Flash,Field.MODE_Flash_Default);
+			break;
+		
+		}
+		
+		//Set the melody value for Flash
+		switch(melodyStatus){
+		case Field.MODE_Melody_ON:
+			
+			melody1Box.setChecked(true);
+			melody2Box.setChecked(false);
+			changeSettings(Field.SET_Melody,melodyStatus);
+			//bgMusicUtility("start");
+		break;
+		
+		case Field.MODE_Melody_OFF:
+			
+			melody1Box.setChecked(false);
+			melody2Box.setChecked(true);
+			changeSettings(Field.SET_Melody,melodyStatus);
+			//bgMusicUtility("pause");
+		break;
+		
+		default:
+			changeSettings(Field.SET_Melody,Field.MODE_Melody_DEFAULT);
+			break;
+		
+		}
+		switch(orStatus){
+		case Field.MODE_Auto:
+			or0Box.setChecked(true);
+			or1Box.setChecked(false);
+			or2Box.setChecked(false);
+			changeSettings(Field.SET_Orientation,orStatus);
+			//bgMusicUtility("start");
+		break;
+		case Field.MODE_Portrait:
+			or0Box.setChecked(false);
+			or1Box.setChecked(true);
+			or2Box.setChecked(false);
+			changeSettings(Field.SET_Orientation,orStatus);
+			//bgMusicUtility("start");
+		break;
+		
+		case Field.MODE_Landscape:
+			or0Box.setChecked(false);
+			or1Box.setChecked(false);
+			or2Box.setChecked(true);
+			changeSettings(Field.SET_Orientation,orStatus);
+			//bgMusicUtility("pause");
+		break;
+		
+		default:
+			changeSettings(Field.SET_Orientation,Field.MODE_Orientation_DEFAULT);
+			break;
+		
+		}
+		
+		
+		sv.addView(menuLinear);
+		popUpMenu.setView(sv);
+		return popUpMenu.create();
+	}
+	
+	public LinearLayout newLine(String itemMessage, String type){
+		CheckBox checkBox = new CheckBox(getActivity());
+		TextView option = new TextView(getActivity());
+		
+		LinearLayout optionsLinear = new LinearLayout(getActivity().getApplicationContext());
+		
+		
+		
+		if(type == "TITLE"){
+			TextView title = new TextView(getActivity().getApplicationContext());
+			title.setTextSize(24);
+			title.setTextColor(Color.GRAY);
+			title.setText(itemMessage);
+			
+//			RelativeLayout optionRelative = new RelativeLayout(this);
+//			optionRelative.addView(title);
+//			
+			optionsLinear.setPadding(10, 0, 0, 0);
+			//optionsLinear.setBackgroundColor(Color.BLACK);
+			optionsLinear.addView(title);
+//			
+//
+//
+//			optionsLinear.addView(optionRelative);
+//			
+//			
+//			RelativeLayout.LayoutParams paramsTEXT = (RelativeLayout.LayoutParams)option.getLayoutParams();
+//			paramsTEXT.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//			paramsTEXT.setMargins(20,20,20,20);
+//			
+//			//paramsTEXT.addRule(RelativeLayout.CENTER_VERTICAL);
+//			
+//			option.setLayoutParams(paramsTEXT); //causes layout update
+//			
+//			RelativeLayout.LayoutParams paramsCHECKBOX = (RelativeLayout.LayoutParams)checkBox.getLayoutParams();
+//			paramsCHECKBOX.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+//			
+//			checkBox.setLayoutParams(paramsCHECKBOX); //causes layout update
+
+			
+		}
+		else if(type == "OPTION"){
+			
+			if(itemMessage == getResources().getString(R.string.afc1)){
+				optionsLinear.setTag(Field.MODE_ManualAF_and_Capture);
+				afc1Box = new CheckBox(getActivity().getApplicationContext());
+				optionafc1 = new TextView(getActivity().getApplicationContext());
+				afc1Linear = new LinearLayout(getActivity().getApplicationContext());
+				afc1Linear.setOrientation(0);
+				
+				optionafc1.setText(itemMessage);
+				afc1Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_AutoFocus,Field.noTapCaptureJutsu);
+					}
+				});
+				
+				
+				afc1Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_AutoFocus,Field.noTapCaptureJutsu);
+					}
+				});
+				
+				
+				checkBox = afc1Box;
+				option	 = optionafc1;
+				optionsLinear = afc1Linear;
+			}
+			else if(itemMessage == getResources().getString(R.string.afc2)){
+				optionsLinear.setTag(Field.MODE_SingleAF_and_Capture);
+				afc2Box = new CheckBox(getActivity().getApplicationContext());
+				optionor1 = new TextView(getActivity().getApplicationContext());
+				afc2Linear = new LinearLayout(getActivity().getApplicationContext());
+				afc2Linear.setOrientation(0);
+				optionor1.setText(itemMessage);
+				afc2Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_AutoFocus,Field.singleTapCaptureJutsu);
+					}
+				});
+				afc2Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_AutoFocus,Field.singleTapCaptureJutsu);
+					}
+				});
+				
+				checkBox = afc2Box;
+				option	 = optionor1;
+				optionsLinear = afc2Linear;
+			}
+			
+			else if(itemMessage == getResources().getString(R.string.afc3)){
+				optionsLinear.setTag(Field.MODE_DoubleAF_and_Capture);
+				afc3Box = new CheckBox(getActivity().getApplicationContext());
+				optionafc3 = new TextView(getActivity().getApplicationContext());
+				optionafc3.setText(itemMessage);
+				
+				afc3Linear = new LinearLayout(getActivity().getApplicationContext());
+				afc3Linear.setOrientation(0);
+				
+				afc3Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_AutoFocus,Field.doubleTapCaptureJutsu);
+					}
+				});
+				afc3Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_AutoFocus,Field.doubleTapCaptureJutsu);
+					}
+				});
+				
+				checkBox = afc3Box; 
+				option	 = optionafc3;
+				optionsLinear = afc3Linear;
+			}
+			
+			else if(itemMessage == getResources().getString(R.string.flash1)){
+				optionsLinear.setTag(Field.MODE_Flash_Auto);
+				flash1Box = new CheckBox(getActivity().getApplicationContext());
+				optionflash1 = new TextView(getActivity().getApplicationContext());
+				optionflash1.setText(itemMessage);
+				
+				flash1Linear = new LinearLayout(getActivity().getApplicationContext());
+				flash1Linear.setOrientation(0);
+				
+				flash1Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Flash,Field.MODE_Flash_Auto);
+					}
+				});
+				flash1Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Flash,Field.MODE_Flash_Auto);
+					}
+				});
+				
+				checkBox = flash1Box;
+				option	 = optionflash1;
+				optionsLinear = flash1Linear;
+			}
+			
+			else if(itemMessage == getResources().getString(R.string.flash2)){
+				optionsLinear.setTag(Field.MODE_Flash_ON);
+				flash2Box = new CheckBox(getActivity().getApplicationContext());
+				optionflash2 = new TextView(getActivity().getApplicationContext());
+				optionflash2.setText(itemMessage);
+				
+				flash2Linear = new LinearLayout(getActivity().getApplicationContext());
+				flash2Linear.setOrientation(0);
+				
+				flash2Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Flash,Field.MODE_Flash_ON);
+					}
+				});
+				flash2Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Flash,Field.MODE_Flash_ON);
+					}
+				});
+				
+				checkBox = flash2Box;
+				option	 = optionflash2;
+				optionsLinear = flash2Linear;
+			}
+			
+			else if(itemMessage == getResources().getString(R.string.flash3)){
+				optionsLinear.setTag(Field.MODE_Flash_OFF);
+				flash3Box = new CheckBox(getActivity().getApplicationContext());
+				optionflash3 = new TextView(getActivity().getApplicationContext());
+				optionflash3.setText(itemMessage);
+				
+				flash3Linear = new LinearLayout(getActivity().getApplicationContext());
+				flash3Linear.setOrientation(0);
+				
+				flash3Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Flash,Field.MODE_Flash_OFF);
+					}
+				});
+				flash3Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Flash,Field.MODE_Flash_OFF);
+					}
+				});
+				
+				checkBox = flash3Box;
+				option	 = optionflash3;
+				optionsLinear = flash3Linear;
+			}
+			
+			else if(itemMessage == getResources().getString(R.string.melody1)){
+				optionsLinear.setTag(Field.MODE_Melody_ON);
+				melody1Box = new CheckBox(getActivity().getApplicationContext());
+				optionmelody1 = new TextView(getActivity().getApplicationContext());
+				optionmelody1.setText(itemMessage);
+				
+				melody1Linear = new LinearLayout(getActivity().getApplicationContext());
+				melody1Linear.setOrientation(0);
+				
+				melody1Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Melody,Field.MODE_Melody_ON);
+					}
+				});
+				melody1Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Melody,Field.MODE_Melody_ON);
+					}
+				});
+				
+				checkBox = melody1Box;
+				option	 = optionmelody1;
+				optionsLinear = melody1Linear;
+			}
+			
+			else if(itemMessage == getResources().getString(R.string.melody2)){
+				optionsLinear.setTag(Field.MODE_Melody_OFF);
+				melody2Box = new CheckBox(getActivity().getApplicationContext());
+				optionmelody2 = new TextView(getActivity().getApplicationContext());
+				optionmelody2.setText(itemMessage);
+				
+				melody2Linear = new LinearLayout(getActivity().getApplicationContext());
+				melody2Linear.setOrientation(0);
+				
+				melody2Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Melody,Field.MODE_Melody_OFF);
+					}
+				});
+				melody2Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Melody,Field.MODE_Melody_OFF);
+					}
+				});
+				
+				checkBox = melody2Box;
+				option	 = optionmelody2;
+				optionsLinear = melody2Linear;
+			}
+			////////////////////
+			else if(itemMessage == getResources().getString(R.string.orientation0)){
+				optionsLinear.setTag(Field.MODE_Auto);
+				or0Box = new CheckBox(getActivity().getApplicationContext());
+				optionor0 = new TextView(getActivity().getApplicationContext());
+				or0Linear = new LinearLayout(getActivity().getApplicationContext());
+				or0Linear.setOrientation(0);
+				optionor0.setText(itemMessage);
+				checkBox = or0Box;
+				option	 = optionor0;
+				optionsLinear = or0Linear;
+				or0Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Auto);
+						OrientationUtility("Auto");
+					}
+				});
+				or0Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Auto);
+						OrientationUtility("Auto");
+					}
+				});
+				
+			}
+			///////////////////
+			else if(itemMessage == getResources().getString(R.string.orientation1)){
+				optionsLinear.setTag(Field.MODE_Portrait);
+				or1Box = new CheckBox(getActivity().getApplicationContext());
+				optionor1 = new TextView(getActivity().getApplicationContext());
+				or1Linear = new LinearLayout(getActivity().getApplicationContext());
+				or1Linear.setOrientation(0);
+				optionor1.setText(itemMessage);
+				checkBox = or1Box;
+				option	 = optionor1;
+				optionsLinear = or1Linear;
+				or1Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Portrait);
+						OrientationUtility("Portrait");
+					}
+				});
+				or1Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Portrait);
+						OrientationUtility("Portrait");
+					}
+				});
+				
+				checkBox = or1Box;
+				option	 = optionor1;
+				optionsLinear = or1Linear;
+			}
+			
+			else if(itemMessage == getResources().getString(R.string.orientation2)){
+				optionsLinear.setTag(Field.MODE_Portrait);
+				or2Box = new CheckBox(getActivity().getApplicationContext());
+				optionor2 = new TextView(getActivity().getApplicationContext());
+				or2Linear = new LinearLayout(getActivity().getApplicationContext());
+				or2Linear.setOrientation(0);
+				optionor2.setText(itemMessage);
+				checkBox = or2Box;
+				option	 = optionor2;
+				optionsLinear = or2Linear;
+				or2Linear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Landscape);
+						OrientationUtility("Landscape");
+					}
+				});
+				or2Box.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						changeSettings(Field.SET_Orientation,Field.MODE_Landscape);
+						OrientationUtility("Landscape");
+					}
+				});
+				
+			}
+			
+			
+//			LinearLayout optionsLinearTEXT = new LinearLayout(this);
+//			optionsLinearTEXT.setOrientation(1);
+//			RelativeLayout optionRelativeTEXT = new RelativeLayout(this);
+//			optionRelativeTEXT.addView(option);
+//			optionsLinear.addView(optionRelativeTEXT);
+//			
+//			RelativeLayout optionRelativeCHECKBOX = new RelativeLayout(this);
+//			optionRelativeCHECKBOX.addView(checkBox);
+//			optionsLinear.addView(optionRelativeCHECKBOX);
+			
+			
+//			optionsLinear.addView(option);
+//			optionsLinear.addView(checkBox);
+			option.setTextColor(Color.WHITE);
+			
+			RelativeLayout optionRelative = new RelativeLayout(getActivity().getApplicationContext());
+			optionRelative.addView(checkBox);
+			optionRelative.addView(option);
+			optionsLinear.addView(optionRelative);
+			//optionsLinear.setBackgroundColor(Color.rgb(255, 0, 255));
+			
+			RelativeLayout.LayoutParams paramsTEXT = (RelativeLayout.LayoutParams)option.getLayoutParams();
+			paramsTEXT.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			paramsTEXT.setMargins(30,30,20,20);
+			
+			//paramsTEXT.addRule(RelativeLayout.CENTER_VERTICAL);
+			
+			option.setLayoutParams(paramsTEXT); //causes layout update
+			
+			RelativeLayout.LayoutParams paramsCHECKBOX = (RelativeLayout.LayoutParams)checkBox.getLayoutParams();
+			paramsCHECKBOX.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			paramsCHECKBOX.setMargins(0,0,20,0);
+			checkBox.setLayoutParams(paramsCHECKBOX); //causes layout update
+
+			
+		}
+		
+	return optionsLinear;
+	 
+ }
+	
+
+	//Change the settings
+	public void changeSettings(int set, int mode){
+		PackageManager pm = getActivity().getBaseContext().getPackageManager();
+		
+		//final Parameters p = mCamera.getParameters();
+		final Parameters p;
+		SharedPreferences settings = getActivity().getSharedPreferences(Field.PREFS_DUALCAM, 0);
+	    SharedPreferences.Editor editor = settings.edit();
+	    
+	    
+		if(set == Field.SET_AutoFocus){
+			
+			switch(mode){
+			case Field.noTapCaptureJutsu:
+				afc1Box.setChecked(true);
+				afc2Box.setChecked(false);
+				afc3Box.setChecked(false);
+				movingJutsu = Field.noTapCaptureJutsu;
+				editor.putInt(Field.PREFS_SET_AUTOFOCUS, Field.noTapCaptureJutsu);
+				break;
+				
+			case Field.singleTapCaptureJutsu:
+				afc1Box.setChecked(false);
+				afc2Box.setChecked(true);
+				afc3Box.setChecked(false);
+				movingJutsu = Field.singleTapCaptureJutsu;
+				editor.putInt(Field.PREFS_SET_AUTOFOCUS, Field.singleTapCaptureJutsu);
+				break;
+				
+			case Field.doubleTapCaptureJutsu:
+				afc1Box.setChecked(false);
+				afc2Box.setChecked(false);
+				afc3Box.setChecked(true);
+				movingJutsu = Field.doubleTapCaptureJutsu;
+				editor.putInt(Field.PREFS_SET_AUTOFOCUS, Field.doubleTapCaptureJutsu);
+				break;
+			}
+		}
+		else if(set == Field.SET_Flash){
+			switch(mode){
+			case Field.MODE_Flash_Auto:
+				flash1Box.setChecked(true);
+				flash2Box.setChecked(false);
+				flash3Box.setChecked(false);
+				flashStatus = Field.MODE_Flash_Auto;
+				editor.putInt(Field.PREFS_SET_FLASH, Field.MODE_Flash_Auto);
+				if(mCamera != null)
+					if(isFlashSupported(pm)) {
+						p = mCamera.getParameters();
+						p.setFlashMode(Parameters.FLASH_MODE_AUTO);
+						mCamera.setParameters(p);
+					}
+				break;
+				
+			case Field.MODE_Flash_ON:
+				flash1Box.setChecked(false);
+				flash2Box.setChecked(true);
+				flash3Box.setChecked(false);
+				flashStatus = Field.MODE_Flash_ON;
+				editor.putInt(Field.PREFS_SET_FLASH, Field.MODE_Flash_ON);
+				if(mCamera != null)
+					if(isFlashSupported(pm)) {
+						p = mCamera.getParameters();
+						p.setFlashMode(Parameters.FLASH_MODE_ON);
+						mCamera.setParameters(p);
+					}
+				break;
+				
+			case Field.MODE_Flash_OFF:
+				flash1Box.setChecked(false);
+				flash2Box.setChecked(false);
+				flash3Box.setChecked(true);
+				flashStatus = Field.MODE_Flash_OFF;
+				editor.putInt(Field.PREFS_SET_FLASH, Field.MODE_Flash_OFF);
+				
+				if(mCamera != null)
+					if(isFlashSupported(pm)) {
+						p = mCamera.getParameters();
+						p.setFlashMode(Parameters.FLASH_MODE_OFF);
+						mCamera.setParameters(p);
+					}
+				break;
+			}
+		}
+		else if(set == Field.SET_Melody){
+			switch(mode){
+			case Field.MODE_Melody_ON:
+				melody1Box.setChecked(true);
+				melody2Box.setChecked(false);
+				melodyStatus = Field.MODE_Melody_ON;
+				editor.putInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_ON);
+				bgMusicUtility("start");
+				break;
+				
+			case Field.MODE_Melody_OFF:
+				melody1Box.setChecked(false);
+				melody2Box.setChecked(true);
+				melodyStatus = Field.MODE_Melody_OFF;
+				editor.putInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_OFF);
+				bgMusicUtility("pause");
+				break;
+			}
+		}
+		
+		else if(set == Field.SET_Orientation){
+			switch(mode){
+			case Field.MODE_Auto:
+				or0Box.setChecked(true);
+				or1Box.setChecked(false);
+				or2Box.setChecked(false);
+				orStatus = Field.MODE_Auto;
+				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Auto);
+				//OrientationUtility("Auto");
+				break;
+			case Field.MODE_Portrait:
+				or0Box.setChecked(false);
+				or1Box.setChecked(true);
+				or2Box.setChecked(false);
+				orStatus = Field.MODE_Portrait;
+				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Portrait);
+				//OrientationUtility("Portrait");
+				break;
+				
+			case Field.MODE_Landscape:
+				or0Box.setChecked(false);
+				or1Box.setChecked(false);
+				or2Box.setChecked(true);
+				orStatus = Field.MODE_Landscape;
+				editor.putInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Landscape);
+				//OrientationUtility("Landscape");
+				break;
+			}
+		}
+		
+		
+		editor.commit();
+		
+	}
+	
+	private boolean isFlashSupported(PackageManager packageManager) {
+		// if device support camera flash?
+		if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+			return true;
+		}
+		return false;
+	}
+	
+	private void OrientationUtility(String string) {
+		//super.onCreate(camFragBundy);
+		if(string=="Auto"){
+			getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+		}
+		if(string=="Portrait"){
+			getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+		if(string=="Landscape"){
+			getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+		((MotherCrystal)getActivity()).resumeMe = true;
+		((MotherCrystal)getActivity()).linkRESTART();
+	}
+	
 }

@@ -62,7 +62,7 @@ public Camera getCameraInstance(String side, int width, int height,String orient
         Log.d(TAG, "Log picS = "+picS.size());
         for(int i=0;i<size.size();i++)
         {
-        	Log.i(TAG,"Camera.Size Cam @ "+i+" Width = "+size.get(i).width+" : Height = "+size.get(i).height);
+        	//Log.i(TAG,"Camera.Size Cam @ "+i+" Width = "+size.get(i).width+" : Height = "+size.get(i).height);
         	//if(size.get(i).width > camsize.width)
         	//	camsize = size.get(i);
         	if(defaultWidth == size.get(i).width && defaultHeight == size.get(i).height){

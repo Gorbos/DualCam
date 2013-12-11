@@ -15,6 +15,7 @@ import com.facebook.UiLifecycleHelper;
 import com.hintdesk.core.util.StringUtil;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -27,6 +28,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -43,7 +45,7 @@ public class MotherCrystal extends FragmentActivity {
 	public static int fragmentShown = -1;
 	
 	private boolean isResumed = false;
-	private boolean resumeMe = false;
+	public boolean resumeMe = false;
 
 	private UiLifecycleHelper uiHelper;
 	private MenuItem settings;
@@ -64,6 +66,7 @@ public class MotherCrystal extends FragmentActivity {
 	/*	Overseer's	*/
 	private boolean isBlueBirdIN = false;
 	private boolean isAzureScribeIN = false;
+	public AlertDialog camFragPopUpDialog;
 	
 	
 	@Override
@@ -103,10 +106,10 @@ public class MotherCrystal extends FragmentActivity {
 	protected void onResumeFragments() {
 	    super.onResumeFragments();
 	    Log.i(TAG, "from onResumeFragments.");
-	    checkbundyDundy("onResumeFragments");
 	    
 	    //Load persistent value for views
 	    ancestralRecall();
+	    checkbundyDundy("onResumeFragments");
 	    Log.i(TAG, "from onResumeFragments. ancestralRecall : "+fragmentShown);
 	    switch(fragmentShown){
 	    case Field.MOTHER_SPLASH:
@@ -187,10 +190,11 @@ public class MotherCrystal extends FragmentActivity {
 	      		
 	  			if (resultCode == Activity.RESULT_OK)
 	  			{
-	  				System.out.println("RESULT_OK");
-	  				String oauthVerifier = (String) data.getExtras().get("oauth_verifier");
+	  				Log.i(TAG, "from onActivityResult : RESULT_OK");
+	  				String oauthVerifier = (String) data.getExtras().get("oauth_verifier");	  				
 	  				try {
 	  					new TwitterGetAccessTokenTask().execute(oauthVerifier);
+	  					
 	  				} catch (Exception e) {
 	  					//Error contingency plan
 	  					worstCaseScenario();
@@ -208,6 +212,12 @@ public class MotherCrystal extends FragmentActivity {
 	    uiHelper.onDestroy();
 	    Log.i(TAG, "from onDestroy.");
 	    
+	    if(!resumeMe){
+	    	fragmentShown = 0;	
+	    }
+	    resumeMe = false;
+	    ancestralVision();
+	    
 	}
 	
 	@Override
@@ -218,10 +228,26 @@ public class MotherCrystal extends FragmentActivity {
 	    Log.i(TAG, "from onStop.");
 
 	    
-	    
-	    if(((CamFrag)pieces[CAM]).mCamera != null){
-	    	Log.i(TAG, "from onStop : Releasing mCamera");
-	    	((CamFrag)pieces[CAM]).releaseCamera();
+	    if(resumeMe){
+	    	if(((CamFrag)pieces[CAM]).mCamera != null){
+	    		Log.i(TAG, "from onStop : Releasing mCamera");
+	    		((CamFrag)pieces[CAM]).releaseCamera();
+		    }
+		    if(((CamFrag)pieces[CAM]).mMediaPlayer != null){
+		    	Log.i(TAG, "from onStop : Pausing mMediaPlayer");
+		    	((CamFrag)pieces[CAM]).bgMusicUtility("pause");
+		    }
+	    }
+	    else{
+	    	if(((CamFrag)pieces[CAM]).mCamera != null){
+	    		Log.i(TAG, "from onStop : Releasing mCamera");
+	    		((CamFrag)pieces[CAM]).releaseCamera();
+	    	}
+	    	if(((CamFrag)pieces[CAM]).mMediaPlayer != null){
+	    		Log.i(TAG, "from onStop : Releasing mMediaPlayer");
+	    		((CamFrag)pieces[CAM]).bgMusicUtility("release");
+	    	}
+	    	
 	    }
 	}
 
@@ -231,7 +257,11 @@ public class MotherCrystal extends FragmentActivity {
 	    super.onSaveInstanceState(outState);
 	    uiHelper.onSaveInstanceState(outState);
 	    Log.i(TAG, "from onSaveInstanceState.");
+	    checkbundyDundy("onSaveInstanceState");
+	    resumeMe = true;
 	    ancestralVision();
+	    
+	    
 	}
 	
 	@Override
@@ -240,12 +270,31 @@ public class MotherCrystal extends FragmentActivity {
 		 Log.i(TAG, "from onConfigurationChanged.");
 		 //linkRESTART();
 	 }
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	Log.i(TAG, "from onCreateOptionsMenu.");
+	 //getMenuInflater().inflate(R.menu.dual_cam, menu);
+	 //Toast.makeText(getApplicationContext(), "OptionsMenu is clicked", Field.SHOWTIME).show();
+//		 popUpMenu.show(this.getFragmentManager(), "popUpMenu");
+	 //customPopUpMenu().show();
+//	 if(popUpDialog != null)
+//		 popUpDialog.show();
+	if(((CamFrag)pieces[CAM]).popUpDialog != null ){
+		Log.i(TAG, "popUpDialog is NOT Null.");
+		((CamFrag)pieces[CAM]).popUpDialog.show();
+	}
+	else
+		Log.i(TAG, "popUpDialog is Null.");
+	
+	return false;
+	}
 
 	
 /**		ACTS	**/	
 	
-/*	Act of the Magician	*/		
-
+/*	Act of the Magician	*/	
+	
 	public void doMagic(String magic){
 		Toast.makeText(getApplicationContext(), magic, Field.SHOWTIME).show();
 	}
@@ -269,7 +318,7 @@ public class MotherCrystal extends FragmentActivity {
 		Intent toSave = getBaseContext().getPackageManager()
 				.getLaunchIntentForPackage(getBaseContext().getPackageName());
 		toSave.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		toSave.putExtra("bundyDundy", bundyDundy);
+//		toSave.putExtra("bundyDundy", bundyDundy);
 		finish();
 		startActivity(toSave);
 	}
@@ -277,6 +326,7 @@ public class MotherCrystal extends FragmentActivity {
 
 	private void linkStart(){
 		showFragment(SPLASH, false);
+		
 		//((SocialMediaFragment)pieces[SOCIALMEDIA]).initControlTwitter();
 		CountDownTimer splashTime = new CountDownTimer(2000,1000) {
 			
@@ -312,7 +362,6 @@ public class MotherCrystal extends FragmentActivity {
 			bundyDundy.putInt("fragmentShown", fragmentShown);
 			bundyDundy.putBoolean(Field.social+Field.isShown, true);
 
-			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
 			bundyDundy.putBoolean(Field.cam+Field.isShown, false);
 			break;
 			
@@ -325,6 +374,14 @@ public class MotherCrystal extends FragmentActivity {
 			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
 			
 			((CamFrag)pieces[CAM]).setInteractions();
+			if(((CamFrag)pieces[CAM]).mMediaPlayer == null)
+				((CamFrag)pieces[CAM]).bgMusicUtility("initialize");
+			else
+				((CamFrag)pieces[CAM]).bgMusicUtility("start");
+			
+			((CamFrag)pieces[CAM]).popUpDialog = ((CamFrag)pieces[CAM]).customPopUpMenu();
+			
+//			((CamFrag)pieces[CAM]).bgMusicUtility("initNotPlay");
 			break;
 			
 		case CAMERA:
@@ -454,11 +511,12 @@ public class MotherCrystal extends FragmentActivity {
         @Override
         protected void onPostExecute(String userName) {
             //textViewUserName.setText(Html.fromHtml("<b> Welcome " + userName + "</b>"));
+        	showFragment(CAM, false);
         }
 
         @Override
         protected String doInBackground(String... params) {
-
+        	loading.show();
             Twitter twitter = TwitterUtil.getInstance().getTwitter();
             RequestToken requestToken = TwitterUtil.getInstance().getRequestToken();
             if (!StringUtil.isNullOrWhitespace(params[0])) {
@@ -472,6 +530,8 @@ public class MotherCrystal extends FragmentActivity {
                     editor.putString(TwitterConstant.PREFERENCE_TWITTER_OAUTH_TOKEN_SECRET, accessToken.getTokenSecret());
                     editor.putBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN, true);
                     editor.commit();
+                    
+                    
                     return twitter.showUser(accessToken.getUserId()).getName();
                 } catch (TwitterException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
