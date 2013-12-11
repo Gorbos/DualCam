@@ -516,7 +516,7 @@ public class MotherCrystal extends FragmentActivity {
 
         @Override
         protected String doInBackground(String... params) {
-        	loading.show();
+        	
             Twitter twitter = TwitterUtil.getInstance().getTwitter();
             RequestToken requestToken = TwitterUtil.getInstance().getRequestToken();
             if (!StringUtil.isNullOrWhitespace(params[0])) {
