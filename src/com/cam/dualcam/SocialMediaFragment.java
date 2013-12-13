@@ -28,6 +28,7 @@ import twitter4j.auth.RequestToken;
 
 
 
+
 //Facebook
 import com.facebook.Request;
 import com.facebook.Response;
@@ -332,6 +333,13 @@ public class SocialMediaFragment extends Fragment{
             Intent i = new Intent(getActivity(), TwitterWebview.class);
 			i.putExtra("URL", requestToken.getAuthenticationURL());
 			getActivity().startActivityForResult(i, TWITTER_AUTH);
+			
+			if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.HONEYCOMB) {
+			     // only for gingerbread and newer versions
+			}else{
+				
+			}
+			
         }
 
         @Override
@@ -339,7 +347,5 @@ public class SocialMediaFragment extends Fragment{
             return TwitterUtil.getInstance().getRequestToken();
         }
     }
-
-	 
 	
 }

@@ -102,7 +102,7 @@ public class MotherCrystal extends FragmentActivity {
 	    transaction.commit();
 	    
 	} 
-	
+	 
 	@Override
 	protected void onResumeFragments() {
 	    super.onResumeFragments();
@@ -373,10 +373,10 @@ public class MotherCrystal extends FragmentActivity {
 			bundyDundy.putBoolean(Field.social+Field.isShown, false);
 			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
 			
-			if(resumeMe){
-				((CamFrag)pieces[CAM]).setResumeInteractions();
+			/*if(resumeMe){
+				//((CamFrag)pieces[CAM]).setResumeInteractions();
 			}
-			else
+			else*/
 				((CamFrag)pieces[CAM]).setInteractions();
 			
 			if(((CamFrag)pieces[CAM]).mMediaPlayer == null)

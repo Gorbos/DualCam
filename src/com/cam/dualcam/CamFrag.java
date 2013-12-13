@@ -481,8 +481,8 @@ public class CamFrag extends Fragment {
 		SharedPreferences settings = getActivity().getSharedPreferences(Field.PREFS_DUALCAM, 0);
 		movingJutsu = settings.getInt(Field.PREFS_SET_AUTOFOCUS, Field.MODE_DefaultAF_and_Capture);
 		flashStatus = settings.getInt(Field.PREFS_SET_FLASH, Field.MODE_Flash_Default);
-		melodyStatus = settings.getInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_DEFAULT);
-//		melodyStatus = Field.MODE_Melody_ON;
+//		melodyStatus = settings.getInt(Field.PREFS_SET_MELODY, Field.MODE_Melody_DEFAULT);
+		melodyStatus = Field.MODE_Melody_ON;
 		orStatus = settings.getInt(Field.PREFS_SET_ORIENTATION, Field.MODE_Orientation_DEFAULT);
 		
 		touchAction = Field.ActionStateClickable;
@@ -512,17 +512,6 @@ public class CamFrag extends Fragment {
 	
 	public void setInteractions(){
 		setSide("BACK");
-		
-		setButton(shareButton);
-		setButton(saveButton);
-		setButton(textButton);
-		setButton(retryButton);
-		
-		bgMusicUtility("initialize");
-	}
-	
-	public void setResumeInteractions(){
-		setSide(cameraSide);
 		
 		setButton(shareButton);
 		setButton(saveButton);
@@ -1649,9 +1638,15 @@ public class CamFrag extends Fragment {
     				viewName = "shareButton";
     				try {
     					Log.i(TAG, "isSharable = " + isSharable);
-    					if (isSharable)
-    						shareFunction();//share the pic
-
+    					if (isSharable) {
+    						//shareFunction();//share the pic
+    					Intent intent = new Intent(getActivity(),  SharingActivity.class); 
+    					fileName = mediaUtility.getOutputMediaFile(Field.MEDIA_TYPE_IMAGE).toString();
+    					System.out.println(filePath.toString());
+    					intent.putExtra("imagePath", filePath.toString()); 
+    					getActivity().startActivity(intent);
+    					
+    					}
     				} catch (Exception e) {
     					Log.i(TAG, "isSharable = " + isSharable);
     					Log.i(TAG, "ERROR = " + e.getCause());
@@ -3673,7 +3668,7 @@ public class CamFrag extends Fragment {
 			}
 			
 			else if(itemMessage == getResources().getString(R.string.orientation2)){
-				optionsLinear.setTag(Field.MODE_Landscape);
+				optionsLinear.setTag(Field.MODE_Portrait);
 				or2Box = new CheckBox(getActivity().getApplicationContext());
 				optionor2 = new TextView(getActivity().getApplicationContext());
 				or2Linear = new LinearLayout(getActivity().getApplicationContext());
@@ -3902,8 +3897,8 @@ public class CamFrag extends Fragment {
 		if(string=="Landscape"){
 			getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		}
-//		((MotherCrystal)getActivity()).resumeMe = true;
-//		((MotherCrystal)getActivity()).linkRESTART();
+		((MotherCrystal)getActivity()).resumeMe = true;
+		((MotherCrystal)getActivity()).linkRESTART();
 	}
 	
 }
