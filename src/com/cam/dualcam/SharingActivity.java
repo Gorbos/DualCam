@@ -1,5 +1,6 @@
 package com.cam.dualcam;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,8 +11,10 @@ import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
+import com.cam.dualcam.CamFrag.TwitterUpdateStatusTask;
 import com.cam.dualcam.twitter.TwitterConstant;
 import com.cam.dualcam.twitter.TwitterUtil;
+import com.cam.dualcam.twitter.TwitterWebview;
 import com.cam.dualcam.utility.Field;
 import com.hintdesk.core.util.StringUtil;
 
@@ -19,9 +22,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -31,27 +38,37 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class SharingActivity extends Activity {
  
+	private int TWITTER_AUTH;
 	CheckBox cbFb, cbTwitter;
 	Button btnShare, btnCancel;
 	TextView tvMessageCounter;
 	EditText shareMessage;
+	ImageView imageViewThumbNail;
 	public String filePath;
+	
+	private static final String TAG = "SharingActivity";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sharing_layout);
 		
-		initControlTwitter();
+		//initControlTwitter();
 		
 		Intent intent = getIntent();
 		filePath = getIntent().getStringExtra("imagePath");
 		System.out.println(filePath);
+		
+		
+		Bitmap bitmap 	= null;
+		//bitmap  = BitmapFactory.decodeFile(filePath);
+		bitmap = getbitpam(filePath);
 		
 		cbFb = (CheckBox)findViewById(R.id.checkBoxFb); 
 		cbTwitter = (CheckBox)findViewById(R.id.checkBoxTwitter); 
@@ -59,6 +76,9 @@ public class SharingActivity extends Activity {
 		btnShare = (Button)findViewById(R.id.btn_yes);
 		btnCancel = (Button)findViewById(R.id.btn_no);
 		shareMessage = (EditText)findViewById(R.id.shareMessage);
+		imageViewThumbNail = (ImageView)findViewById(R.id.imageViewThumbNail);
+		
+		imageViewThumbNail.setImageBitmap(bitmap);
 		
 		cbFb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
@@ -78,19 +98,17 @@ public class SharingActivity extends Activity {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				
 				if (buttonView.isChecked()) {
-					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 					
+					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 					if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
 						  {
 				        	new TwitterAuthenticateTask().execute();
 				            Toast.makeText(getApplicationContext(), "No log in acc. on Twitter.", Field.SHOWTIME).show();
 				    }else {
-				             new TwitterGetAccessTokenTask().execute("");
+				             //new TwitterGetAccessTokenTask().execute("");
 				             Toast.makeText(getApplicationContext(), "Has log in acc. on Twitter.", Field.SHOWTIME).show();
 				           }
-				} else {
-					
-				}
+				} 
 				
 			}
 		}); 
@@ -143,7 +161,39 @@ public class SharingActivity extends Activity {
 				
 		    }
 		});
+		
+		
+		btnShare.setOnClickListener(new Button.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				String TwitText = shareMessage.getText().toString();
+				String TwitStatus = TwitText + " via #DualCam";
+				//Toast.makeText(getApplicationContext(), "TwitStatus" + TwitStatus, Field.SHOWTIME).show();  
+				new TwitterUpdateStatusTask().execute(TwitStatus);
+				
+				//add facebook share here
+				
+				
+				//after sharing back to camera
+				
+				finish();
+			}
 			
+		});
+		
+		btnCancel.setOnClickListener(new Button.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				finish();
+			}
+			
+		});
+		
+		
 	}
 
 	// Twitter Log in
@@ -151,8 +201,12 @@ public class SharingActivity extends Activity {
 
 	        @Override
 	        protected void onPostExecute(RequestToken requestToken) {
-	            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL()));
-	            startActivity(intent);
+	            /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL()));
+	            startActivity(intent);*/
+	            
+	            Intent i = new Intent(SharingActivity.this, TwitterWebview.class);
+				i.putExtra("URL", requestToken.getAuthenticationURL());
+				SharingActivity.this.startActivityForResult(i, TWITTER_AUTH);
 	        }
 
 	        @Override
@@ -173,17 +227,17 @@ public class SharingActivity extends Activity {
 		}
 		
 		// Twitter initial Control for getting token Data
-		private void initControlTwitter() {
+		/*private void initControlTwitter() {
 	        Uri uri = getIntent().getData();
 	        if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
 	            String verifier = uri.getQueryParameter(TwitterConstant.URL_PARAMETER_TWITTER_OAUTH_VERIFIER);
 	            new TwitterGetAccessTokenTask().execute(verifier);
 	        } else
 	            new TwitterGetAccessTokenTask().execute("");
-		}
+		}*/
 
 		// Background task on getting Access token in twitter
-		class TwitterGetAccessTokenTask extends AsyncTask<String, String, String> {
+		/*class TwitterGetAccessTokenTask extends AsyncTask<String, String, String> {
 
 	        @Override
 	        protected void onPostExecute(String userName) {
@@ -224,8 +278,9 @@ public class SharingActivity extends Activity {
 
 	            return null;  //To change body of implemented methods use File | Settings | File Templates.
 	        }
-	    }
+	    }*/
 
+		
 		// Background task on Posting Tweet on Twitter 
 	    class TwitterUpdateStatusTask extends AsyncTask<String, String, Boolean> {
 
@@ -280,6 +335,31 @@ public class SharingActivity extends Activity {
 	    }
 	    
 
+	 public Bitmap getbitpam(String path){
+	        Bitmap imgthumBitmap=null;
+	         try    
+	         {
+
+	             final int THUMBNAIL_SIZE = 135;
+
+	             FileInputStream fis = new FileInputStream(path);
+	              imgthumBitmap = BitmapFactory.decodeStream(fis);
+
+	             imgthumBitmap = Bitmap.createScaledBitmap(imgthumBitmap,
+	                    THUMBNAIL_SIZE, THUMBNAIL_SIZE, false);
+
+	            ByteArrayOutputStream bytearroutstream = new ByteArrayOutputStream(); 
+	            imgthumBitmap.compress(Bitmap.CompressFormat.JPEG, 100,bytearroutstream);
+
+
+	         }
+	         catch(Exception ex) {
+
+	         }
+	         return imgthumBitmap;
+	    }
+	    
+	 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -287,4 +367,5 @@ public class SharingActivity extends Activity {
 		return true;
 	}
 
+	
 }
