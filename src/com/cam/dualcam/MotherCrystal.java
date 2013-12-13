@@ -377,7 +377,7 @@ public class MotherCrystal extends FragmentActivity {
 				((CamFrag)pieces[CAM]).setResumeInteractions();
 			}
 			else
-				((CamFrag)pieces[CAM]).setInteractions();
+			((CamFrag)pieces[CAM]).setInteractions();
 			
 			if(((CamFrag)pieces[CAM]).mMediaPlayer == null)
 				((CamFrag)pieces[CAM]).bgMusicUtility("initialize");
@@ -436,6 +436,12 @@ public class MotherCrystal extends FragmentActivity {
         resumeMe = sp.getBoolean("resumeMe", resumeMe);
 	}
 	
+	public void emptyTheCatacombs(){
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.commit();
+	}
 	
 	
 /*	Act of the Overseer	*/	

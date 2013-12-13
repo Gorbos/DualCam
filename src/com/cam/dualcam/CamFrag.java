@@ -211,6 +211,7 @@ public class CamFrag extends Fragment {
 	public void onResume() {
 	    super.onResume();
 	    Log.i(TAG, "from onResume.");
+	    recoverTakenImage();
 	}
 
 	@Override
@@ -244,7 +245,18 @@ public class CamFrag extends Fragment {
 
 		if (textToShow != null)
 			toSave.putString("textToShow", textToShow);
-
+		
+		//catch for the alive camera and image
+		if(isBackTaken){
+			toSave.putByteArray("byteBackImage", byteBackImage);
+		}
+		
+		if(isFrontTaken){
+			toSave.putByteArray("byteFrontImage", byteFrontImage);			
+		}
+		
+		toSave.putInt("resultBackImage", resultBackImage);
+		toSave.putInt("resultFrontImage", resultFrontImage);
 		// if(mCamera != null)
 		// toSave.put
 
@@ -341,6 +353,8 @@ public class CamFrag extends Fragment {
 	private Bitmap backPic = null;
 	private Bitmap originalPic = null;
 	public BitmapFactory.Options options = null;
+	public byte [] byteBackImage;
+	public byte [] byteFrontImage;
 	
 	//Camera objects
 	// Camera Settings
@@ -351,6 +365,9 @@ public class CamFrag extends Fragment {
 		public Integer cameraAction;
 		public static int result = 0;
 		public static int degrees = 0;
+		public int resultBackImage = 0;
+		public int resultFrontImage = 0;
+		
 	
 	
 	//Classes and Dialogs
@@ -522,7 +539,9 @@ public class CamFrag extends Fragment {
 	}
 	
 	public void setResumeInteractions(){
-		setSide(cameraSide);
+		
+		if(!isBackTaken || !isFrontTaken)
+			setSide(cameraSide);
 		
 		setButton(shareButton);
 		setButton(saveButton);
@@ -1174,137 +1193,21 @@ public class CamFrag extends Fragment {
 			try {
 				isRetaking = false;
 				isRetryable = true;
+				if(cameraSide == "BACK")
+					byteBackImage = data;
+				else if(cameraSide == "FRONT")
+					byteFrontImage = data;
+				
 				setButton(retryButton);
 				//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
-				ImageView buttonView = getPressedPreview(cameraSide);
-				Matrix matrix = new Matrix();
-				int width = 0;
-				int height = 0;
-				int extraWidth = 0;
-				int extraHeight = 0;
-				int marginalWidth = 0;
-				int marginalHeight = 0;
+				
 				
 				bgMusicUtility("captureresume");
-				// if(tempPic != null){
-				// tempPic.recycle();
-				// tempPic = null;
-				// }
+
 				Log.i(TAG, "Pic taken");
 				if (cameraSide == "BACK") {
-					Log.i(TAG, "Side = " + cameraSide);
 					setRetake(cameraSide);
-					matrix.postRotate(result);
-
-					options = new BitmapFactory.Options();
-					options.inSampleSize = 1;
-					options.inJustDecodeBounds = true;
-
-					// Determine how much to scale down the image
-					// int scaleFactor = Math.min(photoW/targetW,
-					// photoH/targetH);
-
-					Bitmap temp = BitmapFactory.decodeByteArray(data, 0,
-							data.length);
-					int xW = temp.getWidth();
-					int xH = temp.getHeight();
-					// Determine how much to scale down the image
-					// int scaleFactor = Math.min(xW/screenHeight,
-					// xH/screenWidth);
-					int scaleFactor = Math.max(xW / screenHeight, xH
-							/ screenWidth);
-					// Calculate inSampleSize
-					// options.inSampleSize =
-					// bitmapResizer.calculateInSampleSize(options, shortWidth,
-					// shortHeight);
-					options.inSampleSize = scaleFactor;
-					// Decode bitmap with inSampleSize set
-					options.inJustDecodeBounds = false;
-					tempPic = BitmapFactory.decodeByteArray(data, 0,
-							data.length, options);
-					width = tempPic.getWidth();
-					height = tempPic.getHeight();
-
-					Log.i(TAG, "Before SShot");
-					Log.i(TAG,
-							"*******************   TADAA!!   ***************************");
-					Log.i(TAG, "xW = " + xW + ": xH = " + xH);
-					Log.i(TAG, "Width = " + tempPic.getWidth() + ": Height = "
-							+ tempPic.getHeight());
-					Log.i(TAG, "screenWidth = " + screenWidth
-							+ ": screenHeight = " + screenHeight);
-					Log.i(TAG, "scaleFactor = " + scaleFactor);
-
-					Log.i(TAG,
-							"*******************   TADAA!!   ***************************");
-					if (width > screenHeight || height > screenWidth) {
-						if (width > 1280 || height > 1280) {
-							tempPic = Bitmap.createScaledBitmap(tempPic,
-									Math.round(width / 2),
-									Math.round(height / 2), true);
-						}
-						tempPic = Bitmap.createBitmap(tempPic, 0, 0,
-								tempPic.getWidth(), tempPic.getHeight(),
-								matrix, true);
-						width = tempPic.getWidth();
-						height = tempPic.getHeight();
-						extraWidth = width - screenWidth;
-						extraHeight = height - screenHeight;
-						marginalWidth = Math.round(extraWidth / 2);
-						marginalHeight = Math.round(extraHeight / 2);
-						if (marginalHeight < 0)
-							marginalHeight = 0;
-						if (marginalWidth < 0)
-							marginalWidth = 0;
-						if (extraWidth < 0)
-							extraWidth = 0;
-						if (extraHeight < 0)
-							extraHeight = 0;
-
-						Log.i(TAG, "Width = " + width + ": Height = " + height);
-						Log.i(TAG, "screenWidth = " + screenWidth
-								+ ": screenHeight = " + screenHeight);
-						Log.i(TAG, "marginalWidth = " + marginalWidth
-								+ ": marginalHeight = " + marginalHeight);
-
-						if (orientationScreen == "PORTRAIT") {
-							tempPic = Bitmap.createBitmap(tempPic,
-									marginalWidth, marginalHeight, width
-											- extraWidth, height
-											- marginalHeight);
-							// tempPic = Bitmap.createBitmap(tempPic,0,0,width,
-							// height);
-						}
-					} else {
-						tempPic = Bitmap.createBitmap(tempPic, 0, 0,
-								tempPic.getWidth(), tempPic.getHeight(),
-								matrix, true);
-						width = tempPic.getWidth();
-						height = tempPic.getHeight();
-						Log.i(TAG, "Width = " + width + ": Height = " + height);
-						Log.i(TAG, "screenWidth = " + screenWidth
-								+ ": screenHeight = " + screenHeight);
-					}
-
-					width = tempPic.getWidth();
-					height = tempPic.getHeight();
-					// tempPic = Bitmap.createBitmap(tempPic, 0,0,width,
-					// Math.round(height/2));
-
-					if (orientationScreen == "PORTRAIT") {
-						// Portrait
-						tempPic = Bitmap.createBitmap(tempPic, 0, 0, width,
-								height - Math.round(height / 3));
-
-					} else if (orientationScreen == "LANDSCAPE") {
-						// Landscape
-						tempPic = Bitmap.createBitmap(tempPic, 0, 0, width
-								- Math.round(width / 3), height);
-
-					}
-
-					settoBackground(buttonView, tempPic);
-					backPic = tempPic;
+					processImageFromByte(data, cameraSide,result);
 					mCamera.stopPreview();
 					releaseCamera();
 					previewImage.setVisibility(ImageView.GONE);
@@ -1318,114 +1221,7 @@ public class CamFrag extends Fragment {
 				} else {
 					Log.i(TAG, "Side = " + cameraSide);
 					setRetake(cameraSide);
-					matrix.postRotate(result);
-					matrix.preScale(-1, 1);
-
-					options = new BitmapFactory.Options();
-					options.inSampleSize = 1;
-					options.inJustDecodeBounds = true;
-
-					// Determine how much to scale down the image
-					// int scaleFactor = Math.min(photoW/targetW,
-					// photoH/targetH);
-
-					Bitmap temp = BitmapFactory.decodeByteArray(data, 0,
-							data.length);
-					int xW = temp.getWidth();
-					int xH = temp.getHeight();
-					// Determine how much to scale down the image
-					int scaleFactor = Math.min(xW / screenHeight, xH
-							/ screenWidth);
-					// Calculate inSampleSize
-					// options.inSampleSize =
-					// bitmapResizer.calculateInSampleSize(options, shortWidth,
-					// shortHeight);
-					options.inSampleSize = scaleFactor;
-					// Decode bitmap with inSampleSize set
-					options.inJustDecodeBounds = false;
-
-					tempPic = BitmapFactory.decodeByteArray(data, 0,
-							data.length, options);
-					width = tempPic.getWidth();
-					height = tempPic.getHeight();
-
-					Log.i(TAG, "Before SShot");
-					Log.i(TAG, "Width = " + tempPic.getWidth() + ": Height = "
-							+ tempPic.getHeight());
-
-					if (width > screenHeight || height > screenWidth) {
-						if (width > 1280 || height > 1280) {
-							tempPic = Bitmap.createScaledBitmap(tempPic,
-									Math.round(width / 2),
-									Math.round(height / 2), true);
-						}
-						tempPic = Bitmap.createBitmap(tempPic, 0, 0,
-								tempPic.getWidth(), tempPic.getHeight(),
-								matrix, true);
-						width = tempPic.getWidth();
-						height = tempPic.getHeight();
-						extraWidth = width - screenWidth;
-						extraHeight = height - screenHeight;
-						marginalWidth = Math.round(extraWidth / 2);
-						marginalHeight = Math.round(extraHeight / 2);
-						if (marginalHeight < 0)
-							marginalHeight = 0;
-						if (marginalWidth < 0)
-							marginalWidth = 0;
-						if (extraWidth < 0)
-							extraWidth = 0;
-						if (extraHeight < 0)
-							extraHeight = 0;
-
-						Log.i(TAG, "Width = " + width + ": Height = " + height);
-						Log.i(TAG, "screenWidth = " + screenWidth
-								+ ": screenHeight = " + screenHeight);
-						Log.i(TAG, "marginalWidth = " + marginalWidth
-								+ ": marginalHeight = " + marginalHeight);
-						Log.i(TAG, "Resizing~ ching ching!");
-
-						if (orientationScreen == "PORTRAIT") {
-							tempPic = Bitmap.createBitmap(tempPic,
-									marginalWidth, marginalHeight, width
-											- extraWidth, height
-											- marginalHeight);
-						}
-					} else {
-						tempPic = Bitmap.createBitmap(tempPic, 0, 0,
-								tempPic.getWidth(), tempPic.getHeight(),
-								matrix, true);
-						width = tempPic.getWidth();
-						height = tempPic.getHeight();
-						Log.i(TAG, "Width = " + width + ": Height = " + height);
-						Log.i(TAG, "screenWidth = " + screenWidth
-								+ ": screenHeight = " + screenHeight);
-						Log.i(TAG, "Unresized booya!");
-					}
-					width = tempPic.getWidth();
-					height = tempPic.getHeight();
-					boolean b = tempPic.isMutable();
-					Log.i(TAG, "The reason = " + b);
-					Log.i(TAG, "Flag 1");
-					// tempPic = Bitmap.createBitmap(tempPic,
-					// 0,Math.round(height/2),width, height/2);
-
-					if (orientationScreen == "PORTRAIT") {
-						// Portrait
-						tempPic = Bitmap.createBitmap(tempPic, 0,
-								Math.round(height / 3), width,
-								height - Math.round(height / 3));
-					} else if (orientationScreen == "LANDSCAPE") {
-						// Landscape
-						tempPic = Bitmap.createBitmap(tempPic,
-								Math.round(width / 3), 0,
-								width - Math.round(width / 3), height);
-
-					}
-
-					Log.i(TAG, "Flag 2");
-					settoBackground(buttonView, tempPic);
-					frontPic = tempPic;
-					Log.i(TAG, "Flag 3");
+					processImageFromByte(data, cameraSide,result);
 					mCamera.stopPreview();
 					releaseCamera();
 					isFrontTaken = true;
@@ -1628,6 +1424,8 @@ public class CamFrag extends Fragment {
     										public void onClick(
     												DialogInterface dialog, int id) {
     											//linkSTART();restart the app
+    											((MotherCrystal)getActivity()).resumeMe = true;
+    											((MotherCrystal)getActivity()).linkRESTART();
     										}
     									})
     							.setNegativeButton(no,
@@ -3124,6 +2922,19 @@ public class CamFrag extends Fragment {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+/** -------------	Undesignated methods					-----------	**/	
+/** -------------	This side have not yet been properly commented or placed, they are all new		-----------	**/	
 	//Pop up items
 		public CheckBox  afc1Box, afc2Box, afc3Box;
 		public CheckBox  flash1Box, flash2Box, flash3Box;
@@ -3146,46 +2957,47 @@ public class CamFrag extends Fragment {
 		
 		menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
 		
-		Button btnHome = new Button(getActivity().getApplicationContext());
-		//btnHome.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		btnHome.setText("Home");  
-		btnHome.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(getActivity().getApplicationContext(), SocialMediaActivity.class); 
-				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				i.putExtra("showSplashScreen", false);
-				startActivity(i);
-			}
-		});
-	    menuLinear.addView(btnHome);
-	    
-	    com.facebook.widget.LoginButton lb = new com.facebook.widget.LoginButton(getActivity().getApplicationContext());
-		
-	    Button btnFacebookLogout = new Button(getActivity().getApplicationContext());
-	    //btnFacebookLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-	    btnFacebookLogout.setText("Facebook Log Out");  
-	    btnFacebookLogout.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				
-			}
-		});
-	    menuLinear.addView(lb);
-	    
-	    Button btnTwitterLogout = new Button(getActivity().getApplicationContext());
-	    //btnTwitterLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-	    btnTwitterLogout.setText("Twitter Log Out"); 
-	    btnTwitterLogout.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				twitterLogout();
-			}
-		});
-	    menuLinear.addView(btnTwitterLogout);
+		//The logout buttons
+//		Button btnHome = new Button(getActivity().getApplicationContext());
+//		//btnHome.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+//		btnHome.setText("Home");  
+//		btnHome.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				Intent i = new Intent(getActivity().getApplicationContext(), SocialMediaActivity.class); 
+//				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//				i.putExtra("showSplashScreen", false);
+//				startActivity(i);
+//			}
+//		});
+//	    menuLinear.addView(btnHome);
+//	    
+//	    com.facebook.widget.LoginButton lb = new com.facebook.widget.LoginButton(getActivity().getApplicationContext());
+//		
+//	    Button btnFacebookLogout = new Button(getActivity().getApplicationContext());
+//	    //btnFacebookLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+//	    btnFacebookLogout.setText("Facebook Log Out");  
+//	    btnFacebookLogout.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				
+//			}
+//		});
+//	    menuLinear.addView(lb);
+//	    
+//	    Button btnTwitterLogout = new Button(getActivity().getApplicationContext());
+//	    //btnTwitterLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+//	    btnTwitterLogout.setText("Twitter Log Out"); 
+//	    btnTwitterLogout.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				twitterLogout();
+//			}
+//		});
+//	    menuLinear.addView(btnTwitterLogout);
 	    
 	    
 		menuLinear.addView(newLine(getResources().getString(R.string.afctitle),"TITLE"));
@@ -3700,21 +3512,7 @@ public class CamFrag extends Fragment {
 				});
 				
 			}
-			
-			
-//			LinearLayout optionsLinearTEXT = new LinearLayout(this);
-//			optionsLinearTEXT.setOrientation(1);
-//			RelativeLayout optionRelativeTEXT = new RelativeLayout(this);
-//			optionRelativeTEXT.addView(option);
-//			optionsLinear.addView(optionRelativeTEXT);
-//			
-//			RelativeLayout optionRelativeCHECKBOX = new RelativeLayout(this);
-//			optionRelativeCHECKBOX.addView(checkBox);
-//			optionsLinear.addView(optionRelativeCHECKBOX);
-			
-			
-//			optionsLinear.addView(option);
-//			optionsLinear.addView(checkBox);
+
 			option.setTextColor(Color.WHITE);
 			
 			RelativeLayout optionRelative = new RelativeLayout(getActivity().getApplicationContext());
@@ -3906,4 +3704,260 @@ public class CamFrag extends Fragment {
 //		((MotherCrystal)getActivity()).linkRESTART();
 	}
 	
+	public void processImageFromByte(byte [] data, String sideTaken, int result){
+		ImageView buttonView = getPressedPreview(sideTaken);
+		Matrix matrix = new Matrix();
+		int width = 0;
+		int height = 0;
+		int extraWidth = 0;
+		int extraHeight = 0;
+		int marginalWidth = 0;
+		int marginalHeight = 0;
+		
+		//bgMusicUtility("captureresume");
+
+		Log.i(TAG, "Pic taken");
+		if (sideTaken == "BACK") {
+			Log.i(TAG, "Side = " + sideTaken);
+			
+			matrix.postRotate(result);
+			
+			resultBackImage = result;
+			options = new BitmapFactory.Options();
+			options.inSampleSize = 1;
+			options.inJustDecodeBounds = true;
+
+			// Determine how much to scale down the image
+			// int scaleFactor = Math.min(photoW/targetW,
+			// photoH/targetH);
+
+			Bitmap temp = BitmapFactory.decodeByteArray(data, 0,
+					data.length);
+			int xW = temp.getWidth();
+			int xH = temp.getHeight();
+			// Determine how much to scale down the image
+			// int scaleFactor = Math.min(xW/screenHeight,
+			// xH/screenWidth);
+			int scaleFactor = Math.max(xW / screenHeight, xH
+					/ screenWidth);
+
+			options.inSampleSize = scaleFactor;
+			
+			// Decode bitmap with inSampleSize set
+			options.inJustDecodeBounds = false;
+			tempPic = BitmapFactory.decodeByteArray(data, 0,
+					data.length, options);
+			width = tempPic.getWidth();
+			height = tempPic.getHeight();
+
+			Log.i(TAG, "Before SShot");
+			Log.i(TAG,
+					"*******************   TADAA!!   ***************************");
+			Log.i(TAG, "xW = " + xW + ": xH = " + xH);
+			Log.i(TAG, "Width = " + tempPic.getWidth() + ": Height = "
+					+ tempPic.getHeight());
+			Log.i(TAG, "screenWidth = " + screenWidth
+					+ ": screenHeight = " + screenHeight);
+			Log.i(TAG, "scaleFactor = " + scaleFactor);
+
+			Log.i(TAG,
+					"*******************   TADAA!!   ***************************");
+			if (width > screenHeight || height > screenWidth) {
+				if (width > 1280 || height > 1280) {
+					tempPic = Bitmap.createScaledBitmap(tempPic,
+							Math.round(width / 2),
+							Math.round(height / 2), true);
+				}
+				tempPic = Bitmap.createBitmap(tempPic, 0, 0,
+						tempPic.getWidth(), tempPic.getHeight(),
+						matrix, true);
+				width = tempPic.getWidth();
+				height = tempPic.getHeight();
+				extraWidth = width - screenWidth;
+				extraHeight = height - screenHeight;
+				marginalWidth = Math.round(extraWidth / 2);
+				marginalHeight = Math.round(extraHeight / 2);
+				if (marginalHeight < 0)
+					marginalHeight = 0;
+				if (marginalWidth < 0)
+					marginalWidth = 0;
+				if (extraWidth < 0)
+					extraWidth = 0;
+				if (extraHeight < 0)
+					extraHeight = 0;
+
+				Log.i(TAG, "Width = " + width + ": Height = " + height);
+				Log.i(TAG, "screenWidth = " + screenWidth
+						+ ": screenHeight = " + screenHeight);
+				Log.i(TAG, "marginalWidth = " + marginalWidth
+						+ ": marginalHeight = " + marginalHeight);
+
+				if (orientationScreen == "PORTRAIT") {
+					tempPic = Bitmap.createBitmap(tempPic,
+							marginalWidth, marginalHeight, width
+									- extraWidth, height
+									- marginalHeight);
+					// tempPic = Bitmap.createBitmap(tempPic,0,0,width,
+					// height);
+				}
+			} else {
+				tempPic = Bitmap.createBitmap(tempPic, 0, 0,
+						tempPic.getWidth(), tempPic.getHeight(),
+						matrix, true);
+				width = tempPic.getWidth();
+				height = tempPic.getHeight();
+				Log.i(TAG, "Width = " + width + ": Height = " + height);
+				Log.i(TAG, "screenWidth = " + screenWidth
+						+ ": screenHeight = " + screenHeight);
+			}
+
+			width = tempPic.getWidth();
+			height = tempPic.getHeight();
+			// tempPic = Bitmap.createBitmap(tempPic, 0,0,width,
+			// Math.round(height/2));
+
+			if (orientationScreen == "PORTRAIT") {
+				// Portrait
+				tempPic = Bitmap.createBitmap(tempPic, 0, 0, width,
+						height - Math.round(height / 3));
+
+			} else if (orientationScreen == "LANDSCAPE") {
+				// Landscape
+				tempPic = Bitmap.createBitmap(tempPic, 0, 0, width
+						- Math.round(width / 3), height);
+
+			}
+
+			settoBackground(buttonView, tempPic);
+			backPic = tempPic;
+			isBackTaken = true;
+		}
+		else{
+			
+			matrix.postRotate(result);
+			matrix.preScale(-1, 1);
+			resultFrontImage = result;
+			options = new BitmapFactory.Options();
+			options.inSampleSize = 1;
+			options.inJustDecodeBounds = true;
+
+			// Determine how much to scale down the image
+			// int scaleFactor = Math.min(photoW/targetW,
+			// photoH/targetH);
+
+			Bitmap temp = BitmapFactory.decodeByteArray(data, 0,
+					data.length);
+			int xW = temp.getWidth();
+			int xH = temp.getHeight();
+			// Determine how much to scale down the image
+			int scaleFactor = Math.min(xW / screenHeight, xH
+					/ screenWidth);
+			// Calculate inSampleSize
+			// options.inSampleSize =
+			// bitmapResizer.calculateInSampleSize(options, shortWidth,
+			// shortHeight);
+			options.inSampleSize = scaleFactor;
+			// Decode bitmap with inSampleSize set
+			options.inJustDecodeBounds = false;
+
+			tempPic = BitmapFactory.decodeByteArray(data, 0,
+					data.length, options);
+			width = tempPic.getWidth();
+			height = tempPic.getHeight();
+
+			Log.i(TAG, "Before SShot");
+			Log.i(TAG, "Width = " + tempPic.getWidth() + ": Height = "
+					+ tempPic.getHeight());
+
+			if (width > screenHeight || height > screenWidth) {
+				if (width > 1280 || height > 1280) {
+					tempPic = Bitmap.createScaledBitmap(tempPic,
+							Math.round(width / 2),
+							Math.round(height / 2), true);
+				}
+				tempPic = Bitmap.createBitmap(tempPic, 0, 0,
+						tempPic.getWidth(), tempPic.getHeight(),
+						matrix, true);
+				width = tempPic.getWidth();
+				height = tempPic.getHeight();
+				extraWidth = width - screenWidth;
+				extraHeight = height - screenHeight;
+				marginalWidth = Math.round(extraWidth / 2);
+				marginalHeight = Math.round(extraHeight / 2);
+				if (marginalHeight < 0)
+					marginalHeight = 0;
+				if (marginalWidth < 0)
+					marginalWidth = 0;
+				if (extraWidth < 0)
+					extraWidth = 0;
+				if (extraHeight < 0)
+					extraHeight = 0;
+
+				Log.i(TAG, "Width = " + width + ": Height = " + height);
+				Log.i(TAG, "screenWidth = " + screenWidth
+						+ ": screenHeight = " + screenHeight);
+				Log.i(TAG, "marginalWidth = " + marginalWidth
+						+ ": marginalHeight = " + marginalHeight);
+				Log.i(TAG, "Resizing~ ching ching!");
+
+				if (orientationScreen == "PORTRAIT") {
+					tempPic = Bitmap.createBitmap(tempPic,
+							marginalWidth, marginalHeight, width
+									- extraWidth, height
+									- marginalHeight);
+				}
+			} else {
+				tempPic = Bitmap.createBitmap(tempPic, 0, 0,
+						tempPic.getWidth(), tempPic.getHeight(),
+						matrix, true);
+				width = tempPic.getWidth();
+				height = tempPic.getHeight();
+				Log.i(TAG, "Width = " + width + ": Height = " + height);
+				Log.i(TAG, "screenWidth = " + screenWidth
+						+ ": screenHeight = " + screenHeight);
+				Log.i(TAG, "Unresized booya!");
+			}
+			width = tempPic.getWidth();
+			height = tempPic.getHeight();
+			boolean b = tempPic.isMutable();
+			Log.i(TAG, "The reason = " + b);
+			Log.i(TAG, "Flag 1");
+			// tempPic = Bitmap.createBitmap(tempPic,
+			// 0,Math.round(height/2),width, height/2);
+
+			if (orientationScreen == "PORTRAIT") {
+				// Portrait
+				tempPic = Bitmap.createBitmap(tempPic, 0,
+						Math.round(height / 3), width,
+						height - Math.round(height / 3));
+			} else if (orientationScreen == "LANDSCAPE") {
+				// Landscape
+				tempPic = Bitmap.createBitmap(tempPic,
+						Math.round(width / 3), 0,
+						width - Math.round(width / 3), height);
+
+			}
+
+			settoBackground(buttonView, tempPic);
+			frontPic = tempPic;	
+			isFrontTaken = true;
+		}
+	}
+	
+	public void recoverTakenImage(){
+		if(camFragBundy != null){
+			if(camFragBundy.containsKey("byteBackImage")){
+				processImageFromByte(camFragBundy.getByteArray("byteBackImage"),"BACK",camFragBundy.getInt("resultBackImage"));
+				byteBackImage = camFragBundy.getByteArray("byteBackImage");
+				//resultBackImage = camFragBundy.getInt("resultBackImage");
+			}
+			
+			if(camFragBundy.containsKey("byteFrontImage")){
+				processImageFromByte(camFragBundy.getByteArray("byteFrontImage"),"FRONT",camFragBundy.getInt("resultFrontImage"));
+				byteFrontImage =  camFragBundy.getByteArray("byteFrontImage");
+				//resultFrontImage = camFragBundy.getInt("resultFrontImage");
+			}	
+				
+		}
+	}
 }
