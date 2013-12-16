@@ -258,6 +258,7 @@ public class MotherCrystal extends FragmentActivity {
 	    uiHelper.onSaveInstanceState(outState);
 	    Log.i(TAG, "from onSaveInstanceState.");
 	    checkbundyDundy("onSaveInstanceState");
+	    
 	    resumeMe = true;
 	    ancestralVision();
 	    
@@ -370,14 +371,15 @@ public class MotherCrystal extends FragmentActivity {
 			bundyDundy.putInt("fragmentShown", fragmentShown);
 			bundyDundy.putBoolean(Field.cam+Field.isShown, true);
 			
-			bundyDundy.putBoolean(Field.social+Field.isShown, false);
+			bundyDundy.putBoolean(Field.social
+					+Field.isShown, false);
 			bundyDundy.putBoolean(Field.splash+Field.isShown, false);
 			
-			if(resumeMe){
-				((CamFrag)pieces[CAM]).setResumeInteractions();
-			}
-			else
-			((CamFrag)pieces[CAM]).setInteractions();
+//			if(resumeMe){
+//				((CamFrag)pieces[CAM]).setResumeInteractions();
+//			}
+//			else
+				((CamFrag)pieces[CAM]).setInteractions();
 			
 			if(((CamFrag)pieces[CAM]).mMediaPlayer == null)
 				((CamFrag)pieces[CAM]).bgMusicUtility("initialize");
@@ -474,7 +476,7 @@ public class MotherCrystal extends FragmentActivity {
 	            // If the session state is open:
 	            // Show the authenticated fragment
 	            //showFragment(SOCIALMEDIA, false);
-	        	if(bundyDundy.getBoolean(Field.social+Field.isShown)){
+	        	if(fragmentShown == SOCIALMEDIA){
 	        		showFragment(CAM, false);
 	        	}
 	    	    
@@ -483,7 +485,8 @@ public class MotherCrystal extends FragmentActivity {
 	            // Show the login fragment
 	            //showFragment(SPLASH, false);
 	        	//showFragment(CAM, false);
-	        	showFragment(SOCIALMEDIA, false);
+	        	if(fragmentShown != CAM)
+	        		showFragment(SOCIALMEDIA, false);
 	        }
 	    }
 	    

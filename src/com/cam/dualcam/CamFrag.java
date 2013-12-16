@@ -122,60 +122,8 @@ public class CamFrag extends Fragment {
 	    super.onCreate(savedInstanceState);
 	    Log.i(TAG, "from onCreate.");
 	    camFragBundy = savedInstanceState;
-	    if(savedInstanceState != null){
-	    	Log.i(TAG, "from onCreate : restoring data");
-//			isBackTaken = savedInstanceState.getBoolean("isBackTaken",isBackTaken);
-//			isFrontTaken = savedInstanceState.getBoolean("isFrontTaken",isFrontTaken);
-			isSavable = savedInstanceState.getBoolean("isSavable",
-					isSavable);
-			isSharable = savedInstanceState.getBoolean("isSharable", isSharable);
-			isTextEditable = savedInstanceState.getBoolean(
-					"isTextEditable", isTextEditable);
-			isTextAdded = savedInstanceState.getBoolean("isTextAdded",
-					isTextAdded);
-			isRetryable = savedInstanceState.getBoolean("isRetryable",
-					isRetryable);
-			cameraSide = savedInstanceState.getString("cameraSide");
-			fontSize = savedInstanceState.getInt("fontSize");
-			killMe = false;
-
-			topTapCount = 0;
-			bottomTapCount = 0;
-
-//			if (isBackTaken) {
-//				getPressedPreview("BACK").setVisibility(ImageView.VISIBLE);
-//				getPressedPreview("BACK").setBackgroundDrawable(null);
-//				getPressedPreview("BACK").setImageBitmap(null);
-//				backPic = savedInstanceState.getParcelable("backPic");
-//				settoBackground(getPressedPreview("BACK"), backPic);
-//			}
-//
-//			if (isFrontTaken) {
-//				getPressedPreview("FRONT").setVisibility(ImageView.VISIBLE);
-//				getPressedPreview("FRONT").setBackgroundDrawable(null);
-//				getPressedPreview("FRONT").setImageBitmap(null);
-//				frontPic = savedInstanceState.getParcelable("frontPic");
-//				settoBackground(getPressedPreview("FRONT"), frontPic);
-//			}
-//
-//			if (isTextAdded) {
-//				// Log.i(TAG,
-//				// "The epic Text = "+isTextAdded+" and the textToShow is ="+textToShow);
-//				textToShow = savedInstanceState.getString("textToShow")
-//						.toString();
-//				createTextFrameLayout.removeAllViews();
-//				createAText();
-//			}
-//
-//			if (isBackTaken && !isFrontTaken) {
-//				setSide("FRONT");
-//			} else if (!isBackTaken && isFrontTaken) {
-//				setSide("BACK");
-//			} else if (!isBackTaken && !isFrontTaken) {
-//				setSide("BACK");
-//			}
-
-	    }	
+//	    //Uncomment to activate Orientation change keep alive
+//	    recoverData(camFragBundy);
 	}
 	
 	@Override
@@ -228,6 +176,8 @@ public class CamFrag extends Fragment {
 		toSave.putBoolean("isTextEditable", isTextEditable);
 		toSave.putBoolean("isTextAdded", isTextAdded);
 		toSave.putBoolean("isRetryable", isRetryable);
+		toSave.putBoolean("isTakingPicture", isTakingPicture);
+		
 		// toSave.putBoolean("killMe", killMe);
 		toSave.putInt("fontSize", fontSize);
 
@@ -246,17 +196,19 @@ public class CamFrag extends Fragment {
 		if (textToShow != null)
 			toSave.putString("textToShow", textToShow);
 		
-		//catch for the alive camera and image
-		if(isBackTaken){
-			toSave.putByteArray("byteBackImage", byteBackImage);
-		}
-		
-		if(isFrontTaken){
-			toSave.putByteArray("byteFrontImage", byteFrontImage);			
-		}
-		
-		toSave.putInt("resultBackImage", resultBackImage);
-		toSave.putInt("resultFrontImage", resultFrontImage);
+//		//Uncomment to activate the Orientation change keep alive		
+//		//catch for the alive camera and image
+//		Log.i(TAG, "Back: "+isBackTaken+"  Front: "+isFrontTaken);
+//		if(isBackTaken){
+//			toSave.putByteArray("byteBackImage", byteBackImage);
+//		}
+//		
+//		if(isFrontTaken){
+//			toSave.putByteArray("byteFrontImage", byteFrontImage);			
+//		}
+//		
+//		toSave.putInt("resultBackImage", resultBackImage);
+//		toSave.putInt("resultFrontImage", resultFrontImage);
 		// if(mCamera != null)
 		// toSave.put
 
@@ -393,7 +345,7 @@ public class CamFrag extends Fragment {
 		public CameraPreview cameraPreview;	
 		
 	//Dialogs
-		public AlertDialog popUpDialog;
+		public Dialog popUpDialog;
 		
 		//Jap words
 		private String ok;
@@ -540,7 +492,8 @@ public class CamFrag extends Fragment {
 	
 	public void setResumeInteractions(){
 		
-		if(!isBackTaken || !isFrontTaken)
+		
+		if(isTakingPicture)
 			setSide(cameraSide);
 		
 		setButton(shareButton);
@@ -548,7 +501,7 @@ public class CamFrag extends Fragment {
 		setButton(textButton);
 		setButton(retryButton);
 		
-		bgMusicUtility("initialize");
+		//bgMusicUtility("initialize");
 	}
 	
 	public void setTransistion(int newOrientation){
@@ -2071,7 +2024,7 @@ public class CamFrag extends Fragment {
 //		shareFacebook();
 		
 		final Dialog dialog = new Dialog(getActivity());
-		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		//dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.setContentView(R.layout.sharing_menu);
         dialog.setCancelable(true);
@@ -2948,15 +2901,20 @@ public class CamFrag extends Fragment {
 							flash1Linear,flash2Linear,flash3Linear,
 							melody1Linear,melody2Linear,or0Linear,or1Linear,or2Linear;
 		
-	public AlertDialog customPopUpMenu(){
-		AlertDialog.Builder popUpMenu = new AlertDialog.Builder(getActivity());
-		ScrollView sv = new ScrollView(getActivity().getApplicationContext());
-		
-		LinearLayout menuLinear = new LinearLayout(getActivity().getApplicationContext());
-		menuLinear.setOrientation(1);
-		
-		menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
-		
+	public Dialog customPopUpMenu(){
+		Dialog popUpMenu = new Dialog(getActivity());
+		popUpMenu.setContentView(R.layout.popupmenu);
+		popUpMenu.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		LinearLayout menuLinear = (LinearLayout)popUpMenu.findViewById(R.id.addmenuoptionsLinear);
+//		//The previous implementation of the popup menu
+//		AlertDialog.Builder popUpMenu = new AlertDialog.Builder(getActivity());
+//		ScrollView sv = new ScrollView(getActivity().getApplicationContext());
+//		
+//		LinearLayout menuLinear = new LinearLayout(getActivity().getApplicationContext());
+//		menuLinear.setOrientation(1);
+//		
+//		menuLinear.addView(newLine(getResources().getString(R.string.mainctitle),"TITLE"));
+//		
 		//The logout buttons
 //		Button btnHome = new Button(getActivity().getApplicationContext());
 //		//btnHome.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -3144,9 +3102,9 @@ public class CamFrag extends Fragment {
 		}
 		
 		
-		sv.addView(menuLinear);
-		popUpMenu.setView(sv);
-		return popUpMenu.create();
+//		sv.addView(menuLinear);
+//		popUpMenu.setView(sv);
+		return popUpMenu;
 	}
 	
 	public LinearLayout newLine(String itemMessage, String type){
@@ -3959,5 +3917,64 @@ public class CamFrag extends Fragment {
 			}	
 				
 		}
+	}
+	
+	public void recoverData(Bundle savedInstanceState){
+		if(savedInstanceState != null){
+	    	Log.i(TAG, "from onCreate : restoring data");
+			isBackTaken = savedInstanceState.getBoolean("isBackTaken",isBackTaken);
+			isFrontTaken = savedInstanceState.getBoolean("isFrontTaken",isFrontTaken);
+			isSavable = savedInstanceState.getBoolean("isSavable",
+					isSavable);
+			isSharable = savedInstanceState.getBoolean("isSharable", isSharable);
+			isTextEditable = savedInstanceState.getBoolean(
+					"isTextEditable", isTextEditable);
+			isTextAdded = savedInstanceState.getBoolean("isTextAdded",
+					isTextAdded);
+			isRetryable = savedInstanceState.getBoolean("isRetryable",
+					isRetryable);
+			isTakingPicture = savedInstanceState.getBoolean("isTakingPicture",
+					isTakingPicture);
+			cameraSide = savedInstanceState.getString("cameraSide");
+			fontSize = savedInstanceState.getInt("fontSize");
+			killMe = false;
+
+			topTapCount = 0;
+			bottomTapCount = 0;
+
+//			if (isBackTaken) {
+//				getPressedPreview("BACK").setVisibility(ImageView.VISIBLE);
+//				getPressedPreview("BACK").setBackgroundDrawable(null);
+//				getPressedPreview("BACK").setImageBitmap(null);
+//				backPic = savedInstanceState.getParcelable("backPic");
+//				settoBackground(getPressedPreview("BACK"), backPic);
+//			}
+//
+//			if (isFrontTaken) {
+//				getPressedPreview("FRONT").setVisibility(ImageView.VISIBLE);
+//				getPressedPreview("FRONT").setBackgroundDrawable(null);
+//				getPressedPreview("FRONT").setImageBitmap(null);
+//				frontPic = savedInstanceState.getParcelable("frontPic");
+//				settoBackground(getPressedPreview("FRONT"), frontPic);
+//			}
+//
+//			if (isTextAdded) {
+//				// Log.i(TAG,
+//				// "The epic Text = "+isTextAdded+" and the textToShow is ="+textToShow);
+//				textToShow = savedInstanceState.getString("textToShow")
+//						.toString();
+//				createTextFrameLayout.removeAllViews();
+//				createAText();
+//			}
+//
+//			if (isBackTaken && !isFrontTaken) {
+//				setSide("FRONT");
+//			} else if (!isBackTaken && isFrontTaken) {
+//				setSide("BACK");
+//			} else if (!isBackTaken && !isFrontTaken) {
+//				setSide("BACK");
+//			}
+
+	    }	
 	}
 }
