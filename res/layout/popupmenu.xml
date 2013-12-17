@@ -6,6 +6,8 @@
     android:background="#000000"
     android:orientation="vertical"
     >
+    <!-- 
+    The title
     <LinearLayout 
         	android:id="@+id/menuMainTitle"
             android:layout_width="match_parent"
@@ -26,7 +28,7 @@
         />
         
     </LinearLayout>
-
+ 	-->
     <ScrollView
         android:id="@+id/menuScrollView"
         android:layout_width="match_parent"
@@ -74,7 +76,7 @@
 			   	   android:layout_weight="0.5"
 			         >
 			
-			       <Button
+			       <com.cam.dualcam.widget.CustomTwitterButton
 			            android:id="@+id/menutwLoginButton"
 					    android:layout_width="wrap_content"
 					    android:layout_height="wrap_content"

@@ -2030,6 +2030,7 @@ public class CamFrag extends Fragment {
         dialog.setCancelable(true);
         EditText sharemessage=(EditText)dialog.findViewById(R.id.shareMessage);
         
+        
         final CheckBox fbCB = (CheckBox)dialog.findViewById(R.id.checkBoxFacebook);
         final CheckBox tCB = (CheckBox)dialog.findViewById(R.id.checkBoxTwitter);
         
@@ -2904,7 +2905,8 @@ public class CamFrag extends Fragment {
 	public Dialog customPopUpMenu(){
 		Dialog popUpMenu = new Dialog(getActivity());
 		popUpMenu.setContentView(R.layout.popupmenu);
-		popUpMenu.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		//popUpMenu.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		popUpMenu.setTitle(getResources().getString(R.string.mainctitle));
 		LinearLayout menuLinear = (LinearLayout)popUpMenu.findViewById(R.id.addmenuoptionsLinear);
 //		//The previous implementation of the popup menu
 //		AlertDialog.Builder popUpMenu = new AlertDialog.Builder(getActivity());
