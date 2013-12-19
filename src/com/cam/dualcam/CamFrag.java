@@ -1747,6 +1747,8 @@ public class CamFrag extends Fragment {
 	private static int initialColor;
 	private int addedTextX = 0;
 	private int addedTextY = 0;
+	private int addedTextXup = 0;
+	private int addedTextYup = 0;
 	private int defaultTextSize = 40;
 	private int minimumTextSize = 31;
 	private int maximumTextSize = 79;
@@ -1783,9 +1785,54 @@ public class CamFrag extends Fragment {
 				case MotionEvent.ACTION_DOWN:
 					addedTextX = (int) event.getX();
 					addedTextY = (int) event.getY();
+					addedText.setText(""+addedTextX+" "+addedTextY+" "+addedTextXup+" "+addedTextYup);
+					createTextFrameLayout.setOnTouchListener(new OnTouchListener() {
+						@Override
+						public boolean onTouch(View v, MotionEvent event) {
+							switch (event.getActionMasked()) {
+							// case MotionEvent.ACTION_DOWN:
+							// addedTextX -= (int)event.getX();
+							// addedTextY -= (int)event.getY();
+							// //
+							// break;
+			
+							case MotionEvent.ACTION_MOVE:
+								frameLayoutX = (int) event.getX() - addedTextX;
+								frameLayoutY = (int) event.getY() - addedTextY;
+			
+								frameLayoutW = getActivity().getWindowManager().getDefaultDisplay()
+										.getWidth() - 100;
+								frameLayoutH = getActivity().getWindowManager().getDefaultDisplay()
+										.getHeight() - 100;
+			
+								if (frameLayoutX > frameLayoutW)
+									frameLayoutX = frameLayoutW;
+								if (frameLayoutY > frameLayoutH)
+									frameLayoutY = frameLayoutH;
+			
+								lp.setMargins(frameLayoutX, frameLayoutY, 0, 0);
+								lp.gravity = Gravity.TOP;
+								addedText.setLayoutParams(lp);
+								break;
+							case MotionEvent.ACTION_UP:
+								createTextFrameLayout.setOnTouchListener(null);
+								// selected_item = v;
+
+								break;
+			
+							default:
+								break;
+							}
+							return true;
+						}
+					});
+
+					break;
+				case MotionEvent.ACTION_UP:
+					addedTextXup = (int) event.getX();
+					addedTextYup = (int) event.getY();
 					// selected_item = v;
-					
-					
+
 					break;
 				default:
 					break;
@@ -1794,42 +1841,8 @@ public class CamFrag extends Fragment {
 				return false;
 			}
 		});
-
-		createTextFrameLayout.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getActionMasked()) {
-				// case MotionEvent.ACTION_DOWN:
-				// addedTextX -= (int)event.getX();
-				// addedTextY -= (int)event.getY();
-				// //
-				// break;
-
-				case MotionEvent.ACTION_MOVE:
-					frameLayoutX = (int) event.getX() - addedTextX;
-					frameLayoutY = (int) event.getY() - addedTextY;
-
-					frameLayoutW = getActivity().getWindowManager().getDefaultDisplay()
-							.getWidth() - 100;
-					frameLayoutH = getActivity().getWindowManager().getDefaultDisplay()
-							.getHeight() - 100;
-
-					if (frameLayoutX > frameLayoutW)
-						frameLayoutX = frameLayoutW;
-					if (frameLayoutY > frameLayoutH)
-						frameLayoutY = frameLayoutH;
-
-					lp.setMargins(frameLayoutX, frameLayoutY, 0, 0);
-					lp.gravity = Gravity.TOP;
-					addedText.setLayoutParams(lp);
-					break;
-
-				default:
-					break;
-				}
-				return true;
-			}
-		});
+			
+		
 
 		// layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, 1);
 		// layoutParams.setMargins(screenWidth - (textToShow.length() *
