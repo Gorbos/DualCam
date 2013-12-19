@@ -5,6 +5,7 @@ import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
+import com.cam.dualcam.socialpackage.MyTwitter;
 import com.cam.dualcam.twitter.TwitterConstant;
 import com.cam.dualcam.twitter.TwitterUtil;
 import com.cam.dualcam.utility.Field;
@@ -34,7 +35,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-public class MotherCrystal extends FragmentActivity {
+public class MotherCrystal extends FragmentActivity{
 	
 	private static final String TAG = "MotherCrystal";
 	
@@ -60,7 +61,7 @@ public class MotherCrystal extends FragmentActivity {
 	public LoadingDialog loading;
 	
 	/*	Great Blue Bird's	*/
-	private int TWITTER_AUTH;
+	private int TWITTER_AUTH = Field.TWITTER_AUTH;
 	
 	/*	Azure Scribe's	*/
 	
@@ -68,6 +69,9 @@ public class MotherCrystal extends FragmentActivity {
 	private boolean isBlueBirdIN = false;
 	private boolean isAzureScribeIN = false;
 	public AlertDialog camFragPopUpDialog;
+	
+	/*	Random, not yet done	*/
+	public MyTwitter myTwit;
 	
 	
 	@Override
@@ -101,6 +105,8 @@ public class MotherCrystal extends FragmentActivity {
 	    
 	    transaction.commit();
 	    
+	    myTwit = new MyTwitter(this);
+	    
 	} 
 	
 	@Override
@@ -133,19 +139,7 @@ public class MotherCrystal extends FragmentActivity {
 //	    	linkRESTART();
 	    	break;
 	    }
-	    
-//	    Session session = Session.getActiveSession();
-//
-//	    if (session != null && session.isOpened()) {
-//	        // if the session is already open,
-//	        // try to show the selection fragment
-//	        showFragment(SOCIALMEDIA, false);
-//	    } else {
-//	        // otherwise present the splash screen
-//	        // and ask the person to login.
-//	        showFragment(SPLASH, false);
-//	    }
-	    
+
 	}
 	
 	
@@ -156,18 +150,7 @@ public class MotherCrystal extends FragmentActivity {
 	    uiHelper.onResume();
 	    isResumed = true;
 	    Log.i(TAG, "from onResume.");
-//	    FragmentManager fm = getSupportFragmentManager();
-//	    pieces[SPLASH] = fm.findFragmentById(R.id.splash_fragment);
-//	    pieces[SOCIALMEDIA] = fm.findFragmentById(R.id.socialmedia_fragment);
-//	    pieces[CAM] = fm.findFragmentById(R.id.loading_fragment);
-//	    //pieces[SETTINGS] = fm.findFragmentById(R.id.userSettingsFragment);
-//	    FragmentTransaction transaction = fm.beginTransaction();
-//	    
-//	    for(int i = 0; i < pieces.length; i++) {
-//	        transaction.hide(pieces[i]);
-//	    }
-//	    
-//	    transaction.commit();
+
 	}
 
 	@Override
@@ -190,11 +173,19 @@ public class MotherCrystal extends FragmentActivity {
 	      		
 	  			if (resultCode == Activity.RESULT_OK)
 	  			{
+	  				
+	  					
 	  				Log.i(TAG, "from onActivityResult : RESULT_OK");
 	  				String oauthVerifier = (String) data.getExtras().get("oauth_verifier");	  				
 	  				try {
-	  					new TwitterGetAccessTokenTask().execute(oauthVerifier);
-	  					
+	  					//new TwitterGetAccessTokenTask().execute(oauthVerifier);
+	  					myTwit.prepAccessToken(oauthVerifier);
+//	  					if(myTwit.isTwitterOn()){
+//		  					showFragment(CAM, false);
+//		  				}
+//	  					else
+//	  						Log.i(TAG, "cant show fragment cam");
+//	  					
 	  				} catch (Exception e) {
 	  					//Error contingency plan
 	  					worstCaseScenario();

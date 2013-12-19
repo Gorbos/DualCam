@@ -194,15 +194,20 @@ public class SocialMediaFragment extends Fragment{
         		//Log-in to Twitter
         		
         		//
-        		 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-                 if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
-	            	
-	            {
-	                new TwitterAuthenticateTask().execute();
-	            } 
-	            else 
-	            	((MotherCrystal)getActivity()).showFragment(MotherCrystal.CAM, false);
+//        		 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+//                 if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+//	            	
+//	            {
+//	                new TwitterAuthenticateTask().execute();
+//	            } 
+//	            else 
+//	            	((MotherCrystal)getActivity()).showFragment(MotherCrystal.CAM, false);
         		
+        		if(!((MotherCrystal)getActivity()).myTwit.isTwitterOn()){
+        			((MotherCrystal)getActivity()).myTwit.logInTwitter();
+        		}
+        		else
+        			((MotherCrystal)getActivity()).showFragment(MotherCrystal.CAM, false);
         		
             
         	}

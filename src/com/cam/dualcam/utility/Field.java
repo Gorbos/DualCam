@@ -145,5 +145,7 @@ public class Field {
 	public static int loading 	= 2;
 	public static int logging	= 3;
 	public static int showing	= 4;
+	
+	public static int TWITTER_AUTH = 1002;
 }
 
