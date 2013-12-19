@@ -14,6 +14,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 
+import com.cam.dualcam.socialpackage.MyTwitter;
 import com.cam.dualcam.twitter.TwitterConstant;
 import com.cam.dualcam.twitter.TwitterUtil;
 import com.cam.dualcam.utility.CameraUtility;
@@ -24,12 +25,14 @@ import com.cam.dualcam.utility.PackageCheck;
 import com.cam.dualcam.utility.PhoneChecker;
 import com.cam.dualcam.view.CameraPreview;
 import com.cam.dualcam.view.HideAct;
+import com.cam.dualcam.widget.CustomTwitterButton;
 import com.cam.dualcam.widget.GifWebView;
 import com.cam.dualcam.widget.LoadingDialog;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.UiLifecycleHelper;
+import com.facebook.widget.LoginButton;
 import com.hintdesk.core.util.StringUtil;
 
 import android.annotation.SuppressLint;
@@ -2903,11 +2906,38 @@ public class CamFrag extends Fragment {
 							melody1Linear,melody2Linear,or0Linear,or1Linear,or2Linear;
 		
 	public Dialog customPopUpMenu(){
+		
+		final MyTwitter mt = ((MotherCrystal)getActivity()).myTwit;
+		
 		Dialog popUpMenu = new Dialog(getActivity());
 		popUpMenu.setContentView(R.layout.popupmenu);
 		//popUpMenu.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		popUpMenu.setTitle(getResources().getString(R.string.mainctitle));
 		LinearLayout menuLinear = (LinearLayout)popUpMenu.findViewById(R.id.addmenuoptionsLinear);
+		com.facebook.widget.LoginButton fbLogButton = (com.facebook.widget.LoginButton) popUpMenu.findViewById(R.id.menufbLoginButton);
+		final CustomTwitterButton twLogButton = (CustomTwitterButton) popUpMenu.findViewById(R.id.menutwLoginButton);
+		//twLogButton.twitterPrepareValues(getActivity().getApplicationContext(), getActivity());
+		twLogButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				if(mt.isTwitterOn())
+				{
+					mt.logOutTwitter();
+				}
+				else{
+					mt.logInTwitter();
+				}
+				
+				//twLogButton.setButtonText();
+				mt.setLogValues(twLogButton);
+				
+				Log.i(TAG,"Is twitter on? "+ mt.isTwitterOn());
+			}
+		});
+		
+		//twLogButton.setOnClickListener(CustomTwitterButton.TwitterLoginClickListener);
 //		//The previous implementation of the popup menu
 //		AlertDialog.Builder popUpMenu = new AlertDialog.Builder(getActivity());
 //		ScrollView sv = new ScrollView(getActivity().getApplicationContext());
@@ -2947,17 +2977,9 @@ public class CamFrag extends Fragment {
 //		});
 //	    menuLinear.addView(lb);
 //	    
-//	    Button btnTwitterLogout = new Button(getActivity().getApplicationContext());
-//	    //btnTwitterLogout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-//	    btnTwitterLogout.setText("Twitter Log Out"); 
-//	    btnTwitterLogout.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				twitterLogout();
-//			}
-//		});
-//	    menuLinear.addView(btnTwitterLogout);
+//		CustomTwitterButton btnTwitter = new CustomTwitterButton(getActivity().getApplicationContext(), getActivity());
+//		//btnTwitter.setOnClickListener(btnTwitter.);
+//	    menuLinear.addView(btnTwitter);
 	    
 	    
 		menuLinear.addView(newLine(getResources().getString(R.string.afctitle),"TITLE"));
