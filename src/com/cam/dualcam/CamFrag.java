@@ -1743,6 +1743,7 @@ public class CamFrag extends Fragment {
 	public static int fontSize = 1;
 	public static String textToShow;
 	public TextView addedText;
+	public TextView x;
 	public static int charCount;
 	public RelativeLayout.LayoutParams textFrameLayoutParams;
 	public static int fontColor; // aid
@@ -1770,9 +1771,14 @@ public class CamFrag extends Fragment {
 				new FrameLayout.MarginLayoutParams(
 						FrameLayout.LayoutParams.WRAP_CONTENT,
 						FrameLayout.LayoutParams.WRAP_CONTENT));
+		final FrameLayout.LayoutParams lp2 = new FrameLayout.LayoutParams(
+				new FrameLayout.MarginLayoutParams(
+						FrameLayout.LayoutParams.WRAP_CONTENT,
+						FrameLayout.LayoutParams.WRAP_CONTENT));
 
 		// layoutParams.addRule(RelativeLayout.ABOVE);
 		addedText = new TextView(getActivity().getApplicationContext());
+		x = new TextView(getActivity().getApplicationContext());
 		// addedText.setTextSize(50);
 		// addedText.setGravity(Gravity.END);
 		// addedText.setGravity(Gravity.BOTTOM);
@@ -1781,6 +1787,13 @@ public class CamFrag extends Fragment {
 		addedText.setTextSize(40);
 		addedText.setTextColor(Color.RED);
 		addedText.setGravity(Gravity.TOP);
+		
+		x.setText("x");
+		x.setTextSize(30);
+		x.setTextColor(Color.WHITE);
+		x.setGravity(Gravity.TOP);
+		x.setVisibility(View.GONE);
+		
 		addedText.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -1788,7 +1801,6 @@ public class CamFrag extends Fragment {
 				case MotionEvent.ACTION_DOWN:
 					addedTextX = (int) event.getX();
 					addedTextY = (int) event.getY();
-					addedText.setText(""+addedTextX+" "+addedTextY+" "+addedTextXup+" "+addedTextYup);
 					createTextFrameLayout.setOnTouchListener(new OnTouchListener() {
 						@Override
 						public boolean onTouch(View v, MotionEvent event) {
@@ -1815,7 +1827,13 @@ public class CamFrag extends Fragment {
 			
 								lp.setMargins(frameLayoutX, frameLayoutY, 0, 0);
 								lp.gravity = Gravity.TOP;
+								lp2.setMargins(frameLayoutX+addedText.getWidth(), frameLayoutY-addedText.getHeight()/2, 0, 0);
+								lp2.gravity = Gravity.TOP;
+								
 								addedText.setLayoutParams(lp);
+								x.setVisibility(View.VISIBLE);
+								x.setLayoutParams(lp2);
+								
 								break;
 							case MotionEvent.ACTION_UP:
 								createTextFrameLayout.setOnTouchListener(null);
@@ -1844,6 +1862,23 @@ public class CamFrag extends Fragment {
 				return false;
 			}
 		});
+		
+		x.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getActionMasked()) {
+				case MotionEvent.ACTION_DOWN:
+					addedText.setText("");
+					x.setText("");
+
+					break;
+				default:
+					break;
+				}
+
+				return false;
+			}
+		});
 			
 		
 
@@ -1857,14 +1892,16 @@ public class CamFrag extends Fragment {
 
 		// layoutParams.setMargins(screenWidth - (80), (screenHeight -
 		// (saveButton.getHeight() * 2)), 0,0);
-		textFrameLayoutParams.setMargins(10, 10, 0, 0);
+		textFrameLayoutParams.setMargins(10, 10, 10, 10);
 		textFrameLayoutParams.addRule(RelativeLayout.ABOVE);
 		addedText.setLayoutParams(textFrameLayoutParams);
+		x.setLayoutParams(textFrameLayoutParams);
 
 //		isTextAdded = true;
 //		isTextEditable = true;
 //		setButton(textButton);
 		//setButtons(isSharable, isSavable, isTextEditable, isRetryable);
+		createTextFrameLayout.addView(x, textFrameLayoutParams);
 		createTextFrameLayout.addView(addedText, textFrameLayoutParams);
 		createTextFrameLayout.bringToFront();
 		// Log.i(TAG, ":D = "addedText.isShown());
