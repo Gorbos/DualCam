@@ -25,6 +25,7 @@ import com.cam.dualcam.utility.PackageCheck;
 import com.cam.dualcam.utility.PhoneChecker;
 import com.cam.dualcam.view.CameraPreview;
 import com.cam.dualcam.view.HideAct;
+import com.cam.dualcam.widget.CustomFBButton;
 import com.cam.dualcam.widget.CustomTwitterButton;
 import com.cam.dualcam.widget.GifWebView;
 import com.cam.dualcam.widget.LoadingDialog;
@@ -2965,8 +2966,32 @@ public class CamFrag extends Fragment {
 		popUpMenu.setTitle(getResources().getString(R.string.mainctitle));
 		LinearLayout menuLinear = (LinearLayout)popUpMenu.findViewById(R.id.addmenuoptionsLinear);
 		//com.facebook.widget.LoginButton fbLogButton = (com.facebook.widget.LoginButton) popUpMenu.findViewById(R.id.menufbLoginButton);
+		//com.facebook.widget.LoginButton fbLogButton = (com.facebook.widget.LoginButton) popUpMenu.findViewById(R.id.menufbLoginButton);
+		final CustomFBButton fbLogButton = (CustomFBButton) popUpMenu.findViewById(R.id.menufbLoginButton);
 		final CustomTwitterButton twLogButton = (CustomTwitterButton) popUpMenu.findViewById(R.id.menutwLoginButton);
 		//twLogButton.twitterPrepareValues(getActivity().getApplicationContext(), getActivity());
+		fbLogButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Session ses = Session.getActiveSession();
+				if(ses != null && ses.isOpened()){
+        			ses.closeAndClearTokenInformation();
+        			fbLogButton.setText("Log-Out from Facebook");
+        		}
+        		else{
+        			Log.i(TAG, "Log In to ");
+        			
+        			ses.openActiveSession(getActivity()	, 
+        					CamFrag.this, 
+        					true, 
+        					((MotherCrystal)getActivity()).callback);
+        			fbLogButton.setText("Log-In to Facebook");
+        		}
+				
+			}
+		});
+		
 		twLogButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
