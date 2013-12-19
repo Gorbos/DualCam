@@ -2914,7 +2914,7 @@ public class CamFrag extends Fragment {
 		//popUpMenu.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		popUpMenu.setTitle(getResources().getString(R.string.mainctitle));
 		LinearLayout menuLinear = (LinearLayout)popUpMenu.findViewById(R.id.addmenuoptionsLinear);
-		com.facebook.widget.LoginButton fbLogButton = (com.facebook.widget.LoginButton) popUpMenu.findViewById(R.id.menufbLoginButton);
+		//com.facebook.widget.LoginButton fbLogButton = (com.facebook.widget.LoginButton) popUpMenu.findViewById(R.id.menufbLoginButton);
 		final CustomTwitterButton twLogButton = (CustomTwitterButton) popUpMenu.findViewById(R.id.menutwLoginButton);
 		//twLogButton.twitterPrepareValues(getActivity().getApplicationContext(), getActivity());
 		twLogButton.setOnClickListener(new OnClickListener() {
@@ -2925,13 +2925,15 @@ public class CamFrag extends Fragment {
 				if(mt.isTwitterOn())
 				{
 					mt.logOutTwitter();
+					twLogButton.setText("Log-In from Twitter");
 				}
 				else{
 					mt.logInTwitter();
+					twLogButton.setText("Log-Out from Twitter");
 				}
 				
 				//twLogButton.setButtonText();
-				mt.setLogValues(twLogButton);
+				//mt.setLogValues(twLogButton);
 				
 				Log.i(TAG,"Is twitter on? "+ mt.isTwitterOn());
 			}

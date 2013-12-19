@@ -52,13 +52,23 @@
 			   	   android:layout_height="fill_parent"
 			   	   android:layout_weight="0.5"
 			         >
-			
+				<!-- 
 			       <com.facebook.widget.LoginButton
 			            android:id="@+id/menufbLoginButton"
 					    android:layout_width="wrap_content"
 					    android:layout_height="wrap_content"
 					    android:layout_centerHorizontal="true"
 			            android:layout_alignParentBottom="true"
+			            />
+			    -->
+			    
+			    <com.cam.dualcam.widget.CustomFBButton
+			            android:id="@+id/menufbLoginButton"
+					    android:layout_width="wrap_content"
+					    android:layout_height="wrap_content"
+					    android:layout_centerHorizontal="true"
+			            android:layout_alignParentBottom="true"
+			            android:text="twitter logout"
 			            />
 			    </RelativeLayout>
 		    </LinearLayout>

@@ -53,7 +53,7 @@ public class MyTwitter {
 	}
 	
 	public void setLogValues(Button b){
-		SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(theCon);
+		SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(b.getContext());
 		if (sPrefs.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
 		{
 			isLoggedInTwitter = true;
