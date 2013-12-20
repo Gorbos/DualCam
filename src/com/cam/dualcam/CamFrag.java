@@ -32,6 +32,7 @@ import com.cam.dualcam.widget.LoadingDialog;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
+import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
 import com.hintdesk.core.util.StringUtil;
@@ -2974,19 +2975,63 @@ public class CamFrag extends Fragment {
 			
 			@Override
 			public void onClick(View v) {
+				Log.i(TAG,"FB is clicked.");
 				Session ses = Session.getActiveSession();
-				if(ses != null && ses.isOpened()){
-        			ses.closeAndClearTokenInformation();
-        			fbLogButton.setText("Log-Out from Facebook");
+				Log.i(TAG, "Session State : "+ses.getState());
+				//if(ses != null && ses.isOpened()){
+				if(ses != null){
+					
+					if(ses.getState() == SessionState.OPENED){
+						Log.i(TAG, "Log-Out");
+						//ses.close();
+	        			ses.closeAndClearTokenInformation();
+	        			fbLogButton.setText("Log-In");
+					}
+//					else if(ses.getState() == SessionState.CLOSED){
+//						Log.i(TAG, "Log In to FB");
+//						((MotherCrystal)getActivity()).resumeForFB = true;
+////	    				ses.openActiveSession(getActivity().getApplicationContext()	, 
+////	        					CamFrag.this, 
+////	        					true, 
+////	        					((MotherCrystal)getActivity()).callback);
+//	    				ses.openActiveSession(getActivity(), true, ((MotherCrystal)getActivity()).callback);
+//	    				fbLogButton.setText("Log-Out");
+//					}
+//					else if(ses.getState() == SessionState.CLOSED_LOGIN_FAILED){
+//						Log.i(TAG, "Log In to FB");
+//						((MotherCrystal)getActivity()).resumeForFB = true;
+////	    				ses.openActiveSession(getActivity().getApplicationContext()	, 
+////	        					CamFrag.this, 
+////	        					true, 
+////	        					((MotherCrystal)getActivity()).callback);
+//	    				ses.openActiveSession(getActivity(), true, ((MotherCrystal)getActivity()).callback);
+//	    				fbLogButton.setText("Log-Out");
+//					}
+//					else if(ses.getState() == SessionState.CREATED){
+//						
+//					}
+					else{
+						Log.i(TAG, "Log In to FB");
+						((MotherCrystal)getActivity()).resumeForFB = true;
+	    				ses.openActiveSession(getActivity(), true, ((MotherCrystal)getActivity()).callback);
+	    				fbLogButton.setText("Log-Out");
+					}
+					
+					
+					
         		}
         		else{
-        			Log.i(TAG, "Log In to ");
+        			Log.i(TAG, "Log In to FB");
         			
-        			ses.openActiveSession(getActivity()	, 
-        					CamFrag.this, 
-        					true, 
-        					((MotherCrystal)getActivity()).callback);
-        			fbLogButton.setText("Log-In to Facebook");
+    				((MotherCrystal)getActivity()).resumeForFB = true;
+//    				ses.openActiveSession(getActivity().getApplicationContext()	, 
+//        					CamFrag.this, 
+//        					true, 
+//        					((MotherCrystal)getActivity()).callback);
+    				ses.openActiveSession(getActivity(), true, ((MotherCrystal)getActivity()).callback);
+    				
+        			///ses.openActiveSession(context, fragment, allowLoginUI, callback)
+        			fbLogButton.setText("Log-Out");
         		}
 				
 			}

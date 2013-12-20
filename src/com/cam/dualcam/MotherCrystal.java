@@ -48,6 +48,7 @@ public class MotherCrystal extends FragmentActivity{
 	
 	private boolean isResumed = false;
 	public boolean resumeMe = false;
+	public boolean resumeForFB = false;
 
 	private UiLifecycleHelper uiHelper;
 	private MenuItem settings;
@@ -107,6 +108,7 @@ public class MotherCrystal extends FragmentActivity{
 	    
 	    myTwit = new MyTwitter(this);
 	    
+	    resumeForFB = false;
 	} 
 	
 	@Override
@@ -218,22 +220,20 @@ public class MotherCrystal extends FragmentActivity{
 			uiHelper.onStop();
 	    Log.i(TAG, "from onStop.");
 
+	    if(!resumeForFB)
+	    if(((CamFrag)pieces[CAM]).mCamera != null){
+    		Log.i(TAG, "from onStop : Releasing mCamera");
+    		((CamFrag)pieces[CAM]).releaseCamera();
+	    }
 	    
 	    if(resumeMe){
-	    	if(((CamFrag)pieces[CAM]).mCamera != null){
-	    		Log.i(TAG, "from onStop : Releasing mCamera");
-	    		((CamFrag)pieces[CAM]).releaseCamera();
-		    }
+	 	    
 		    if(((CamFrag)pieces[CAM]).mMediaPlayer != null){
 		    	Log.i(TAG, "from onStop : Pausing mMediaPlayer");
 		    	((CamFrag)pieces[CAM]).bgMusicUtility("pause");
 		    }
 	    }
 	    else{
-	    	if(((CamFrag)pieces[CAM]).mCamera != null){
-	    		Log.i(TAG, "from onStop : Releasing mCamera");
-	    		((CamFrag)pieces[CAM]).releaseCamera();
-	    	}
 	    	if(((CamFrag)pieces[CAM]).mMediaPlayer != null){
 	    		Log.i(TAG, "from onStop : Releasing mMediaPlayer");
 	    		((CamFrag)pieces[CAM]).bgMusicUtility("release");

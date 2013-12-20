@@ -7,6 +7,7 @@ import com.cam.dualcam.SocialMediaFragment;
 import com.cam.dualcam.socialpackage.MyTwitter;
 import com.cam.dualcam.twitter.TwitterConstant;
 import com.facebook.Session;
+import com.facebook.SessionState;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -62,13 +63,20 @@ public class CustomFBButton extends Button{
 	
 	private void setLogValues(){
 		Session ses = Session.getActiveSession();
-		if(ses != null && ses.isOpened()){
-			isLoggedInFB = true;
-			buttonText = "Log-Out from Facebook";
+		Log.i(TAG, "Session State : "+ses.getState());
+		if(ses != null){
+			if(ses.getState() == SessionState.OPENED){
+				isLoggedInFB = true;
+				buttonText = "Log-Out";
+			}
+			else{
+				isLoggedInFB = false;
+				buttonText = "Log-In";
+			}
 		}
 		else{
 			isLoggedInFB = false;
-			buttonText = "Log-In to Facebook";
+			buttonText = "Log-In";
 		}
 		
 		this.setText(buttonText);

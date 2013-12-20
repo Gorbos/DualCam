@@ -195,7 +195,7 @@ public class SocialMediaFragment extends Fragment{
         		
         		//
 //        		 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-//                 if (!sharedPreferences.getBoolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
+//                 if (!sharedPreferences.getB oolean(TwitterConstant.PREFERENCE_TWITTER_IS_LOGGED_IN,false))
 //	            	
 //	            {
 //	                new TwitterAuthenticateTask().execute();
