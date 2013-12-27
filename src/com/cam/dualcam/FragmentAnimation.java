@@ -11,7 +11,7 @@ import android.view.animation.Transformation;
  */
 public class FragmentAnimation extends Animation {
     private View mAnimatedView;
-    private int mEndHeight;
+    private int mEndHeight, mEndWidth;
     private int mType;
 
     /**
@@ -20,11 +20,13 @@ public class FragmentAnimation extends Animation {
      * @param duration
      * @param type The type of animation: 0 will expand from gone and 0 size to visible and layout size defined in xml. 
      * 1 will collapse view and set to gone
+     * @param height 
      */
-    public FragmentAnimation(View view, int duration, int type) {
+    public FragmentAnimation(View view, int duration, int type,int width, int height) {
         setDuration(duration);
         mAnimatedView = view;
-        mEndHeight = mAnimatedView.getLayoutParams().height;
+        mEndHeight = height;
+        mEndWidth = width;
         mType = type;
         if(mType == 0) {
             mAnimatedView.getLayoutParams().height = 0;
@@ -38,8 +40,10 @@ public class FragmentAnimation extends Animation {
         if (interpolatedTime < 1.0f) {
             if(mType == 0) {
                 mAnimatedView.getLayoutParams().height = (int) (mEndHeight * interpolatedTime);
+                mAnimatedView.getLayoutParams().width = (int) (mEndWidth * interpolatedTime);
             } else {
                 mAnimatedView.getLayoutParams().height = mEndHeight - (int) (mEndHeight * interpolatedTime);
+                mAnimatedView.getLayoutParams().width = mEndWidth - (int) (mEndWidth * interpolatedTime);
             }
             mAnimatedView.requestLayout();
         } else {

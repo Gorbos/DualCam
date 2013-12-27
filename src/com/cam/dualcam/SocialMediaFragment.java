@@ -29,6 +29,8 @@ import twitter4j.auth.RequestToken;
 
 
 
+
+
 //Facebook
 import com.facebook.Request;
 import com.facebook.Response;
@@ -50,6 +52,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 
@@ -90,6 +93,7 @@ public class SocialMediaFragment extends Fragment{
 	Button twLogin;
 	Button cameraButton;
 	LoginButton fbLoginButton;
+	RelativeLayout gifBase;
 	
 	Bundle testB;
 	
@@ -130,6 +134,10 @@ public class SocialMediaFragment extends Fragment{
 //		simpleSession();
 		orientationOfPhone = this.getResources().getConfiguration().orientation;
 		
+		gifBase = (RelativeLayout) view.findViewById(R.id.gifrelative);
+		
+		Animate(view,gifBase);
+		
 		if (orientationOfPhone == Configuration.ORIENTATION_PORTRAIT) {
 			gifView.setGifAssetPath("file:///android_asset/cute.gif");
 			gifView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
@@ -167,6 +175,19 @@ public class SocialMediaFragment extends Fragment{
 		
 		 //initControlTwitter();
 	  return view;
+	}
+
+	private void Animate(View view, View animatedView) {
+		
+		Context ctx = view.getContext();
+		int height= ctx.getResources().getDisplayMetrics().heightPixels;
+		int width= ctx.getResources().getDisplayMetrics().widthPixels;
+		RelativeLayout gifBase = (RelativeLayout) view.findViewById(R.id.gifrelative);
+		FragmentAnimation animation = null;
+		animation = new FragmentAnimation(animatedView, 5000, 0,width,height);
+		animatedView.startAnimation(animation);
+		// TODO Auto-generated method stub
+		
 	}
 
 	private View.OnClickListener superButton = new View.OnClickListener() {
